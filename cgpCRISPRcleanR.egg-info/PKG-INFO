@@ -1,0 +1,12 @@
+Metadata-Version: 1.2
+Name: cgpCRISPRcleanR
+Version: 1.0.0
+Summary: tool to comapre files and/or archives
+Home-page: https://github.com/CancerIT/archCompare
+Author: Shriram G Bhosle
+Author-email: cgphelp@sanger.ac.uk
+License: UNKNOWN
+Description-Content-Type: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Requires-Python: >= 3.3

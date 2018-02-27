@@ -1,0 +1,3 @@
+[console_scripts]
+cwl-runner = cwltool.main:main
+
