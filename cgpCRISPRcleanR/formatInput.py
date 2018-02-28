@@ -46,16 +46,28 @@ class CrisprCleanR(AbstractCrispr):
             input_type.append(sm.input_checker(infile))
             print("File:{} is type:{}".format(infile,input_type) )
             if(infile == 'HT-29_counts.tsv'):
-                (fc,nc,grnalib,chrdict)=self.format_counts(self.countfile,self.libfile)
-                (logFC)=sm.sortbyposFC(fc,grnalib,chrdict)
-                sm.genomwide_clean_chr(logfc=logFC,min_genes=3)
+                (lib_count_n_fc)=sm.format_counts(self.countfile,self.libfile,self.ncontrols,min_read_count=30)
+                #(logFC)=sm.sortbyposFC(fc,grnalib,chrdict)
+                #(correctedFC,segments)=sm.genomwide_clean_chr(logfc=logFC,min_genes=3)
+                #sm.corrected_counts(nc,correctedFC,segments,grnalib,min_genes=3)
+
         return tuple(input_type)
 
-    def format_counts(self,countfile,libfile):
-        controls=self.ncontrols
+    def format_counts(countfile,libfile,controls,min_read_count=30):
+        col_to_drop=['gene','EXONE','CODE','STRAND']
+        rename_col_dict={'CHRM': 'CHR', 'STARTpos':'startp','ENDpos':'endp','GENES':'genes'}
+
         print("Creating dataframe from input file:".format(countfile))
         counts=pd.read_csv(countfile, sep="\t", index_col='sgRNA')
         libdata=pd.read_csv(libfile, sep="\t", index_col='sgRNA')
+        print(counts.head())
+        print(libdata.head())
+        counts_n_libdata = pd.concat([counts,libdata], axis=1, join='inner') # union of of indexes
+        counts_n_libdata.drop(col_to_drop, axis=1, inplace=True)
+        counts_n_libdata=counts_n_libdata.rename(columns=rename_col_dict)
+        print(counts_n_libdata.head())
+        # perform some cleanup here [ change row names and drop duplicate columns]
+
         chrdict=sm.create_dict(libdata.CHRM.unique())
         # process data for matched sgRNA's in library file
         matched_count=counts.loc[libdata.index]
@@ -65,15 +77,15 @@ class CrisprCleanR(AbstractCrispr):
         numd = matched_count.iloc[:,1:]
         # filter datapoints based on min read counts in control sample ???
         #print(numd.iloc[0:8,:])
-        mask=numd.iloc[:,0:controls].mean(axis=1) >= 30 # asix 1 refers along the column aggregation
+        mask=numd.iloc[:,0:controls].mean(axis=1) >= min_read_count # asix 1 refers along the column aggregation
         numd=numd.loc[mask]
         counts=counts.loc[mask] # only used for visualization in future
         libdata=libdata.loc[mask]
         # check if index isidentical
         cidx=counts.index
         nidx=numd.index
-        lindex=libdata.index
-        if not cidx.difference(lindex).tolist():
+        libdex=libdata.index
+        if not cidx.difference(libdex).tolist():
             print("indexes are  matching")
             normed=numd.div(numd.agg('sum'))*10e6
             #print(normed.head())
