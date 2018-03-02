@@ -15,7 +15,7 @@ import logging.config
 from . import segmentation
 
 from beautifultable import BeautifulTable
-pd.options.display.width = 220
+pd.options.display.width = 200
 
 configdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config/')
 log_config = configdir + 'logging.conf'
@@ -65,46 +65,24 @@ class StaticMthods(object):
        # perform some cleanup here [ change row names and drop duplicate columns]
         cldf.drop(col_to_drop, axis=1, inplace=True)
         cldf=cldf.rename(columns=rename_col_dict)
-        print(cldf.shape)
         cldf.drop(cldf[cldf.iloc[:,0:controls].mean(axis=1) < min_read_count].index, inplace=True)
-        print(cldf.shape)
-        #print(cldf.head())
         # done with cleanup do some real work .....
         # create normalized count
         normed=cldf.iloc[:,0:cldf.columns.get_loc('genes')].div(cldf.iloc[:,0:cldf.columns.get_loc('genes')].agg('sum'))*10e6
+        # add normalised count to origina dataframe
+        #cldf.iloc[:,0:cldf.columns.get_loc('genes')]=normed # use if raw count is notrequired, replaces existing counts columns
+        cldf=cldf.join(normed,rsuffix='_nc')
         fc = normed.apply(lambda x: np.log2( (x+0.5)/(normed.iloc[:,0:controls].mean(axis=1)+0.5) ) )
         fc.drop(fc.columns[0:controls], axis=1, inplace=True)
+        no_rep=len(fc.columns)
         cldf['avgFC'] = fc.mean(axis=1) # claculate mean folchage and add to main data frame containg libraty annoatations
         cldf['BP'] = round( cldf['startp'] +  (cldf['endp'] - cldf['startp'] ) / 2  ).astype(int)
         cldf.sort_values(by=['CHR','startp'], ascending=True, inplace=True)
-        # joining two data frames keeping indeticalcolumns with added prefix
-        #cldf=cldf.join((cldf.iloc[:,0:cldf.columns.get_loc('genes')].div(cldf.iloc[:,0:cldf.columns.get_loc('genes')].agg('sum'))*10e6), rsuffix='_nc' )
-        print(cldf.head())
-        return (cldf)
-
-    def sortbyposFC(fc,grnalib,chrdict):
-        fc['avgFC']=fc.mean(axis=1) # claculate mean folchage
-        # drop all clumns except avgFC
-        fc.drop(fc.columns[0:-1], axis=1, inplace=True)
-        #print(grnalib.head())
-        # discuss data format or explain requirement in README
-        #libcols=grnalib.columns.tolist()
-        libcols=['CHRM','STARTpos','ENDpos','GENES']
-        grnalib=grnalib[libcols]
-        annot_df=pd.concat([grnalib,fc], axis=1)
-        annot_df=annot_df.rename(columns={'CHRM': 'CHR', 'STARTpos':'startp','ENDpos':'endp','GENES':'genes'})
-        #annot_df['BP'] = annot_df.apply(StaticMthods.get_position,axis=1) #  takes more time to run
-        annot_df['BP']= round( annot_df['startp'] +  (annot_df['endp'] - annot_df['startp'] ) / 2  ).astype(int)
-        annot_df=annot_df.sort_values(by=['CHR','startp'], ascending=True)
-        # add chromsome index to data frame
-        #annot_df['CHR'].replace(chrdict, inplace=True) # uncomment if want to use indexed chr names
-        #index_to_chr_dict=StaticMthods.swap_key2val(chrdict)
-        #annot_df['CHR'].replace(index_to_chr_dict, inplace=True) # decoding back to original chr names
-        return annot_df
+        return (cldf,no_rep)
 
     def genomwide_clean_chr(**kwargs):
         fc=kwargs['logfc']
-        min_genes=kwargs.get('min_genes', 3)
+        min_genes=kwargs.get('minTargetedGenes', 3)
         correctedFC=pd.DataFrame()
         segments=pd.DataFrame()
         for chridx in fc.CHR.unique():
@@ -114,19 +92,42 @@ class StaticMthods(object):
                 (corrected_fc,regions)=segmentation.do_segmentation(chrdf)
                 correctedFC=correctedFC.append(corrected_fc)
                 segments=segments.append(regions)
-        correctedFC.reset_index(drop=True, inplace=True) # reindex data frame after concatenation
+        # reindex data frame after concatenation
         segments.reset_index(drop=True, inplace=True)
         return (correctedFC,segments)
 
-    def corrected_counts(nc,correctedFC,segments,grnalib,min_genes=3,ample_id='HT-29'):
-        print(nc.head())
-        print(correctedFC.head())
-        print(segments.head())
-        print(grnalib.head())
-        for row in segments.itertuples():
-            print (row.Index)
-
-
+    def corrected_counts(alldf,segments,minTargetedGenes=3,no_rep=1,sample_id='HT-29',controls=1):
+        #sgRNA <controls> <Sample Raw count>   genes CHR  startp    endp  <normalised count>   avgFC      BP  correction  correctedFC
+        # store normalised counts,selected segmen locations will be overwiteen as reverted counts
+        revertedCounts=alldf.iloc[:,alldf.columns.get_loc('endp')+controls+1:alldf.columns.get_loc('avgFC')]
+        for seg in segments.itertuples():
+            i=seg.Index
+            start=seg.startRow
+            end=seg.endRow
+            ntarg=seg.nGenes
+            idxs=list(range(start, end))
+            if ntarg>=minTargetedGenes:
+                #get a segment slice of a dataframe
+                reverted=pd.DataFrame()
+                segdata=alldf.iloc[idxs]
+                #average fold change
+                FC=segdata.avgFC
+                #mean normalised control count
+                nc=segdata.iloc[:,segdata.columns.get_loc('endp')+1:segdata.columns.get_loc('endp')+controls+1]
+                c=nc.mean(axis=1)
+                #print(segdata.head())
+                N=segdata.correctedFC
+                CF = N - FC
+                reverted['revc'] = c*(pow(2,N))
+                normed_num=segdata.iloc[:,segdata.columns.get_loc('endp')+controls+1:segdata.columns.get_loc('avgFC')]
+                normed_num+=1
+                proportions=normed_num.div(normed_num.agg('sum', axis=1),axis=0)
+                reverted=reverted*no_rep
+                revertedCounts.iloc[idxs]=proportions.mul(reverted.revc,axis=0)
+        # store reverted count to original data frame
+        alldf=alldf.join(revertedCounts,rsuffix='_rev')
+        print(alldf.shape)
+        return alldf
 
 
 

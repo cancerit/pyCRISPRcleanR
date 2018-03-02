@@ -3,6 +3,8 @@ import logging
 import pandas as pd
 from .. import core
 from . import cbs
+import numpy as np
+pd.set_option('mode.chained_assignment', 'raise')
 
 def do_segmentation(cnarr, save_dataframe=False, rlibpath=None, ignoredGenes=[],min_genes=3):
     """Infer copy number segments from the given coverage table."""
@@ -10,61 +12,45 @@ def do_segmentation(cnarr, save_dataframe=False, rlibpath=None, ignoredGenes=[],
         return cnarr
     seg_out = ""
     print(cnarr.shape)
-    (output,data,segrows,call)=cbs.runCBS(cnarr)
-    processed_seg=process_segment(cnarr,output,data,segrows,call)
-    #print(cnseg.names)
-    # returns vector of dataframes for "data"    "output"  "segRows" "call"
-    #do things
-    # newcnarr
-    #corrected_cnseg=cbs.runCBS(newcnarr)
+    (output,data,segrows,calls)=cbs.runCBS(cnarr)
+    print("output:{} , data:{} , segrows:{}".format(output.shape,data.shape,segrows.shape))
 
-    #do things
-    return None
+    (correctedFC,regions)=process_segment(cnarr,output,segrows)
+    #print(correctedFC.head())
+    #print(correctedFC.tail())
+    #print(regions.head())
+    #print(regions.tail())
+    return (correctedFC,regions)
 
-def process_segment(cnarr,output,data,segrows,call,ignoredGenes=[],min_genes=3):
-    newFC=pd.DataFrame(cnarr.avgFC)
-    nGeneInSeg={}
-    guides={}
-    correction={}
-    print(newFC.head())
-    #correction=rep(0,len(newFC))
+def process_segment(cnarr,output,segrows,ignoredGenes=[],min_genes=3):
+    cnarr.is_copy= False  # to avoid   SettingWithCopyWarning
+    #CHR  startp    endp   genes avgFC  BP
+    output.is_copy= False
+    cnarr['correction']=0
+    cnarr['correctedFC']=cnarr.avgFC
+
+    #ID chrom  loc.start  loc.end  num.mark  seg.mean
+    output=output.rename(columns={'chrom': 'CHR','loc.start':'startp','loc.end':'endp', 'num.mark':'n.sgRNAs', 'seg.mean':'avg.logFC'})
+    output.drop(output.columns[0], axis=1, inplace=True)
+    output['startRow']=0
+    output['endRow']=0
+    output['nGenes']=0
+    nGeneInSeg=0
     for segment in segrows.itertuples():
-        start=segment.startRow
-        end=segment.endRow # pyhton indexing is 0 based add 2 to include last row in the range ??
-        idxs=list(range(start,end))
+        start=segment.startRow -1 #pyhton indexing is 0 based add 1 to include last row in the range ??
+        end=segment.endRow #
+        idxs=list(range(start, end))
         i=segment.Index
-        if i == 121:
-            """
-            print("index:{},Satr:{} end:{}".format(i,start,end))
-            print(cnarr.shape)
-            print (idxs)
-            print(cnarr.head())
-            print(cnarr.genes.iloc[[0]])
-            print(cnarr.genes.iloc[[9009]])
-            continue
-            """
-
-            includedGenes=cnarr.genes.iloc[idxs].unique()
-            print(includedGenes)
-            includedGuides=(start,end)
-            if len(ignoredGenes) > 0:
-                nGeneInSeg[i]=len(set(includedGenes - ignoredGenes))
-            else:
-                nGeneInSeg[i]=len(includedGenes)
-            if nGeneInSeg[i] >= min_genes:
-                newFC[idxs]= newFC.iloc[idxs] - newFC.iloc[idxs].mean()
-                print(newFC[idxs])
-                correction[idxs]= newFC.iloc[idxs].apply(ns_of_mean)
-            guides[i]=includedGuides
-            print(guides)
-            print(correction)
-    #(regions,data2,segrows2,call2)=cbs.runCBS(newFC)
-    #correctedFC=newFC
-    #regions['gRNA']=guides
-    #colnames(regions)<-c('CHR','startp','endp','n.sgRNAs','avg.logFC','guideIdx')
-    #res=[correctedFCs=gwSortedFCs,regions=regions].tuple
-    return None
-
-
-def ns_of_mean(row):
-    return -(numpy.sign(row.mean(1)))
+        #print("index:{},Satr:{} end:{}".format(i,start,end))
+        includedGenes=cnarr.genes.iloc[idxs].unique()
+        output.iat[i,5]=start
+        output.iat[i,6]=end
+        if len(ignoredGenes) > 0:
+            nGeneInSeg=len(set(includedGenes - ignoredGenes))
+        else:
+            nGeneInSeg=len(includedGenes)
+        output.iat[i,7]=nGeneInSeg
+        if nGeneInSeg >= min_genes:
+            cnarr.iloc[idxs,cnarr.columns.get_loc('correctedFC')]=cnarr.avgFC.iloc[idxs] - cnarr.avgFC.iloc[idxs].mean()
+            cnarr.iloc[idxs,cnarr.columns.get_loc('correction')] = -np.sign(cnarr.correctedFC.iloc[idxs].mean())
+    return (cnarr,output)
