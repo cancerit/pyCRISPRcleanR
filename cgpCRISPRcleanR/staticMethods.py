@@ -57,7 +57,7 @@ class StaticMthods(object):
 
     def format_counts(countfile,libfile,controls,min_read_count=30):
         col_to_drop=['gene','EXONE','CODE','STRAND']
-        rename_col_dict={'CHRM': 'CHR', 'STARTpos':'startp','ENDpos':'endp','GENES':'genes'}
+        rename_col_dict={'CHRM': 'CHR', 'STARTpos':'startp','ENDpos':'endp','GENES':'gene'}
         print("Creating dataframe from input file:".format(countfile))
         counts=pd.read_csv(countfile, sep="\t", index_col='sgRNA')
         libdata=pd.read_csv(libfile, sep="\t", index_col='sgRNA')
@@ -65,11 +65,12 @@ class StaticMthods(object):
        # perform some cleanup here [ change row names and drop duplicate columns]
         cldf.drop(col_to_drop, axis=1, inplace=True)
         cldf=cldf.rename(columns=rename_col_dict)
+        # drop rows
         cldf.drop(cldf[cldf.iloc[:,0:controls].mean(axis=1) < min_read_count].index, inplace=True)
         # done with cleanup do some real work .....
         # create normalized count
-        normed=cldf.iloc[:,0:cldf.columns.get_loc('genes')].div(cldf.iloc[:,0:cldf.columns.get_loc('genes')].agg('sum'))*10e6
-        # add normalised count to origina dataframe
+        normed=cldf.iloc[:,0:cldf.columns.get_loc('gene')].div(cldf.iloc[:,0:cldf.columns.get_loc('gene')].agg('sum'))*10e6
+        # add normalised count to original dataframe
         #cldf.iloc[:,0:cldf.columns.get_loc('genes')]=normed # use if raw count is notrequired, replaces existing counts columns
         cldf=cldf.join(normed,rsuffix='_nc')
         fc = normed.apply(lambda x: np.log2( (x+0.5)/(normed.iloc[:,0:controls].mean(axis=1)+0.5) ) )
@@ -83,51 +84,56 @@ class StaticMthods(object):
     def genomwide_clean_chr(**kwargs):
         fc=kwargs['logfc']
         min_genes=kwargs.get('minTargetedGenes', 3)
-        correctedFC=pd.DataFrame()
-        segments=pd.DataFrame()
+        cbs_dict={}
         for chridx in fc.CHR.unique():
-            if chridx in ("1",'2'):
-                chrdf=fc[fc.CHR == chridx ]
-                print(chridx)
-                (corrected_fc,regions)=segmentation.do_segmentation(chrdf)
-                correctedFC=correctedFC.append(corrected_fc)
-                segments=segments.append(regions)
-        # reindex data frame after concatenation
-        segments.reset_index(drop=True, inplace=True)
-        return (correctedFC,segments)
+            print("Running CBS for{}".format(chridx))
+            #if chridx in ("19"):
+            chrdf=fc[fc.CHR == chridx ]
+            (corrected_fc,regions)=segmentation.do_segmentation(chrdf)
+            cbs_dict[chridx]=[corrected_fc,regions]
+        return (cbs_dict)
 
-    def corrected_counts(alldf,segments,minTargetedGenes=3,no_rep=1,sample_id='HT-29',controls=1):
-        #sgRNA <controls> <Sample Raw count>   genes CHR  startp    endp  <normalised count>   avgFC      BP  correction  correctedFC
-        # store normalised counts,selected segmen locations will be overwiteen as reverted counts
-        revertedCounts=alldf.iloc[:,alldf.columns.get_loc('endp')+controls+1:alldf.columns.get_loc('avgFC')]
-        for seg in segments.itertuples():
-            i=seg.Index
-            start=seg.startRow
-            end=seg.endRow
-            ntarg=seg.nGenes
-            idxs=list(range(start, end))
-            if ntarg>=minTargetedGenes:
-                #get a segment slice of a dataframe
-                reverted=pd.DataFrame()
-                segdata=alldf.iloc[idxs]
-                #average fold change
-                FC=segdata.avgFC
-                #mean normalised control count
-                nc=segdata.iloc[:,segdata.columns.get_loc('endp')+1:segdata.columns.get_loc('endp')+controls+1]
-                c=nc.mean(axis=1)
-                #print(segdata.head())
-                N=segdata.correctedFC
-                CF = N - FC
-                reverted['revc'] = c*(pow(2,N))
-                normed_num=segdata.iloc[:,segdata.columns.get_loc('endp')+controls+1:segdata.columns.get_loc('avgFC')]
-                normed_num+=1
-                proportions=normed_num.div(normed_num.agg('sum', axis=1),axis=0)
-                reverted=reverted*no_rep
-                revertedCounts.iloc[idxs]=proportions.mul(reverted.revc,axis=0)
+    def corrected_counts(cbs_dict,minTargetedGenes=3,no_rep=1,sample_id='HT-29',controls=1):
+        corrected_count_list=[]
+        chrdata_list=[]
+        for key, (chrdata,segments) in cbs_dict.items():
+            print("Correcting counts: chrdata:{} segments{}".format(chrdata.shape,segments.shape))
+            #sgRNA <controls> <Sample Raw count>   genes CHR  startp    endp  <normalised count>   avgFC      BP  correction  correctedFC
+            # store normalised counts,selected segmen locations will be overwiteen as reverted counts
+            revertedCounts=chrdata.iloc[:,chrdata.columns.get_loc('endp')+controls+1:chrdata.columns.get_loc('avgFC')]
+            for seg in segments.itertuples():
+                mychr=seg.CHR
+                i=seg.Index
+                start=seg.startRow
+                end=seg.endRow
+                ntarg=seg.nGenes
+                idxs=list(range(start, end))
+                if ntarg>=minTargetedGenes:
+                    reverted=pd.DataFrame()
+                    segdata=chrdata.iloc[idxs]
+                    #average fold change
+                    FC=segdata.avgFC
+                    #mean normalised control count
+                    nc=segdata.iloc[:,segdata.columns.get_loc('endp')+1:segdata.columns.get_loc('endp')+controls+1]
+                    c=nc.mean(axis=1)
+                    N=segdata.correctedFC
+                    CF = N - FC
+                    reverted['revc'] = c*(pow(2,N))
+                    normed_num=segdata.iloc[:,segdata.columns.get_loc('endp')+controls+1:segdata.columns.get_loc('avgFC')]
+                    normed_num+=1
+                    proportions=normed_num.div(normed_num.agg('sum', axis=1),axis=0)
+                    reverted=reverted*no_rep
+                    reverted=proportions.mul(reverted.revc,axis=0)
+                    revertedCounts.iloc[idxs]=reverted
+            corrected_count_list.append(revertedCounts)
+            chrdata_list.append(chrdata)
+            revertedCounts.to_csv("tmpfiles/corrected_counts_alldf_v9nc_{}.tsv".format(key), sep='\t', mode='w', header=True, index=True, index_label='gRNA',doublequote=False)
+        corrected_count=pd.concat(corrected_count_list)
+        alldata=pd.concat(chrdata_list)
         # store reverted count to original data frame
-        alldf=alldf.join(revertedCounts,rsuffix='_rev')
-        print(alldf.shape)
-        return alldf
+        alldata=alldata.join(corrected_count,rsuffix='_rev')
+        alldata.to_csv("corrected_counts_alldf_v9nc.tsv", sep='\t', mode='w', header=True, index=True, index_label='gRNA',doublequote=False)
+        return alldata
 
 
 

@@ -32,9 +32,8 @@ def process_segment(cnarr,output,segrows,ignoredGenes=[],min_genes=3):
     #ID chrom  loc.start  loc.end  num.mark  seg.mean
     output=output.rename(columns={'chrom': 'CHR','loc.start':'startp','loc.end':'endp', 'num.mark':'n.sgRNAs', 'seg.mean':'avg.logFC'})
     output.drop(output.columns[0], axis=1, inplace=True)
-    output['startRow']=0
-    output['endRow']=0
-    output['nGenes']=0
+    output=output.reindex(columns=[*output.columns.tolist(),'startRow','endRow','nGenes'], fill_value=0)
+    print(output.shape)
     nGeneInSeg=0
     for segment in segrows.itertuples():
         start=segment.startRow -1 #pyhton indexing is 0 based add 1 to include last row in the range ??
@@ -42,7 +41,7 @@ def process_segment(cnarr,output,segrows,ignoredGenes=[],min_genes=3):
         idxs=list(range(start, end))
         i=segment.Index
         #print("index:{},Satr:{} end:{}".format(i,start,end))
-        includedGenes=cnarr.genes.iloc[idxs].unique()
+        includedGenes=cnarr.gene.iloc[idxs].unique()
         output.iat[i,5]=start
         output.iat[i,6]=end
         if len(ignoredGenes) > 0:

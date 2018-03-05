@@ -47,7 +47,7 @@ class CrisprCleanR(AbstractCrispr):
             print("File:{} is type:{}".format(infile,input_type) )
             if(infile == 'HT-29_counts.tsv'):
                 (lib_count_n_fc,no_rep)=sm.format_counts(self.countfile,self.libfile,self.ncontrols,min_read_count=30)
-                (correctedFC,segments)=sm.genomwide_clean_chr(logfc=lib_count_n_fc,minTargetedGenes=3)
-                all_data=sm.corrected_counts(correctedFC,segments,minTargetedGenes=3,no_rep=no_rep)
+                (cbs_dict)=sm.genomwide_clean_chr(logfc=lib_count_n_fc,minTargetedGenes=3)
+                all_data=sm.corrected_counts(cbs_dict,minTargetedGenes=3,no_rep=no_rep)
 
         return tuple(input_type)
