@@ -8,9 +8,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 version = pkg_resources.require("cgpCrisprCleanR")[0].version
 
 def main():
-    usage = "\n %prog [options] -a archive_a.tar -b archive_b.tar -j fileTypes.json -c name"
+    usage = "\n %prog [options] -f counts.tsv -l library.tsv"
 
-    optParser = argparse.ArgumentParser(prog='runCrispCleanR')
+    optParser = argparse.ArgumentParser(prog='runCrisprCleanR')
     optional = optParser._action_groups.pop()
     required = optParser.add_argument_group('required arguments')
 
@@ -21,14 +21,25 @@ def main():
                           default="", help="sgRNA library file")
 
     optional.add_argument("-e", "--expname", type=str, dest="expname", required=False,
-                          default=None, help="name of the experiment")
+                          default='crisprExperiment', help="name of the experiment")
+
+    optional.add_argument("-r", "--minreads", type=str, dest="minreads", required=False,
+                          default=30, help="minimum read count in control sample \
+                          to be used for filtering ")
+
+    optional.add_argument("-g", "--mingenes", type=str, dest="mingenes", required=False,
+                          default=3, help="minimum number of genes in a CNV segment to\
+                          consider it for count normalization ")
+
+    optional.add_argument("-c", "--ncontrols", type=str, dest="ncontrols", required=False,
+                          default=1, help="Number of control samples in raw count file [ \
+                           Note: at least one control sample is required ]")
+
+    optional.add_argument("-s", "--sample", type=str, dest="sample", required=False,
+                          default='mysample', help="sample name in counts file")
 
     optional.add_argument("-o", "--outdir", type=str, dest="outdir",
                           default=None, help="path to output folder")
-
-    optional.add_argument("-c", "--ncontrols", type=str, dest="ncontrols", required=False,
-                          default=1, help="Number of control sample in raw count file [ \
-                           Note- at least one control sample is required ]")
 
     optional.add_argument("-v", "--version", action='version', version='%(prog)s ' + version)
     optional.add_argument("-q", "--quiet", action="store_false", dest="verbose", default=True)
@@ -41,11 +52,10 @@ def main():
     opts = optParser.parse_args()
     if not (opts.countfile or opts.libfile):
         sys.exit('\nERROR Arguments required\n\tPlease run: cgpCrispCleanR --help\n')
-    mycomp = CrisprCleanR(countfile=opts.countfile,
+    mycrispr = CrisprCleanR(countfile=opts.countfile,
                          libfile=opts.libfile,
                          expname=opts.expname,
                          ncontrols=opts.ncontrols,
+                         minreads=opts.minreads,
                          outdir=opts.outdir)
-    mycomp.check_input()
-  
-
+    mycrispr.run_analysis()

@@ -12,8 +12,10 @@ class AbstractCrispr(ABC):
         self.libfile = kwargs['libfile']
         self.expname = kwargs.get('expname', None)
         self.minreads = kwargs.get('minreads', 30)
+        self.mingenes = kwargs.get('mingenes', 3)
         self.outdir = kwargs.get('outdir', './')
         self.ncontrols = kwargs.get('ncontrols',1)
+        self.sample = kwargs.get('sample','mySample')
         super().__init__()
 
     @abstractmethod

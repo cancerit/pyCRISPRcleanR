@@ -9,13 +9,13 @@ config = {
     'author': 'Shriram G Bhosle',
     'url': 'https://github.com/CancerIT/archCompare',
     'author_email': 'cgphelp@sanger.ac.uk',
-    'python_requires': '>= 3.3',	
+    'python_requires': '>= 3.3',
     'setup_requires': ['pytest','pytest-cov'],
     'install_requires': ['logging','beautifultable'],
     'packages': ['cgpCRISPRcleanR'],
     'package_data': {'cgpCRISPRcleanR': ['config/*.json','config/*.conf']},
     'entry_points': {
-        'console_scripts': ['runCrispCleanR=cgpCRISPRcleanR.cgpcrisprCleanR_command:main'],
+        'console_scripts': ['runCrisprCleanR=cgpCRISPRcleanR.cgpcrisprCleanR_command:main'],
     }
 }
 

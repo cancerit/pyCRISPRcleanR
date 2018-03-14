@@ -1,55 +1,29 @@
-"""Segmentation of copy number values."""
+
 import logging
 import pandas as pd
-from .. import core
+from multiprocessing import Pool
 from . import cbs
 import numpy as np
+
 pd.set_option('mode.chained_assignment', 'raise')
 
-def do_segmentation(cnarr, save_dataframe=False, rlibpath=None, ignoredGenes=[],min_genes=3):
-    """Infer copy number segments from the given coverage table."""
-    if not len(cnarr):
-        return cnarr
-    seg_out = ""
-    print(cnarr.shape)
-    (output,data,segrows,calls)=cbs.runCBS(cnarr)
-    print("output:{} , data:{} , segrows:{}".format(output.shape,data.shape,segrows.shape))
+"""Segmentation of loagratio fold change  values."""
 
-    (correctedFC,regions)=process_segment(cnarr,output,segrows)
-    #print(correctedFC.head())
-    #print(correctedFC.tail())
-    #print(regions.head())
-    #print(regions.tail())
-    return (correctedFC,regions)
+def do_segmentation(cnarr, cpus, sample):
+    cnseg_dict = {}
+    with Pool(cpus) as (pool):
+        result = list(pool.map(_ds, ((chrname, ca, sample) for chrname, ca in cnarr.groupby('CHR'))))
+        for result_dict in result:
+            cnseg_dict.update(result_dict)
+    return cnseg_dict
 
-def process_segment(cnarr,output,segrows,ignoredGenes=[],min_genes=3):
-    cnarr.is_copy= False  # to avoid   SettingWithCopyWarning
-    #CHR  startp    endp   genes avgFC  BP
-    output.is_copy= False
-    cnarr['correction']=0
-    cnarr['correctedFC']=cnarr.avgFC
+def _ds(args):
+    """Wrapper for parallel map"""
+    return _do_segmentation(*args)
 
-    #ID chrom  loc.start  loc.end  num.mark  seg.mean
-    output=output.rename(columns={'chrom': 'CHR','loc.start':'startp','loc.end':'endp', 'num.mark':'n.sgRNAs', 'seg.mean':'avg.logFC'})
-    output.drop(output.columns[0], axis=1, inplace=True)
-    output=output.reindex(columns=[*output.columns.tolist(),'startRow','endRow','nGenes'], fill_value=0)
-    print(output.shape)
-    nGeneInSeg=0
-    for segment in segrows.itertuples():
-        start=segment.startRow -1 #pyhton indexing is 0 based add 1 to include last row in the range ??
-        end=segment.endRow #
-        idxs=list(range(start, end))
-        i=segment.Index
-        #print("index:{},Satr:{} end:{}".format(i,start,end))
-        includedGenes=cnarr.gene.iloc[idxs].unique()
-        output.iat[i,5]=start
-        output.iat[i,6]=end
-        if len(ignoredGenes) > 0:
-            nGeneInSeg=len(set(includedGenes - ignoredGenes))
-        else:
-            nGeneInSeg=len(includedGenes)
-        output.iat[i,7]=nGeneInSeg
-        if nGeneInSeg >= min_genes:
-            cnarr.iloc[idxs,cnarr.columns.get_loc('correctedFC')]=cnarr.avgFC.iloc[idxs] - cnarr.avgFC.iloc[idxs].mean()
-            cnarr.iloc[idxs,cnarr.columns.get_loc('correction')] = -np.sign(cnarr.correctedFC.iloc[idxs].mean())
-    return (cnarr,output)
+def _do_segmentation(chrname, ca, sample):
+    result_dict = {}
+    print(('Performing CBS on chr:{}').format(chrname))
+    segrows = cbs.runCBS(ca, sample_id=sample)
+    result_dict[chrname] = [ca, segrows]
+    return result_dict

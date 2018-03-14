@@ -3,6 +3,7 @@ setup.py
 cgpCRISPRcleanR/__init__.py
 cgpCRISPRcleanR/abstractCrispr.py
 cgpCRISPRcleanR/cgpcrisprCleanR_command.py
+cgpCRISPRcleanR/core.py
 cgpCRISPRcleanR/formatInput.py
 cgpCRISPRcleanR/staticMethods.py
 cgpCRISPRcleanR.egg-info/PKG-INFO

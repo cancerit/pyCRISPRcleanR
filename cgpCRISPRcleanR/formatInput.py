@@ -1,13 +1,8 @@
 import csv
 import numpy as np
 import pandas as pd
-import json
-import tarfile
 import os
 import sys
-import tempfile
-import math
-import re
 import matplotlib
 import logging.config
 from sys import stderr
@@ -36,18 +31,32 @@ class CrisprCleanR(AbstractCrispr):
     """
 
     def check_input(self):
-        """ check input type of user supplied
-          input filea and fileb keyword arguments
-          and returns tupule of input file type
+        """ check input type and presence of user supplied
+          input files
         """
         super().check_input()
         input_type = []
         for infile in (self.countfile, self.libfile):
             input_type.append(sm.input_checker(infile))
-            print("File:{} is type:{}".format(infile,input_type) )
-            if(infile == 'HT-29_counts.tsv'):
-                (lib_count_n_fc,no_rep)=sm.format_counts(self.countfile,self.libfile,self.ncontrols,min_read_count=30)
-                (cbs_dict)=sm.genomwide_clean_chr(logfc=lib_count_n_fc,minTargetedGenes=3)
-                all_data=sm.corrected_counts(cbs_dict,minTargetedGenes=3,no_rep=no_rep)
-
-        return tuple(input_type)
+            print("File:{} is type:{}".format(infile,input_type))
+        return None
+    def run_analysis(self):
+        """
+          method to run the analysis
+        """
+        controls=self.ncontrols
+        min_read_count=self.minreads
+        min_target_genes=self.mingenes
+        ignoredGenes=[] # should come from command line ??? 
+        sample='mysample'
+        cpus=10
+        #check input files
+        self.check_input()
+        cldf = sm.combine_count_n_library(self.countfile,self.libfile)
+        cldf = sm.cleanup_data(cldf)
+        cldf = sm.filter_data(cldf,controls,min_read_count)
+        (cldf,num_rep)=sm.get_norm_count_n_fold_changes(cldf,controls)
+        cbs_dict = sm.run_cbs(cldf,cpus,sample)
+        all_data = sm.process_segments(cbs_dict,ignoredGenes,min_target_genes,controls,num_rep)
+        all_data.to_csv("corrected_counts_alldf_v9nc.tsv", sep='\t', mode='w', header=True, index=True, index_label='gRNA',doublequote=False)
+        print(all_data[all_data.gene=='A1BG'])
