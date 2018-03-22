@@ -15,7 +15,7 @@ config = {
     'packages': ['cgpCRISPRcleanR'],
     'package_data': {'cgpCRISPRcleanR': ['config/*.json','config/*.conf']},
     'entry_points': {
-        'console_scripts': ['runCrisprCleanR=cgpCRISPRcleanR.cgpcrisprCleanR_command:main'],
+        'console_scripts': ['cgpCrisprCleanR=cgpCRISPRcleanR.cgpcrisprCleanR_command:main'],
     }
 }
 

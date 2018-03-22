@@ -1,5 +1,5 @@
 env/
-__pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 .coverage
@@ -9,7 +9,7 @@ cover/
 *.egg
 /build
 /dist
-/cgpCRISPRCleanR.egg-info
+cgpCRISPRcleanR.egg-info*
 *.log
 /results.tsv
 /.cache*

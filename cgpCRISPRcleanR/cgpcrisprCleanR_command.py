@@ -11,7 +11,7 @@ version = pkg_resources.require("cgpCrisprCleanR")[0].version
 def main():
     usage = "\n %prog [options] -f counts.tsv -l library.tsv"
 
-    optParser = argparse.ArgumentParser(prog='runCrisprCleanR')
+    optParser = argparse.ArgumentParser(prog='cgpCrisprCleanR')
     optional = optParser._action_groups.pop()
     required = optParser.add_argument_group('required arguments')
 
@@ -52,6 +52,6 @@ def main():
         sys.exit(1)
     opts = optParser.parse_args()
     if not (opts.countfile or opts.libfile):
-        sys.exit('\nERROR Arguments required\n\tPlease run: cgpCrispCleanR --help\n')
+        sys.exit('\nERROR Arguments required\n\tPlease run: cgpCrisprCleanR --help\n')
     mycrispr = CrisprCleanR(**vars(opts))
     mycrispr.run_analysis()

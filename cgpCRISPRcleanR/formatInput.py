@@ -1,4 +1,5 @@
 import logging.config
+import os
 from cgpCRISPRcleanR.abstractCrispr import AbstractCrispr
 from cgpCRISPRcleanR.staticMethods import StaticMthods as SM
 
