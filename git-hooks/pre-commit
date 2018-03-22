@@ -7,12 +7,15 @@
 #
 # To enable this hook, rename this file to "pre-commit".
 
+echo 'Running git hooks'
+
 if git rev-parse --verify HEAD >/dev/null 2>&1
 then
 	against=HEAD
 else
 	# Initial commit: diff against an empty tree object
-	against=388e23de0d3832249de419cb85f274cbf63ff142
+	echo 'No HEAD....exiting.'
+	exit 1
 fi
 
 # If you want to allow non-ASCII filenames set this variable to true.
@@ -45,9 +48,20 @@ fi
 git diff-index --check --cached $against --
 code=$?
 
-./run_tests.sh
+if [ "$code" != "0" ]
+	then
+		exit $code
+fi
+
+MYPACKAGE=cgpCRISPRcleanR
+#git diff --cached --name-only --diff-filter=ACM | xargs -I {} pycodestyle {}
+pycodestyle $MYPACKAGE
+
 code=$?
 
-if [ "$code" != "0" ]; then
-  exit $code
+if [ "$code" != "0" ]
+	then
+		exit $code
 fi
+
+echo 'Finished Running git hooks'

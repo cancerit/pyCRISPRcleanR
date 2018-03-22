@@ -1,13 +1,9 @@
-
 import logging
-import pandas as pd
 from multiprocessing import Pool
 from . import cbs
-import numpy as np
-
-pd.set_option('mode.chained_assignment', 'raise')
 
 """Segmentation of loagratio fold change  values."""
+
 
 def do_segmentation(cnarr, cpus, sample):
     cnseg_dict = {}
@@ -17,9 +13,11 @@ def do_segmentation(cnarr, cpus, sample):
             cnseg_dict.update(result_dict)
     return cnseg_dict
 
+
 def _ds(args):
     """Wrapper for parallel map"""
     return _do_segmentation(*args)
+
 
 def _do_segmentation(chrname, ca, sample):
     result_dict = {}
