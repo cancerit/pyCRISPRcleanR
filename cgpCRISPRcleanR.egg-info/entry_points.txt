@@ -1,3 +1,0 @@
-[console_scripts]
-cgpCrisprCleanR = cgpCRISPRcleanR.cgpcrisprCleanR_command:main
-

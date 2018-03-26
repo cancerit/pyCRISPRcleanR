@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-MYPACKAGE=archCompare
+MYPACKAGE=cgpCRISPRcleanR
 pytest \
  --cov-report term \
  --cov-report html \

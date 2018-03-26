@@ -1,60 +1,49 @@
-# archComapre
-This tool compares a pair of data structures [ files, directoris and archives ]
-Provides concise information about the archive content using tolls defoned in the config file.
+# cgpCRISPRCleanR
+This is python implementation of an R package for unsupervised identification and
+correction of gene independent cell responses to CRISPR-cas9 targeting
+
+<!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [Design](#design)
+- [Tools](#tools)
+	- [cgpCRISPRCleanR](#cgpcrisprcleanr)
+- [INSTALL](#install)
+	- [Package Dependencies](#package-dependencies)
+- [Development environment](#development-environment)
+	- [Development Dependencies](#development-dependencies)
+		- [Setup VirtualEnv](#setup-virtualenv)
+- [Cutting a release](#cutting-a-release)
+	- [Install via `.whl` (wheel)](#install-via-whl-wheel)
+
+<!-- /TOC -->
 
 ## Design
-
-Many components of this system are heavily driven by configuration files.  This
-is to allow new validation code to be added and incorporated without modifying
-the driver code.
+Uses DNAcopy R pcakage to perform CBS[ Circular Binary Segmentation of count  data ]
 
 ## Tools
 
-`cgpCompare` has multiple commands, listed with `cgpCompare --help`.
+`cgpCRISPRCleanR` has multiple commands, listed with `cgpCRISPRCleanR --help`.
 
-### cgpCompare
+### cgpCRISPRCleanR
 
-Takes the input archives,files,folders and does the comparison for matching file types
-based on tools defined in  `archCompare/config/*.json`
-file.
+Takes the input count data, library file and other associated files/parameters
+The output is tab separated files for normalised fold changes and
+inverse transformed corrected treatment counts
 
-Valid input types include:
-
-* .tar - archive containing multiple files and folders to compare
-* folder - any folder containing sub folders and files
-* file - any file with extension configured in the `fileTypes.json` configuration file
-
-The output is a tab separated columns containing:
-
-* `File_a`  - compared file name  from first archive
-* `File_b`  - compared file name  from second archive
-* `Status`  - comparsion status [ compared, skipped ]
-* `SimilarityBy` - if files are compared and found similar it will have one of the value [name , data or checksum] 
-              otherwise 'differ', reason if files were skipped from comparison
-
-Various exceptions can occur for malformed files.
+Various exceptions can occur for malformed input files.
 
 ## INSTALL
-
-Installation is via `easy_install`.  Simply execute with the path to the compiled
-'egg':
+Installing via `pip install` .Simply execute with the path to the compiled 'whl' found on the [release page][cgpCRISPRCleanR-releases]:
 
 ```bash
-easy_install archCompare.egg-X.X.X-py3.6.egg
-
+pip install cgpCRISPRCleanR.X.X.X-py3-none-any.whl
 ```
 
-Installing via `pip install` .Simply execute with the path to the compiled 'whl':
-```bash
-
-pip install archCompare.X.X.X-py3-none-any.whl
-
-```
-
+Release `.whl` files are generated as part of the release process and can be found on the [release page][cgpCRISPRCleanR-releases] **(version >= 1.1.4)**.
 
 ### Package Dependancies
 
-`easy_install` will install the relevant dependancies, listed here for convenience:
+`pip` will install the relevant dependancies, listed here for convenience:
 
 ## Development environment
 
@@ -104,13 +93,20 @@ __Also see__ [Package Dependancies](#package-dependancies)
 
 __Make sure the version is incremented__ in `./setup.py`
 
-The release is handled by wheel:
+### Install via `.whl` (wheel)
+
+Generate `.whl`
 
 ```bash
-$ source env/bin/activate # if not already
-$ python setup.py bdist_wheel -d dist
+source env/bin/activate # if not already
+python setup.py bdist_wheel -d dist
+```
+
+Install .whl
+
+```bash
 # this creates an wheel archive which can be copied to a deployment location, e.g.
-$ scp archCompare.X.X.X-py3-none-any.whl user@host:~/wheels
+scp dist/cgpCRISPRCleanR.X.X.X-py3-none-any.whl user@host:~/wheels
 # on host
-$ pip install --find-links=~/wheels archCompare
+pip install --find-links=~/wheels cgpCRISPRCleanR
 ```

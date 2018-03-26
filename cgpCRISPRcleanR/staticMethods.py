@@ -38,6 +38,7 @@ class StaticMthods(object):
         except IOError as ioe:
             sys.exit('Error in reading input file:{}'.format(ioe.args[0]))
 
+    @staticmethod
     def create_dict(inputlist):
         chrdict = {}
         chr_count = 1
@@ -47,16 +48,17 @@ class StaticMthods(object):
         return chrdict
 
     # ------------------------------Analysis methods---------------------------------
-
+    @staticmethod
     def combine_count_n_library(countfile, libfile):
         """
             Combine counts and library file data based on union of indexes
         """
-        counts = pd.read_csv(countfile, sep="\t", index_col='sgRNA')
-        libdata = pd.read_csv(libfile, sep="\t", index_col='sgRNA')
+        counts = pd.read_csv(countfile, compression='infer', sep="\t", index_col='sgRNA')
+        libdata = pd.read_csv(libfile, compression='infer', sep="\t", index_col='sgRNA')
         cldf = pd.concat([counts, libdata], axis=1, join='inner')
         return cldf
 
+    @staticmethod
     def cleanup_data(cldf):
         """
             perform cleanup: change row names and drop duplicate columns
@@ -69,6 +71,7 @@ class StaticMthods(object):
         cldf = cldf.rename(columns=rename_col_dict)
         return cldf
 
+    @staticmethod
     def filter_data(cldf, controls, min_read_count):
         """
             filter data frame for minimum read counts cutoff in control sample
@@ -77,6 +80,7 @@ class StaticMthods(object):
         cldf.drop(cldf[cldf.iloc[:, 0:controls].mean(axis=1) < min_read_count].index, inplace=True)
         return cldf
 
+    @staticmethod
     def get_norm_count_n_fold_changes(cldf, controls):
         """
             Calculate normalised count and avarage fold change using raw count data for
@@ -87,15 +91,22 @@ class StaticMthods(object):
         """
         normed = cldf.iloc[:, 0:cldf.columns.get_loc('gene')].div(
             cldf.iloc[:, 0:cldf.columns.get_loc('gene')].agg('sum')) * 10e6
+        if normed.empty:
+            print(normed.head())
+            sys.exit('Normalized data frame is empty check if required columns are present')
         fc = normed.apply(lambda x: np.log2((x + 0.5) / (normed.iloc[:, 0:controls].mean(axis=1) + 0.5)))
         fc.drop(fc.columns[0:controls], axis=1, inplace=True)
+        if fc.empty:
+            print(fc.head())
+            sys.exit('Foldchange data frame is empty')
         no_rep = len(fc.columns)
         cldf = cldf.join(normed, rsuffix='_nc')
         cldf['avgFC'] = fc.mean(axis=1)
         cldf['BP'] = round(cldf['startp'] + (cldf['endp'] - cldf['startp']) / 2).astype(int)
         cldf.sort_values(by=['CHR', 'startp'], ascending=True, inplace=True)
-        return (cldf, no_rep)
+        return cldf, no_rep
 
+    @staticmethod
     def run_cbs(cldf, cpus, sample):
         """
             Runs CBS algorithm from DNAcopy and returns a dictionay
@@ -105,6 +116,7 @@ class StaticMthods(object):
         cbs_dict = segmentation.do_segmentation(cldf, cpus, sample)
         return cbs_dict
 
+    @staticmethod
     def process_segments(cbs_dict, ignored_genes, min_genes, controls, no_rep):
         """
            Process CBS derived copy number segment to get Correted foldchanges and
@@ -158,6 +170,7 @@ class StaticMthods(object):
         reverted = proportions.mul(reverted.revc, axis=0)
         return reverted
 
+# utility methods
     @staticmethod
     def get_position(row):
         return round(row['startp'] + (row['endp'] - row['startp']) / 2)

@@ -4,7 +4,7 @@ env/
 *$py.class
 .coverage
 cover/
-/htmlcov
+htmlcov
 /.eggs
 *.egg
 /build

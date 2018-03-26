@@ -1,8 +1,6 @@
 from rpy2.robjects import r, pandas2ri
 from rpy2.rinterface import R_VERSION_BUILD
 from rpy2.robjects.packages import importr
-import numpy as np
-import pandas as pd
 
 pandas2ri.activate()
 

@@ -7,15 +7,15 @@ config = {
     'name': 'cgpCRISPRcleanR',
     'description': 'tool to comapre files and/or archives',
     'author': 'Shriram G Bhosle',
-    'url': 'https://github.com/CancerIT/archCompare',
+    'url': 'https://github.com/CancerIT/cgpCRISPRcleanR',
     'author_email': 'cgphelp@sanger.ac.uk',
     'python_requires': '>= 3.3',
     'setup_requires': ['pytest','pytest-cov'],
-    'install_requires': ['logging','beautifultable'],
+    'install_requires': ['logging','rpy2','pandas'],
     'packages': ['cgpCRISPRcleanR'],
     'package_data': {'cgpCRISPRcleanR': ['config/*.json','config/*.conf']},
     'entry_points': {
-        'console_scripts': ['cgpCrisprCleanR=cgpCRISPRcleanR.cgpcrisprCleanR_command:main'],
+        'console_scripts': ['cgp_crispr_cleanr=cgpCRISPRcleanR.cgpcrisprCleanR_command:main'],
     }
 }
 
