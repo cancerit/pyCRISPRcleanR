@@ -9,6 +9,7 @@ correction of gene independent cell responses to CRISPR-cas9 targeting
 	- [cgpCRISPRCleanR](#cgpcrisprcleanr)
 - [INSTALL](#install)
 	- [Package Dependencies](#package-dependencies)
+  - [R packages](#r-packages)
 - [Development environment](#development-environment)
 	- [Development Dependencies](#development-dependencies)
 		- [Setup VirtualEnv](#setup-virtualenv)
@@ -39,11 +40,30 @@ Installing via `pip install` .Simply execute with the path to the compiled 'whl'
 pip install cgpCRISPRCleanR.X.X.X-py3-none-any.whl
 ```
 
-Release `.whl` files are generated as part of the release process and can be found on the [release page][cgpCRISPRCleanR-releases] **(version >= 1.1.4)**.
+Release `.whl` files are generated as part of the release process and can be found on the [release page][cgpCRISPRCleanR-releases]
 
 ### Package Dependancies
 
 `pip` will install the relevant dependancies, listed here for convenience:
+* [matplotlib]
+* [NumPy]
+* [Pandas]
+* [rpy2]
+
+### R packages
+
+`DNAcopy` R packages is required to run `cgpCRISPRcleanR`.  To facilitate the install process there is
+a script `Rsupport/libInstall.R` that can be run to build this for you.  See this file for the list
+of packages.
+
+Alternatively you can run:
+
+```
+cd Rsupport
+./setupR.sh path_to_install_to
+```
+
+Appending `1` to the command will request a complete local build of `R` (3.3.0).
 
 ## Development environment
 
@@ -110,3 +130,8 @@ scp dist/cgpCRISPRCleanR.X.X.X-py3-none-any.whl user@host:~/wheels
 # on host
 pip install --find-links=~/wheels cgpCRISPRCleanR
 ```
+<!--refs-->
+ [matplotlib]: http://matplotlib.org
+ [NumPy]: http://www.numpy.org/
+ [Pandas]: http://pandas.pydata.org/
+ [rpy2]: https://rpy2.bitbucket.io/

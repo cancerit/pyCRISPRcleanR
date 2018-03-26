@@ -1,4 +1,3 @@
-import logging
 from multiprocessing import Pool
 from . import cbs
 
