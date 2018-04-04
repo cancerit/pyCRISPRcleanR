@@ -1,0 +1,14 @@
+python-utils>=2.1.0
+
+[docs]
+changelog
+sphinx>=1.5.0
+
+[tests]
+flake8
+pytest>=2.8
+pytest-cache
+pytest-cov
+pytest-flakes
+pytest-pep8
+sphinx

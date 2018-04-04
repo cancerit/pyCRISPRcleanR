@@ -1,0 +1,32 @@
+notifications:
+  email: false
+  slack: wtsi-cgpit:ptUMR1tkNyZJYd9TpGoss8WR
+
+env:
+  global:
+    - CC_TEST_REPORTER_ID=747d8a7fc1700cea5c7e07aba5de7a70acd6a695c7ff481852bbcf95c3f1086c
+
+language: python
+
+python:
+  - "3.6"
+
+install:
+  - pip install pytest
+  - pip install pytest-cover
+  - pip install pandas
+	- pip install numpy
+	- pip install rpy2
+  - pip install .
+
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+
+script:
+  - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=cgpCRISPRcleanR
+  - coverage xml
+
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
