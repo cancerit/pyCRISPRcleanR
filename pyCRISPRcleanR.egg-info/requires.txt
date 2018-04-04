@@ -1,0 +1,3 @@
+logging
+rpy2
+pandas

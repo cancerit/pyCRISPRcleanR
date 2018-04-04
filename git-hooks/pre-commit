@@ -53,7 +53,7 @@ if [ "$code" != "0" ]
 		exit $code
 fi
 
-MYPACKAGE=cgpCRISPRcleanR
+MYPACKAGE=pyCRISPRcleanR
 #git diff --cached --name-only --diff-filter=ACM | xargs -I {} pycodestyle {}
 pycodestyle $MYPACKAGE
 

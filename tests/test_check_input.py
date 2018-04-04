@@ -1,5 +1,5 @@
-import cgpCRISPRcleanR.formatInput as fc
-import cgpCRISPRcleanR.staticMethods as sm
+import pyCRISPRcleanR.formatInput as fc
+import pyCRISPRcleanR.staticMethods as sm
 import pytest
 import os
 

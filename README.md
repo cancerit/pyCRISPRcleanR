@@ -1,12 +1,12 @@
-# cgpCRISPRCleanR
-This is python implementation of an R package for unsupervised identification and
-correction of gene independent cell responses to CRISPR-cas9 targeting
+# pyCRISPRCleanR
+This is python implementation of Francesco's [CRISPRclearR] R package for unsupervised identification and
+correction of gene independent cell responses to CRISPR-cas9 targeting 
 
 <!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [Design](#design)
 - [Tools](#tools)
-	- [cgpCRISPRCleanR](#cgpcrisprcleanr)
+	- [pyCRISPRCleanR](#pycrisprcleanr)
 - [INSTALL](#install)
 	- [Package Dependencies](#package-dependencies)
   - [R packages](#r-packages)
@@ -23,9 +23,9 @@ Uses DNAcopy R pcakage to perform CBS[ Circular Binary Segmentation of count  da
 
 ## Tools
 
-`cgpCRISPRCleanR` has multiple commands, listed with `cgpCRISPRCleanR --help`.
+`pyCRISPRCleanR` has multiple commands, listed with `pyCRISPRCleanR --help`.
 
-### cgpCRISPRCleanR
+### pyCRISPRCleanR
 
 Takes the input count data, library file and other associated files/parameters
 The output is tab separated files for normalised fold changes and
@@ -34,25 +34,24 @@ inverse transformed corrected treatment counts
 Various exceptions can occur for malformed input files.
 
 ## INSTALL
-Installing via `pip install` .Simply execute with the path to the compiled 'whl' found on the [release page][cgpCRISPRCleanR-releases]:
+Installing via `pip install` .Simply execute with the path to the compiled 'whl' found on the [release page][pyCRISPRCleanR-releases]:
 
 ```bash
-pip install cgpCRISPRCleanR.X.X.X-py3-none-any.whl
+pip install pyCRISPRCleanR.X.X.X-py3-none-any.whl
 ```
 
-Release `.whl` files are generated as part of the release process and can be found on the [release page][cgpCRISPRCleanR-releases]
+Release `.whl` files are generated as part of the release process and can be found on the [release page][pyCRISPRCleanR-releases]
 
 ### Package Dependancies
 
 `pip` will install the relevant dependancies, listed here for convenience:
-* [matplotlib]
 * [NumPy]
 * [Pandas]
 * [rpy2]
 
 ### R packages
 
-`DNAcopy` R packages is required to run `cgpCRISPRcleanR`.  To facilitate the install process there is
+* [DNAcopy] R packages is required to run `pyCRISPRcleanR`.  To facilitate the install process there is
 a script `Rsupport/libInstall.R` that can be run to build this for you.  See this file for the list
 of packages.
 
@@ -63,7 +62,7 @@ cd Rsupport
 ./setupR.sh path_to_install_to
 ```
 
-Appending `1` to the command will request a complete local build of `R` (3.3.0).
+Appending `1` to the command to request a complete local build of `R` (3.3.0).
 
 ## Development environment
 
@@ -126,12 +125,12 @@ Install .whl
 
 ```bash
 # this creates an wheel archive which can be copied to a deployment location, e.g.
-scp dist/cgpCRISPRCleanR.X.X.X-py3-none-any.whl user@host:~/wheels
+scp dist/pyCRISPRCleanR.X.X.X-py3-none-any.whl user@host:~/wheels
 # on host
-pip install --find-links=~/wheels cgpCRISPRCleanR
+pip install --find-links=~/wheels pyCRISPRCleanR
 ```
 <!--refs-->
- [matplotlib]: http://matplotlib.org
  [NumPy]: http://www.numpy.org/
  [Pandas]: http://pandas.pydata.org/
  [rpy2]: https://rpy2.bitbucket.io/
+ [DNAcopy]: https://www.bioconductor.org/packages/release/bioc/html/DNAcopy.html 

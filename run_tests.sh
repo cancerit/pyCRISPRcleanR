@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-MYPACKAGE=cgpCRISPRcleanR
+MYPACKAGE=pyCRISPRcleanR
 pytest \
  --cov-report term \
  --cov-report html \
