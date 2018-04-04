@@ -1,9 +1,5 @@
-import plotly.offline as py
-import plotly.graph_objs as go
-
 from rpy2.robjects import r, pandas2ri
 from rpy2.robjects.packages import importr
-import array
 
 pandas2ri.activate()
 
@@ -20,24 +16,6 @@ class PlotData(object):
 
     def __init__(self):
         super().__init__()
-
-    @staticmethod
-    def box_plotly(df, title='mytitle', saveto='./myfile.html', ylabel='ylabel', xlabel='xlabel'):
-        """
-        boxplots for counts data in pandas data frame
-        """
-        config = {
-            'linkText': "Link to documentation plot.ly !!!",
-            'scrollZoom': True,
-            'displayModeBar': True,
-            'editable': True
-        }
-        layout = go.Layout(title=title, yaxis=dict(title=ylabel), xaxis=dict(title=xlabel))
-        data = []
-        for col in df.columns:
-            data.append(go.Box(y=df[col], name=col, showlegend=False))
-        figure = go.Figure(data=data, layout=layout)
-        py.plot(figure, filename=saveto + '.html', auto_open=False, config=config)
 
     @staticmethod
     def plot_segments(cbs_fc, cbs_normfc, sample_id):

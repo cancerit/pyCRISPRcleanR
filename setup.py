@@ -13,7 +13,7 @@ config = {
     'setup_requires': ['pytest','pytest-cov'],
     'install_requires': ['logging','rpy2','pandas'],
     'packages': ['cgpCRISPRcleanR'],
-    'package_data': {'cgpCRISPRcleanR': ['config/*.json','config/*.conf']},
+    'package_data': {'cgpCRISPRcleanR': 'config/*.conf']},
     'entry_points': {
         'console_scripts': ['cgp_crispr_cleanr=cgpCRISPRcleanR.cgpcrisprCleanR_command:main'],
     }
