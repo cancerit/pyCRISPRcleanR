@@ -18,6 +18,7 @@ class AbstractCrispr(ABC):
         self.sample = kwargs.get('sample', 'mySample')
         self.ignored_genes = kwargs.get('ignored_genes', [])
         self.num_processors = kwargs.get('num_processors', 1)
+        self.plot_data = kwargs.get('plot_data', None)
         super().__init__()
 
     @abstractmethod

@@ -4,10 +4,10 @@ from . import cbs
 """Segmentation of loagratio fold change  values."""
 
 
-def do_segmentation(cnarr, cpus, sample):
+def do_segmentation(cnarr, cpus, sample, fc_col='avgFC'):
     cnseg_dict = {}
     with Pool(cpus) as (pool):
-        result = list(pool.map(_ds, ((chrname, ca, sample) for chrname, ca in cnarr.groupby('CHR'))))
+        result = list(pool.map(_ds, ((chrname, ca, sample, fc_col) for chrname, ca in cnarr.groupby('CHR'))))
         for result_dict in result:
             cnseg_dict.update(result_dict)
     return cnseg_dict
@@ -18,9 +18,9 @@ def _ds(args):
     return _do_segmentation(*args)
 
 
-def _do_segmentation(chrname, ca, sample):
+def _do_segmentation(chrname, ca, sample, fc_col):
     result_dict = {}
     print(('Performing CBS on chr:{}').format(chrname))
-    segrows = cbs.runCBS(ca, sample_id=sample)
-    result_dict[chrname] = [ca, segrows]
+    segrows, cnseg = cbs.runCBS(ca, sample_id=sample, fc_col=fc_col)
+    result_dict[chrname] = [ca, segrows, cnseg]
     return result_dict

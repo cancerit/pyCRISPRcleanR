@@ -1,5 +1,6 @@
 env/
 **/__pycache__/
+**.pyc
 *.py[cod]
 *$py.class
 .coverage
@@ -9,6 +10,7 @@ htmlcov
 *.egg
 /build
 /dist
+*/segmentation/__pycache__/
 cgpCRISPRcleanR.egg-info*
 *.log
 /results.tsv

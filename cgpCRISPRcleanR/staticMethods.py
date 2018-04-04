@@ -4,6 +4,7 @@ import tarfile
 import pandas as pd
 import numpy as np
 import logging.config
+from cgpCRISPRcleanR.plots import PlotData as PLT
 # os.environ["LD_LIBRARY_PATH"] = "/software/R-3.3.0/lib/R/lib"
 # export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/software/R-3.3.0/lib/R/li
 
@@ -49,11 +50,16 @@ class StaticMthods(object):
 
     # ------------------------------Analysis methods---------------------------------
     @staticmethod
-    def combine_count_n_library(countfile, libfile):
+    def combine_count_n_library(countfile, libfile, plot_flag=None):
         """
             Combine counts and library file data based on union of indexes
         """
         counts = pd.read_csv(countfile, compression='infer', sep="\t", index_col='sgRNA')
+        # plot raw counts
+        if plot_flag:
+            PLT.box_plot_r(counts.iloc[:, 1:], title="Raw sgRNA counts", saveto='./raw_counts',
+                         ylabel='Raw Counts', xlabel='Sample Names')
+
         libdata = pd.read_csv(libfile, compression='infer', sep="\t", index_col='sgRNA')
         cldf = pd.concat([counts, libdata], axis=1, join='inner')
         return cldf
@@ -81,7 +87,7 @@ class StaticMthods(object):
         return cldf
 
     @staticmethod
-    def get_norm_count_n_fold_changes(cldf, controls):
+    def get_norm_count_n_fold_changes(cldf, controls, plot_flag=None):
         """
             Calculate normalised count and avarage fold change using raw count data for
             control and sample, add  it to main data frame
@@ -91,13 +97,24 @@ class StaticMthods(object):
         """
         normed = cldf.iloc[:, 0:cldf.columns.get_loc('gene')].div(
             cldf.iloc[:, 0:cldf.columns.get_loc('gene')].agg('sum')) * 10e6
+        # plot normalised counts
+        if plot_flag:
+            PLT.box_plot_r(normed, title="Normalised sgRNA counts", saveto='./normalised_counts',
+                         ylabel='Normalised Counts',
+                         xlabel='Sample Names')
+
         if normed.empty:
-            print(normed.head())
             sys.exit('Normalized data frame is empty check if required columns are present')
         fc = normed.apply(lambda x: np.log2((x + 0.5) / (normed.iloc[:, 0:controls].mean(axis=1) + 0.5)))
         fc.drop(fc.columns[0:controls], axis=1, inplace=True)
+
+        # plot fold Changes
+        if plot_flag:
+            PLT.box_plot_r(fc, title="Fold Changes sgRNA", saveto='./fold_changes',
+                         ylabel='Fold Changes',
+                         xlabel='Sample Names')
+
         if fc.empty:
-            print(fc.head())
             sys.exit('Foldchange data frame is empty')
         no_rep = len(fc.columns)
         cldf = cldf.join(normed, rsuffix='_nc')
@@ -107,13 +124,13 @@ class StaticMthods(object):
         return cldf, no_rep
 
     @staticmethod
-    def run_cbs(cldf, cpus, sample):
+    def run_cbs(cldf, cpus, sample, fc_col='avgFC'):
         """
             Runs CBS algorithm from DNAcopy and returns a dictionay
             of per chr raw dataframe and cbs segments
 
         """
-        cbs_dict = segmentation.do_segmentation(cldf, cpus, sample)
+        cbs_dict = segmentation.do_segmentation(cldf, cpus, sample, fc_col=fc_col)
         return cbs_dict
 
     @staticmethod
@@ -124,13 +141,13 @@ class StaticMthods(object):
         """
         corrected_count_list = []
         chrdata_list = []
-        for chr, (cnarr, segrows) in cbs_dict.items():
+        for chr, (cnarr, segrows, cnseg) in cbs_dict.items():
             print("Correcting counts on Chr :{} : sgRNA:{} segments{}".format(chr, cnarr.shape, segrows.shape))
             cnarr.is_copy = False
             cnarr['correction'] = 0
             cnarr['correctedFC'] = cnarr.avgFC
             reverted_counts = cnarr.iloc[:, cnarr.columns.get_loc('endp') +
-                            controls + 1:cnarr.columns.get_loc('avgFC')]
+                                        controls + 1:cnarr.columns.get_loc('avgFC')]
             n_gene_in_seg = 0
             for segment in segrows.itertuples():
                 idxs = list(range(segment.startRow - 1, segment.endRow))
@@ -141,6 +158,7 @@ class StaticMthods(object):
                         cnarr.avgFC.iloc[idxs] - cnarr.avgFC.iloc[idxs].mean()
                     cnarr.iloc[(idxs, cnarr.columns.get_loc('correction'))] = -np.sign(
                         cnarr.correctedFC.iloc[idxs].mean())
+
                     reverted = StaticMthods._correct_counts(cnarr.iloc[idxs], controls, no_rep)
                     reverted_counts.iloc[idxs] = reverted
             corrected_count_list.append(reverted_counts)
@@ -170,7 +188,7 @@ class StaticMthods(object):
         reverted = proportions.mul(reverted.revc, axis=0)
         return reverted
 
-# utility methods
+    # utility methods
     @staticmethod
     def get_position(row):
         return round(row['startp'] + (row['endp'] - row['startp']) / 2)
