@@ -134,3 +134,4 @@ pip install --find-links=~/wheels pyCRISPRCleanR
  [Pandas]: http://pandas.pydata.org/
  [rpy2]: https://rpy2.bitbucket.io/
  [DNAcopy]: https://www.bioconductor.org/packages/release/bioc/html/DNAcopy.html 
+ [CRISPRclearR]: https://github.com/francescojm/CRISPRcleanR

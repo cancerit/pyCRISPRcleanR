@@ -11,6 +11,7 @@ language: python
 python:
   - "3.6"
 
+
 install:
   - pip install pytest
   - pip install pytest-cover
@@ -25,7 +26,9 @@ before_script:
   - ./cc-test-reporter before-build
 
 script:
-  - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=cgpCRISPRcleanR
+	- cd Rsupport
+  - ./setupR.sh $HOME/pyCRISPRcleanR-opt
+  - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=pyCRISPRcleanR
   - coverage xml
 
 after_script:
