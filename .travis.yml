@@ -25,6 +25,12 @@ python:
 
 
 install: true
+  - pip install pytest
+  - pip install pytest-cover
+  - pip install pandas
+  - pip install numpy
+  - pip install rpy2
+  - pip install .
 
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -33,7 +39,8 @@ before_script:
 
 script:
   - cd Rsupport
-  - ./setupR.sh $HOME/pyCRISPRcleanR-opt 1
+  - ./setupR.sh $HOME/pyCRISPRcleanR-opt
+  - cd ../
   - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=pyCRISPRcleanR
   - coverage xml
 

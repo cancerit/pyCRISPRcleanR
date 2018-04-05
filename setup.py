@@ -10,7 +10,7 @@ config = {
     'url': 'https://github.com/CancerIT/pyCRISPRcleanR',
     'author_email': 'pyhelp@sanger.ac.uk',
     'python_requires': '>= 3.3',
-    'setup_requires': ['pytest','pytest-cov'],
+    'setup_requires': ['pytest','pytest-cover'],
     'install_requires': ['logging','rpy2','pandas', 'numpy'],
     'packages': ['pyCRISPRcleanR'],
     'package_data': {'pyCRISPRcleanR':['config/*.conf']},
