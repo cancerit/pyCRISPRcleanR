@@ -11,7 +11,7 @@ config = {
     'author_email': 'pyhelp@sanger.ac.uk',
     'python_requires': '>= 3.3',
     'setup_requires': ['pytest','pytest-cov'],
-    'install_requires': ['logging','rpy2','pandas'],
+    'install_requires': ['logging','rpy2','pandas', 'numpy'],
     'packages': ['pyCRISPRcleanR'],
     'package_data': {'pyCRISPRcleanR':['config/*.conf']},
     'entry_points': {
