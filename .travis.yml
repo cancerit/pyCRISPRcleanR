@@ -24,7 +24,7 @@ python:
   - "3.6"
 
 
-install: true
+install:
   - pip install pytest
   - pip install pytest-cover
   - pip install pandas
@@ -41,7 +41,7 @@ script:
   - cd Rsupport
   - ./setupR.sh $HOME/pyCRISPRcleanR-opt
   - cd ../
-  - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=pyCRISPRcleanR
+  - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=pyCRISPRcleanR-opt
   - coverage xml
 
 after_script:
