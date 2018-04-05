@@ -16,12 +16,13 @@ addons:
     - libcairo2-dev # give png.h for kentsrc and used by R in later components
     - time
     - curl
-    - python-rpy2 # install R > 3.3
 
-language: python
-
-python:
-  - "3.6"
+matrix:
+  include:
+    - language: python
+      python: "3.6"
+    - language: r
+      r: "3.3.0"
 
 
 install:
@@ -30,6 +31,7 @@ install:
   - pip install pytest-cover
   - pip install pandas
   - pip install numpy
+  - pip install rpy2
   - pip install .
 
 before_script:
