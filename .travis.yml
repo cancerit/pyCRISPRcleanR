@@ -16,7 +16,7 @@ addons:
     - libcairo2-dev # give png.h for kentsrc and used by R in later components
     - time
     - curl
-    - r-base-dev
+    - r-base # install R > 3.3
 
 language: python
 
