@@ -16,8 +16,8 @@ install:
   - pip install pytest
   - pip install pytest-cover
   - pip install pandas
-	- pip install numpy
-	- pip install rpy2
+  - pip install numpy
+  - pip install rpy2
   - pip install .
 
 before_script:
@@ -26,7 +26,7 @@ before_script:
   - ./cc-test-reporter before-build
 
 script:
-	- cd Rsupport
+  - cd Rsupport
   - ./setupR.sh $HOME/pyCRISPRcleanR-opt
   - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=pyCRISPRcleanR
   - coverage xml
