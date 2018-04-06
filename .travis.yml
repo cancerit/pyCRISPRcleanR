@@ -1,3 +1,4 @@
+dist: precise
 notifications:
   email: false
   slack: wtsi-cgpit:ptUMR1tkNyZJYd9TpGoss8WR
@@ -16,15 +17,12 @@ addons:
     - libcairo2-dev # give png.h for kentsrc and used by R in later components
     - time
     - curl
-    - r-base
+    - r-release
 
 language: python
 
 python: 
     - "3.6"
-
-before_install:
-    - r install 3.3.0
 
 install:
   - pip install --upgrade setuptools  # to avoid egg_info erro code 1 exit
