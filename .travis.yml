@@ -18,7 +18,9 @@ addons:
     - curl
 
 language: python
-    - python: "3.6"
+
+python: 
+    - "3.6"
 
 before_install:
     - r install 3.3.0
