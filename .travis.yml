@@ -17,13 +17,11 @@ addons:
     - time
     - curl
 
-matrix:
-  include:
-    - language: python
-      python: "3.6"
-    - language: r
-      r: "3.3.0"
+language: python
+    - python: "3.6"
 
+before_install:
+    - r install 3.3.0
 
 install:
   - pip install --upgrade setuptools  # to avoid egg_info erro code 1 exit
