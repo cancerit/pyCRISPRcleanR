@@ -1,4 +1,3 @@
-dist: precise
 notifications:
   email: false
   slack: wtsi-cgpit:ptUMR1tkNyZJYd9TpGoss8WR
@@ -17,7 +16,11 @@ addons:
     - libcairo2-dev # give png.h for kentsrc and used by R in later components
     - time
     - curl
-    - r-release
+
+before_install:
+   - deb https://cran.ma.imperial.ac.uk/bin/linux/ubuntu trusty/
+   - sudo apt-get update
+   - sudo apt-get install r-base
 
 language: python
 
