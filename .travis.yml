@@ -45,8 +45,8 @@ before_script:
 
 script:
   - cd Rsupport
-  - pritnenv
-  - sudo ./setupR.sh 
+  - printenv
+  - sudo ./setupR.sh /home/travis/build/cancerit/pyCRISPRcleanR
   - cd ../
   - wget https://pypi.python.org/packages/7d/3e/48954b03db340b6f0be31e2f49f562a21bc9e0dcfa2cb7eba99ee0e11a47/rpy2-2.9.2.tar.gz#md5=05d0b5c79b3f6cfada2560a269dc95ba
   - tar -xzf rpy2-2.9.2.tar.gz 
