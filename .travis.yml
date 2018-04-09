@@ -18,8 +18,11 @@ addons:
     - curl
 
 before_install:
-   - deb https://cran.ma.imperial.ac.uk/bin/linux/ubuntu trusty/
+   - sudo apt-get remove r-base-core
+   - sudo add-apt-repository "deb https://cran.ma.imperial.ac.uk/bin/linux/ubuntu trusty/"
+   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
    - sudo apt-get update
+   - sudo apt-get upgrade
    - sudo apt-get install r-base
 
 language: python
