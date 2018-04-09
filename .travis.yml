@@ -17,7 +17,12 @@ addons:
     - libcairo2-dev # give png.h for kentsrc and used by R in later components
     - time
     - curl
-    - r-base-dev
+
+before_install:
+    - sudo add-apt-repository "deb https://cran.ma.imperial.ac.uk/bin/linux/ubuntu trusty/"
+    - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+    - sudo apt-get update
+    - sudo apt-get install r-base
 
 language: python
 
@@ -41,7 +46,7 @@ before_script:
 
 script:
   - cd Rsupport
-  - ./setupR.sh /home/travis/build/cancerit/pyCRISPRcleanR 1
+  - ./setupR.sh /home/travis/build/cancerit/pyCRISPRcleanR
   - cd ../
   - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=pyCRISPRcleanR
   - coverage xml
