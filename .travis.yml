@@ -46,7 +46,7 @@ script:
   - cd Rsupport
   - ./setupR.sh $HOME/pyCRISPRcleanR-opt
   - cd ../
-  - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=pyCRISPRcleanR-opt
+  - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=pyCRISPRcleanR
   - coverage xml
 
 after_script:
