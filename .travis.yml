@@ -46,7 +46,7 @@ before_script:
 
 script:
   - cd Rsupport
-  - ./setupR.sh /home/travis/build/cancerit/pyCRISPRcleanR
+  - sudo ./setupR.sh /home/travis/build/cancerit/pyCRISPRcleanR
   - cd ../
   - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=pyCRISPRcleanR
   - coverage xml
