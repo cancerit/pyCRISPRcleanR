@@ -22,7 +22,6 @@ before_install:
    - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
    - sudo apt-get update
    - sudo apt-get install r-base
-   - sudo apt-get install r-bioc-dnacopy
 
 language: python
 
@@ -44,6 +43,9 @@ before_script:
   - ./cc-test-reporter before-build
 
 script:
+  - cd Rsupport
+  - ./setupR.sh /home/travis/build/cancerit/pyCRISPRcleanR
+  - cd ../
   - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=pyCRISPRcleanR
   - coverage xml
 
