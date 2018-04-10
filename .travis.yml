@@ -19,7 +19,7 @@ addons:
     - time
     - curl
 
-before_install:
+before_install: # installs R3.3
     - sudo add-apt-repository "deb https://cran.ma.imperial.ac.uk/bin/linux/ubuntu trusty/"
     - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
     - sudo apt-get update
@@ -48,13 +48,9 @@ script:
   - cd Rsupport
   - which R
   - which python
-  - Rscript -e '.libPaths()'
   - sudo ./setupR.sh $HOME/pyCRISPRcleanR-opt
-  - Rscript -e '.libPaths()'
   - cd ../
   - export R_LIBS_USER=$HOME/pyCRISPRcleanR-opt/R-lib
-  - Rscript -e '.libPaths()'
-  - Rscript -e ".libPaths(c(.libPaths(), \"$HOME/pyCRISPRcleanR-opt/R-lib\"))"
   - Rscript -e '.libPaths()'
   - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=pyCRISPRcleanR
   - coverage xml
