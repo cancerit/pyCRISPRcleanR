@@ -59,6 +59,8 @@ class StaticMthods(object):
         if plot_flag:
             PLT.box_plot_r(counts.iloc[:, 1:], title="Raw sgRNA counts", saveto='./raw_counts',
                          ylabel='Raw Counts', xlabel='Sample Names')
+            PLT.box_plot_ly(counts.iloc[:, 1:], title="Raw sgRNA counts", saveto='./raw_counts',
+                         ylabel='Raw Counts', xlabel='Sample Names')
 
         libdata = pd.read_csv(libfile, compression='infer', sep="\t", index_col='sgRNA')
         cldf = pd.concat([counts, libdata], axis=1, join='inner')
@@ -102,6 +104,9 @@ class StaticMthods(object):
             PLT.box_plot_r(normed, title="Normalised sgRNA counts", saveto='./normalised_counts',
                          ylabel='Normalised Counts',
                          xlabel='Sample Names')
+            PLT.box_plot_ly(normed, title="Normalised sgRNA counts", saveto='./normalised_counts',
+                         ylabel='Normalised Counts',
+                         xlabel='Sample Names')
 
         if normed.empty:
             sys.exit('Normalized data frame is empty check if required columns are present')
@@ -111,6 +116,9 @@ class StaticMthods(object):
         # plot fold Changes
         if plot_flag:
             PLT.box_plot_r(fc, title="Fold Changes sgRNA", saveto='./fold_changes',
+                         ylabel='Fold Changes',
+                         xlabel='Sample Names')
+            PLT.box_plot_ly(fc, title="Fold Changes sgRNA", saveto='./fold_changes',
                          ylabel='Fold Changes',
                          xlabel='Sample Names')
 
