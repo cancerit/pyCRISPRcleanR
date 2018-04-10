@@ -1,9 +1,8 @@
 import sys
 import rpy2.rinterface
-rpy2.rinterface.set_initoptions(('rpy2', '--no-save', '--no-restore', '--quiet'))
+rpy2.rinterface.set_initoptions((b'rpy2', b'--no-save', b'--no-restore', b'--quiet'))
 from rpy2.robjects import r, pandas2ri
 from rpy2.robjects.packages import importr
-from rpy2.rinterface import R_VERSION_BUILD
 
 pandas2ri.activate()
 
@@ -11,8 +10,10 @@ d = {'package.dependencies': 'package_dot_dependencies',
      'package_dependencies': 'package_uscore_dependencies'}
 
 base = importr('base', robject_translations=d)
-dnacopy = importr("DNAcopy", robject_translations=d)
 
+print(base._libPaths())
+
+dnacopy = importr("DNAcopy", robject_translations=d)
 
 def runCBS(cnarr, sample_id='mysample', fc_col='avgFC'):
     """
@@ -23,7 +24,6 @@ def runCBS(cnarr, sample_id='mysample', fc_col='avgFC'):
          to covert R data frame to python use rx [ and rx2 [[ R brackets
          rx2 returns data frame
     """
-    print("CBS analysis uing R version:{}".format(R_VERSION_BUILD))
     chr_name = cnarr['CHR'].unique()[0]
     tbl = pandas2ri.py2ri(cnarr)
     kwargs = {'data.type': "logratio", 'sampleid': sample_id, 'presorted': True}
