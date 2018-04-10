@@ -1,4 +1,5 @@
 dist: trusty
+
 notifications:
   email: false
   slack: wtsi-cgpit:ptUMR1tkNyZJYd9TpGoss8WR
@@ -51,6 +52,7 @@ script:
   - printenv
   - sudo ./setupR.sh /usr/lib/R/library
   - cd ../
+  - Rscript -e 'library(DNAcopy)'
   - Rscript -e '.libPaths()'
   - printenv
   - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=pyCRISPRcleanR
@@ -58,3 +60,5 @@ script:
 
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+
+sudo: false
