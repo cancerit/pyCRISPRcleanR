@@ -36,6 +36,7 @@ install:
   - pip install pandas
   - pip install numpy
   - pip install plotly
+  - pip install rpy2
   - pip install .
 
 before_script:
@@ -46,13 +47,9 @@ before_script:
 script:
   - cd Rsupport
   - printenv
-  - sudo ./setupR.sh /home/travis/build/cancerit/pyCRISPRcleanR
+  - sudo ./setupR.sh $HOME/pyCRISPRcleanR-opt
   - cd ../
-  - wget https://pypi.python.org/packages/7d/3e/48954b03db340b6f0be31e2f49f562a21bc9e0dcfa2cb7eba99ee0e11a47/rpy2-2.9.2.tar.gz#md5=05d0b5c79b3f6cfada2560a269dc95ba
-  - tar -xzf rpy2-2.9.2.tar.gz 
-  - cd rpy2-2.9.2
-  - python setup.py build --r-home $R_LIBS install
-  - cd ..
+  - printenv
   - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=pyCRISPRcleanR
   - coverage xml
 

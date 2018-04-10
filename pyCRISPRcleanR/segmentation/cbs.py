@@ -1,4 +1,6 @@
 import sys
+import rpy2.rinterface
+rpy2.rinterface.set_initoptions(('rpy2', '--no-save', '--no-restore', '--quiet'))
 from rpy2.robjects import r, pandas2ri
 from rpy2.robjects.packages import importr
 from rpy2.rinterface import R_VERSION_BUILD
