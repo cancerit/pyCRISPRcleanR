@@ -49,14 +49,13 @@ script:
   - which R
   - which python
   - Rscript -e '.libPaths()'
-  - printenv
-  - sudo ./setupR.sh /usr/lib/R/library
-  - cd ../
-  - export R_LIBS_USER=/usr/lib/R/library/R-lib
-  - Rscript -e 'library(DNAcopy, lib.loc="/usr/lib/R/library/R-lib")'
-  - Rscript -e '.libPaths(c(.libPaths(), "/usr/lib/R/library/R-lib"))'
+  - sudo ./setupR.sh $HOME/pyCRISPRcleanR-opt
   - Rscript -e '.libPaths()'
-  - printenv
+  - cd ../
+  - export R_LIBS_USER=$HOME/pyCRISPRcleanR-opt/R-lib
+  - Rscript -e '.libPaths()'
+  - Rscript -e ".libPaths(c(.libPaths(), \"$HOME/pyCRISPRcleanR-opt/R-lib\"))"
+  - Rscript -e '.libPaths()'
   - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=pyCRISPRcleanR
   - coverage xml
 
