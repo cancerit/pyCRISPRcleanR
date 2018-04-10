@@ -57,7 +57,7 @@ INIT_DIR=`pwd`
 
 #add bin path for use in R lib building
 export PATH=$INST_PATH/bin:$PATH
-
+export LD_LIBRARY_PATH=/usr/lib/R/lib/libR.so:$LD_LIBRARY_PATH
 # set R lib paths based on INST_PATH
 export R_LIBS=$INST_PATH/R-lib
 export R_LIBS_USER=$INST_PATH/R-lib

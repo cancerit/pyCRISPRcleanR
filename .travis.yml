@@ -35,7 +35,6 @@ install:
   - pip install pytest-cover
   - pip install pandas
   - pip install numpy
-  - pip install plotly
   - pip install rpy2
   - pip install .
 
@@ -46,9 +45,14 @@ before_script:
 
 script:
   - cd Rsupport
+  - which R
+  - which python
+  - Rscript -e '.libPaths()'
   - printenv
   - sudo ./setupR.sh $HOME/pyCRISPRcleanR-opt
   - cd ../
+  - Rscript -e ".libPaths( c( .libPaths(), \"$HOME/pyCRISPRcleanR-opt\") )"
+  - Rscript -e '.libPaths()'
   - printenv
   - pytest --cov-report term --cov-report xml --cov-fail-under=50 --cov=pyCRISPRcleanR
   - coverage xml
