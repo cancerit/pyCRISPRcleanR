@@ -10,7 +10,7 @@ ipak <- function(pkg){
   new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
   if (length(new.pkg))
     biocLite(new.pkg, ask=FALSE, lib=instLib)
-    .libPaths()
+    .libPaths(c(.libpaths(), instLib))
   sapply(pkg, library, character.only = TRUE)
 }
 

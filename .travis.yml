@@ -52,6 +52,7 @@ script:
   - printenv
   - sudo ./setupR.sh /usr/lib/R/library
   - cd ../
+  - export R_LIBS_USER=/usr/lib/R/library/R-lib
   - Rscript -e 'library(DNAcopy, lib.loc="/usr/lib/R/library/R-lib")'
   - Rscript -e '.libPaths(c(.libPaths(), "/usr/lib/R/library/R-lib"))'
   - Rscript -e '.libPaths()'
