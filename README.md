@@ -52,12 +52,12 @@ Release `.whl` files are generated as part of the release process and can be fou
 * [NumPy]
 * [Pandas]
 * [rpy2]
+* [plotly]
 
 ### R packages
 
 * [DNAcopy] R packages is required to run `pyCRISPRcleanR`.  To facilitate the install process there is
-a script `Rsupport/libInstall.R` that can be run to build this for you.  See this file for the list
-of packages.
+a script `Rsupport/libInstall.R` that can be run to build this for you.
 
 Alternatively you can run:
 
@@ -135,6 +135,7 @@ pip install --find-links=~/wheels pyCRISPRCleanR
 ```
 <!--refs-->
  [NumPy]: http://www.numpy.org/
+ [plotly]: https://plot.ly/python/
  [Pandas]: http://pandas.pydata.org/
  [rpy2]: https://rpy2.bitbucket.io/
  [DNAcopy]: https://www.bioconductor.org/packages/release/bioc/html/DNAcopy.html 
