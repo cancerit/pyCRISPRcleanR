@@ -1,5 +1,9 @@
 # pyCRISPRCleanR
-This is python implementation of Francesco's [CRISPRclearR] R package for unsupervised identification and
+| Master                                              | Develop                                               |
+| --------------------------------------------------- | ----------------------------------------------------- |
+| [![Master Badge][travis-master-badge]][travis-repo] | [![Develop Badge][travis-develop-badge]][travis-repo] |
+
+This is python implementation of Francesco's [CRISPRcleanR] R package for unsupervised identification and
 correction of gene independent cell responses to CRISPR-cas9 targeting 
 
 <!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
@@ -134,4 +138,7 @@ pip install --find-links=~/wheels pyCRISPRCleanR
  [Pandas]: http://pandas.pydata.org/
  [rpy2]: https://rpy2.bitbucket.io/
  [DNAcopy]: https://www.bioconductor.org/packages/release/bioc/html/DNAcopy.html 
- [CRISPRclearR]: https://github.com/francescojm/CRISPRcleanR
+ [CRISPRcleanR]: https://github.com/francescojm/CRISPRcleanR
+ [travis-master-badge]: https://travis-ci.org/cancerit/pyCRISPRcleanR.svg?branch=master
+ [travis-develop-badge]: https://travis-ci.org/cancerit/pyCRISPRcleanR.svg?branch=develop
+ [travis-repo]: https://travis-ci.org/cancerit/pyCRISPRcleanR
