@@ -1,0 +1,15 @@
+README.md
+setup.py
+pyCRISPRcleanR/__init__.py
+pyCRISPRcleanR/abstractCrispr.py
+pyCRISPRcleanR/crisprCleanR_command.py
+pyCRISPRcleanR/formatInput.py
+pyCRISPRcleanR/plots.py
+pyCRISPRcleanR/staticMethods.py
+pyCRISPRcleanR.egg-info/PKG-INFO
+pyCRISPRcleanR.egg-info/SOURCES.txt
+pyCRISPRcleanR.egg-info/dependency_links.txt
+pyCRISPRcleanR.egg-info/entry_points.txt
+pyCRISPRcleanR.egg-info/requires.txt
+pyCRISPRcleanR.egg-info/top_level.txt
+pyCRISPRcleanR/config/logging.conf
