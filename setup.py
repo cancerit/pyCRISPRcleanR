@@ -11,7 +11,7 @@ config = {
     'author_email': 'cgphelp@sanger.ac.uk',
     'python_requires': '>= 3.3',
     'setup_requires': ['pytest','pytest-cover'],
-    'install_requires': ['rpy2','pandas', 'numpy', 'plotly'],
+    'install_requires': ['rpy2', 'pandas', 'numpy', 'plotly'],
     'packages': ['pyCRISPRcleanR'],
     'package_data': {'pyCRISPRcleanR':['config/*.conf']},
     'entry_points': {

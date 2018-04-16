@@ -34,10 +34,6 @@ install:
   - pip install --upgrade setuptools  # to avoid egg_info erro code 1 exit
   - pip install pytest
   - pip install pytest-cover
-  - pip install pandas
-  - pip install numpy
-  - pip install plotly
-  - pip install rpy2
   - pip install .
 
 before_script:
