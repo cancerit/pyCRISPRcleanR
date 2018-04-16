@@ -19,6 +19,9 @@ def _ds(args):
 
 
 def _do_segmentation(chrname, ca, sample, fc_col):
+    """
+    :rtype: result dictionary
+    """
     result_dict = {}
     print(('Performing CBS on chr:{}').format(chrname))
     segrows, cnseg = cbs.runCBS(ca, sample_id=sample, fc_col=fc_col)

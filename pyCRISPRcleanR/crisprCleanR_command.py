@@ -3,6 +3,12 @@ import sys
 import os
 import argparse
 import pkg_resources
+import logging.config
+
+configdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config/')
+log_config = configdir + 'logging.conf'
+logging.config.fileConfig(log_config)
+log = logging.getLogger(__name__)
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 version = pkg_resources.require("pyCRISPRcleanR")[0].version
@@ -47,7 +53,7 @@ def main():
                           default=1, help="Number of processors to use for parallel jobs")
 
     optional.add_argument("-pl", "--plot_data", type=str, dest="plot_data", required=False,
-                          default=None, help="Generate plots input [y or 1]")
+                          default=None, help="Generate pdf and interactive plotly images [y or 1]")
 
     optional.add_argument("-o", "--outdir", type=str, dest="outdir",
                           default='./', help="path to output folder ")
@@ -62,6 +68,13 @@ def main():
         sys.exit(1)
     opts = optParser.parse_args()
     if not (opts.countfile or opts.libfile):
-        sys.exit('\nERROR Arguments required\n\tPlease run: cgp_crispr_cleanr --help\n')
+        sys.exit('\nERROR Arguments required\n\tPlease run: pyCRISPRCleanR --help\n')
+        log.debug('ERROR Arguments required \n Please run: pyCRISPRCleanR --help')
+    log.debug('Analysis started....')
+
     mycrispr = CrisprCleanR(**vars(opts))
     mycrispr.run_analysis()
+
+
+if __name__ == '__main__':
+    main()

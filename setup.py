@@ -5,13 +5,14 @@ from setuptools import setup
 config = {
     'version': '1.0.0',
     'name': 'pyCRISPRcleanR',
-    'description': 'tool to comapre files and/or archives',
-    'author': 'Shriram G Bhosle',
+    'description': 'This is python implementation of CRISPRcleanR package for unsupervised identification and
+                    correction of gene independent cell responses to CRISPR-cas9 targeting',
+    'author': 'Shriram Bhosle',
     'url': 'https://github.com/CancerIT/pyCRISPRcleanR',
-    'author_email': 'pyhelp@sanger.ac.uk',
+    'author_email': 'cgphelp@sanger.ac.uk',
     'python_requires': '>= 3.3',
     'setup_requires': ['pytest','pytest-cover'],
-    'install_requires': ['rpy2','pandas', 'numpy'],
+    'install_requires': ['rpy2','pandas', 'numpy', 'plotly'],
     'packages': ['pyCRISPRcleanR'],
     'package_data': {'pyCRISPRcleanR':['config/*.conf']},
     'entry_points': {

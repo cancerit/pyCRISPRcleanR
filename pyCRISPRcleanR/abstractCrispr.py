@@ -13,7 +13,7 @@ class AbstractCrispr(ABC):
         self.expname = kwargs.get('expname', 'myexperiment')
         self.minreads = kwargs.get('minreads', 30)
         self.mingenes = kwargs.get('mingenes', 3)
-        self.outdir = kwargs.get('outdir', './')
+        self.outdir = kwargs.get('outdir')
         self.ncontrols = kwargs.get('ncontrols', 1)
         self.sample = kwargs.get('sample', 'mySample')
         self.ignored_genes = kwargs.get('ignored_genes', [])

@@ -11,6 +11,7 @@ correction of gene independent cell responses to CRISPR-cas9 targeting
 - [Design](#design)
 - [Tools](#tools)
 	- [pyCRISPRCleanR](#pycrisprcleanr)
+	- [outputFormat] (#outputfotmat)
 - [INSTALL](#install)
 	- [Package Dependencies](#package-dependencies)
   - [R packages](#r-packages)
@@ -36,6 +37,23 @@ The output is tab separated files for normalised fold changes and
 inverse transformed corrected treatment counts
 
 Various exceptions can occur for malformed input files.
+
+### outputFormat
+ output contains tab separated raw and normalised data in following order
+ gRNA: guideRNA
+ <control sample count raw 1..N replicates> : raw count
+ <treatment sample count raw 1..N replicates> : raw count
+ gene: gene name as defined in the library file
+ CHR: Chromosome name
+ startp: gRNA start position
+ endp: gRNA end position
+ <control sample count normalised 1..N replicates> : Normalised count
+ <treatment sample count normalised 1..N replicates> : Normalised count (postfixed nc)
+ avgFC: average fold change values
+ BP: Base pair location ( used for DNAcopy analysis)
+ correction: Correction factor
+ correctedFC: corrected foldchange values
+ <sample_count_corrected 1..N >: corrected count (postfixed nc_rev)
 
 ## INSTALL
 Installing via `pip install` .Simply execute with the path to the compiled 'whl' found on the [release page][pyCRISPRCleanR-releases]:

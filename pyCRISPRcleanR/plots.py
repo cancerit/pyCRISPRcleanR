@@ -36,8 +36,8 @@ class PlotData(object):
         py.plot(figure, filename=saveto + '.html', auto_open=False, config=config)
 
     @staticmethod
-    def plot_segments(cbs_fc, cbs_normfc, sample_id):
-        pdf_prm = {'file': "{}_raw_vs_postCrispr_FC.pdf".format(sample_id), 'width': 7.5, 'height': 7.5}
+    def plot_segments(cbs_fc, cbs_normfc, sample_id, outdir='./'):
+        pdf_prm = {'file': "{}/{}_raw_vs_postCrispr_FC.pdf".format(outdir, sample_id), 'width': 7.5, 'height': 7.5}
         grdevices.pdf(**pdf_prm)
         r.par(mfrow=r.c(2, 1))
         for chr_name, (_, _, cnseg_raw) in cbs_fc.items():

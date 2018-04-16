@@ -3,18 +3,11 @@ import os
 import tarfile
 import pandas as pd
 import numpy as np
-import logging.config
+import logging
 from pyCRISPRcleanR.plots import PlotData as PLT
-# os.environ["LD_LIBRARY_PATH"] = "/software/R-3.3.0/lib/R/lib"
-# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/software/R-3.3.0/lib/R/li
-
 from . import segmentation
 
-configdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config/')
-log_config = configdir + 'logging.conf'
-logging.config.fileConfig(log_config)
-
-log = logging.getLogger('pyCRISPRcleanR')
+log = logging.getLogger(__name__)
 
 
 class StaticMthods(object):
@@ -39,30 +32,28 @@ class StaticMthods(object):
         except IOError as ioe:
             sys.exit('Error in reading input file:{}'.format(ioe.args[0]))
 
-    @staticmethod
-    def create_dict(inputlist):
-        chrdict = {}
-        chr_count = 1
-        for chr in inputlist:
-            chrdict[chr] = chr_count
-            chr_count += 1
-        return chrdict
-
     # ------------------------------Analysis methods---------------------------------
     @staticmethod
-    def combine_count_n_library(countfile, libfile, plot_flag=None):
+    def combine_count_n_library(countfile, libfile, plot_flag=None, outdir='./'):
         """
             Combine counts and library file data based on union of indexes
         """
         counts = pd.read_csv(countfile, compression='infer', sep="\t", index_col='sgRNA')
+        if counts.empty:
+            sys.exit('counts data is empty check input file')
         # plot raw counts
-        if plot_flag:
-            PLT.box_plot_r(counts.iloc[:, 1:], title="Raw sgRNA counts", saveto='./raw_counts',
-                         ylabel='Raw Counts', xlabel='Sample Names')
-            PLT.box_plot_ly(counts.iloc[:, 1:], title="Raw sgRNA counts", saveto='./raw_counts',
-                         ylabel='Raw Counts', xlabel='Sample Names')
+        elif plot_flag:
+            PLT.box_plot_r(counts.iloc[:, 1:], title="Raw sgRNA counts", saveto=outdir + '/raw_counts',
+                           ylabel='Raw Counts', xlabel='Sample Names')
+            PLT.box_plot_ly(counts.iloc[:, 1:], title="Raw sgRNA counts", saveto=outdir + '/raw_counts',
+                            ylabel='Raw Counts', xlabel='Sample Names')
+            log.info("Plotting raw counts.....")
 
         libdata = pd.read_csv(libfile, compression='infer', sep="\t", index_col='sgRNA')
+
+        if libdata.empty:
+            sys.exit('Library data is empty check input file')
+
         cldf = pd.concat([counts, libdata], axis=1, join='inner')
         return cldf
 
@@ -89,7 +80,7 @@ class StaticMthods(object):
         return cldf
 
     @staticmethod
-    def get_norm_count_n_fold_changes(cldf, controls, plot_flag=None):
+    def get_norm_count_n_fold_changes(cldf, controls, plot_flag=None, outdir='./'):
         """
             Calculate normalised count and avarage fold change using raw count data for
             control and sample, add  it to main data frame
@@ -100,30 +91,31 @@ class StaticMthods(object):
         normed = cldf.iloc[:, 0:cldf.columns.get_loc('gene')].div(
             cldf.iloc[:, 0:cldf.columns.get_loc('gene')].agg('sum')) * 10e6
         # plot normalised counts
-        if plot_flag:
-            PLT.box_plot_r(normed, title="Normalised sgRNA counts", saveto='./normalised_counts',
-                         ylabel='Normalised Counts',
-                         xlabel='Sample Names')
-            PLT.box_plot_ly(normed, title="Normalised sgRNA counts", saveto='./normalised_counts',
-                         ylabel='Normalised Counts',
-                         xlabel='Sample Names')
-
         if normed.empty:
             sys.exit('Normalized data frame is empty check if required columns are present')
+
+        elif plot_flag:
+            PLT.box_plot_r(normed, title="Normalised sgRNA counts", saveto=outdir + '/normalised_counts',
+                           ylabel='Normalised Counts',
+                           xlabel='Sample Names')
+            PLT.box_plot_ly(normed, title="Normalised sgRNA counts", saveto=outdir + '/normalised_counts',
+                            ylabel='Normalised Counts',
+                            xlabel='Sample Names')
+
         fc = normed.apply(lambda x: np.log2((x + 0.5) / (normed.iloc[:, 0:controls].mean(axis=1) + 0.5)))
         fc.drop(fc.columns[0:controls], axis=1, inplace=True)
 
-        # plot fold Changes
-        if plot_flag:
-            PLT.box_plot_r(fc, title="Fold Changes sgRNA", saveto='./fold_changes',
-                         ylabel='Fold Changes',
-                         xlabel='Sample Names')
-            PLT.box_plot_ly(fc, title="Fold Changes sgRNA", saveto='./fold_changes',
-                         ylabel='Fold Changes',
-                         xlabel='Sample Names')
-
         if fc.empty:
             sys.exit('Foldchange data frame is empty')
+            # plot fold Changes
+        elif plot_flag:
+            PLT.box_plot_r(fc, title="Fold Changes sgRNA", saveto=outdir + '/fold_changes',
+                           ylabel='Fold Changes',
+                           xlabel='Sample Names')
+            PLT.box_plot_ly(fc, title="Fold Changes sgRNA", saveto=outdir + '/fold_changes',
+                            ylabel='Fold Changes',
+                            xlabel='Sample Names')
+
         no_rep = len(fc.columns)
         cldf = cldf.join(normed, rsuffix='_nc')
         cldf['avgFC'] = fc.mean(axis=1)
@@ -155,13 +147,13 @@ class StaticMthods(object):
             cnarr['correction'] = 0
             cnarr['correctedFC'] = cnarr.avgFC
             reverted_counts = cnarr.iloc[:, cnarr.columns.get_loc('endp') +
-                                        controls + 1:cnarr.columns.get_loc('avgFC')]
-            n_gene_in_seg = 0
+                                    controls + 1:cnarr.columns.get_loc('avgFC')]
+            n_genes_in_seg = 0
             for segment in segrows.itertuples():
                 idxs = list(range(segment.startRow - 1, segment.endRow))
                 included_genes = cnarr.gene.iloc[idxs].unique()
-                n_gene_in_seg = len(set(included_genes) - set(ignored_genes))
-                if n_gene_in_seg >= min_genes:
+                n_genes_in_seg = len(set(included_genes) - set(ignored_genes))
+                if n_genes_in_seg >= min_genes:
                     cnarr.iloc[(idxs, cnarr.columns.get_loc('correctedFC'))] = \
                         cnarr.avgFC.iloc[idxs] - cnarr.avgFC.iloc[idxs].mean()
                     cnarr.iloc[(idxs, cnarr.columns.get_loc('correction'))] = -np.sign(
@@ -196,7 +188,7 @@ class StaticMthods(object):
         reverted = proportions.mul(reverted.revc, axis=0)
         return reverted
 
-    # utility methods
+    # future methods not used
     @staticmethod
     def get_position(row):
         return round(row['startp'] + (row['endp'] - row['startp']) / 2)
@@ -204,3 +196,12 @@ class StaticMthods(object):
     @staticmethod
     def swap_key2val(inputdict):
         return {val: key for key, val in inputdict.items()}
+
+    @staticmethod
+    def create_dict(inputlist):
+        chrdict = {}
+        chr_count = 1
+        for chr in inputlist:
+            chrdict[chr] = chr_count
+            chr_count += 1
+        return chrdict
