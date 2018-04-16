@@ -51,7 +51,7 @@ Various exceptions can occur for malformed input files.
  * <treatment sample count normalised 1..N replicates> : Normalised count (postfixed nc)
  * avgFC: average fold change values
  * BP: Base pair location ( used for DNAcopy analysis)
- * correction: Correction factor
+ * correction: correction factor
  * correctedFC: corrected foldchange values
  * <sample_count_corrected 1..N >: corrected count (postfixed nc_rev)
 
