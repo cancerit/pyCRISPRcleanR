@@ -31,7 +31,7 @@ python:
     - "3.6"
 
 install:
-  - pip install --upgrade setuptools  # to avoid egg_info erro code 1 exit
+  #  - pip install --upgrade setuptools  # to avoid egg_info erro code 1 exit
   - pip install pytest
   - pip install pytest-cover
   - pip install tzlocal

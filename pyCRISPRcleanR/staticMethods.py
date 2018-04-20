@@ -38,36 +38,30 @@ class StaticMthods(object):
         """
             Combine counts and library file data based on union of indexes
         """
-        counts = pd.read_csv(countfile, compression='infer', sep="\t", index_col='sgRNA')
-        if counts.empty:
-            sys.exit('counts data is empty check input file')
+        try:
+            counts = pd.read_csv(countfile, compression='infer', sep="\t", index_col='sgRNA')
+            libdata = pd.read_csv(libfile, compression='infer', sep="\t", index_col='sgRNA')
+        except ValueError:
+            sys.exit('Invalid index column name, please check input format for count and library file')
+
+        if {'gene'}.issubset(counts.columns):
+            counts.drop(['gene'], axis=1, inplace=True, errors='raise')
+        else:
+            sys.exit('counts data does not contain required column:[gene]')
         # plot raw counts
-        elif plot_flag:
+        if plot_flag:
             PLT.box_plot_r(counts.iloc[:, 1:], title="Raw sgRNA counts", saveto=outdir + '/raw_counts',
                            ylabel='Raw Counts', xlabel='Sample Names')
-            PLT.box_plot_ly(counts.iloc[:, 1:], title="Raw sgRNA counts", saveto=outdir + '/raw_counts',
+            PLT.box_plot_ly(counts.iloc[:, 1:], title="Raw sgRNA counts", saveto=outdir + '/raw_counts_plotly',
                             ylabel='Raw Counts', xlabel='Sample Names')
-            log.info("Plotting raw counts.....")
+            log.info("Plotted raw counts.....")
 
-        libdata = pd.read_csv(libfile, compression='infer', sep="\t", index_col='sgRNA')
-
-        if libdata.empty:
-            sys.exit('Library data is empty check input file')
+        if {'gene', 'chr', 'start', 'end'}.issubset(libdata.columns):
+            libdata = libdata.get(['gene', 'chr', 'start', 'end'])
+        else:
+            sys.exit('Library data does not contain required columns:[gene, chr, start, end]')
 
         cldf = pd.concat([counts, libdata], axis=1, join='inner')
-        return cldf
-
-    @staticmethod
-    def cleanup_data(cldf):
-        """
-            perform cleanup: change row names and drop duplicate columns
-            This method may not be required once input format for library and
-            counts table is standardized
-        """
-        col_to_drop = ['gene', 'EXONE', 'CODE', 'STRAND']
-        rename_col_dict = {'CHRM': 'CHR', 'STARTpos': 'startp', 'ENDpos': 'endp', 'GENES': 'gene'}
-        cldf.drop(col_to_drop, axis=1, inplace=True, errors='raise')
-        cldf = cldf.rename(columns=rename_col_dict)
         return cldf
 
     @staticmethod
@@ -103,6 +97,7 @@ class StaticMthods(object):
                             xlabel='Sample Names')
 
         fc = normed.apply(lambda x: np.log2((x + 0.5) / (normed.iloc[:, 0:controls].mean(axis=1) + 0.5)))
+        # drop control columns
         fc.drop(fc.columns[0:controls], axis=1, inplace=True)
 
         if fc.empty:
@@ -112,15 +107,23 @@ class StaticMthods(object):
             PLT.box_plot_r(fc, title="Fold Changes sgRNA", saveto=outdir + '/fold_changes',
                            ylabel='Fold Changes',
                            xlabel='Sample Names')
-            PLT.box_plot_ly(fc, title="Fold Changes sgRNA", saveto=outdir + '/fold_changes',
+            PLT.box_plot_ly(fc, title="Fold Changes sgRNA", saveto=outdir + '/fold_changes_plotly',
                             ylabel='Fold Changes',
                             xlabel='Sample Names')
 
         no_rep = len(fc.columns)
+
         cldf = cldf.join(normed, rsuffix='_nc')
+        normed.insert(0, 'gene', cldf['gene'])
+        StaticMthods._print_df(normed, outdir + "/crispr_cleanr_normalised_counts.tsv")
+
         cldf['avgFC'] = fc.mean(axis=1)
-        cldf['BP'] = round(cldf['startp'] + (cldf['endp'] - cldf['startp']) / 2).astype(int)
-        cldf.sort_values(by=['CHR', 'startp'], ascending=True, inplace=True)
+        fc['avgFC'] = cldf['avgFC']
+        fc.insert(0, 'gene', cldf['gene'])
+        StaticMthods._print_df(fc, outdir + "/crispr_cleanr_fold_changes.tsv")
+
+        cldf['BP'] = round(cldf['start'] + (cldf['end'] - cldf['start']) / 2).astype(int)
+        cldf.sort_values(by=['chr', 'start'], ascending=True, inplace=True)
         return cldf, no_rep
 
     @staticmethod
@@ -134,7 +137,7 @@ class StaticMthods(object):
         return cbs_dict
 
     @staticmethod
-    def process_segments(cbs_dict, ignored_genes, min_genes, controls, no_rep):
+    def process_segments(cbs_dict, ignored_genes, min_genes, controls, no_rep, outdir='./'):
         """
            Process CBS derived copy number segment to get Correted foldchanges and
            reverted count data
@@ -146,8 +149,8 @@ class StaticMthods(object):
             cnarr.is_copy = False
             cnarr['correction'] = 0
             cnarr['correctedFC'] = cnarr.avgFC
-            reverted_counts = cnarr.iloc[:, cnarr.columns.get_loc('endp') +
-                                    controls + 1:cnarr.columns.get_loc('avgFC')]
+            reverted_counts = cnarr.iloc[:, cnarr.columns.get_loc('end') +
+                                        controls + 1:cnarr.columns.get_loc('avgFC')]
             n_genes_in_seg = 0
             for segment in segrows.itertuples():
                 idxs = list(range(segment.startRow - 1, segment.endRow))
@@ -165,7 +168,14 @@ class StaticMthods(object):
             chrdata_list.append(cnarr)
         corrected_count = pd.concat(corrected_count_list)
         alldata = pd.concat(chrdata_list)
-        alldata = alldata.join(corrected_count, rsuffix='_rev')
+        # get control counts to and join with corrected_counts for printing
+        nc_control_count = alldata.iloc[:, alldata.columns.get_loc('end') + 1:
+                                        alldata.columns.get_loc('end') + controls + 1]
+        corrected_count = nc_control_count.join(corrected_count)
+        corrected_count = corrected_count.rename(columns=lambda x: str(x)[:-3])
+        alldata = alldata.join(corrected_count, rsuffix='_cc')
+        corrected_count.insert(0, 'gene', alldata['gene'])
+        StaticMthods._print_df(corrected_count, outdir + "/crispr_cleanr_corrected_counts.tsv")
         return alldata
 
     @staticmethod
@@ -176,11 +186,11 @@ class StaticMthods(object):
         reverted = pd.DataFrame()
         # average fold change
         # mean normalised control count
-        nc = segdata.iloc[:, segdata.columns.get_loc('endp') + 1:segdata.columns.get_loc('endp') + controls + 1]
+        nc = segdata.iloc[:, segdata.columns.get_loc('end') + 1:segdata.columns.get_loc('end') + controls + 1]
         c = nc.mean(axis=1)
         n = segdata.correctedFC
         reverted['revc'] = c * (pow(2, n))
-        normed_num = segdata.iloc[:, segdata.columns.get_loc('endp') +
+        normed_num = segdata.iloc[:, segdata.columns.get_loc('end') +
                                 controls + 1:segdata.columns.get_loc('avgFC')]
         normed_num += 1
         proportions = normed_num.div(normed_num.agg('sum', axis=1), axis=0)
@@ -188,20 +198,8 @@ class StaticMthods(object):
         reverted = proportions.mul(reverted.revc, axis=0)
         return reverted
 
-    # future methods not used
     @staticmethod
-    def get_position(row):
-        return round(row['startp'] + (row['endp'] - row['startp']) / 2)
-
-    @staticmethod
-    def swap_key2val(inputdict):
-        return {val: key for key, val in inputdict.items()}
-
-    @staticmethod
-    def create_dict(inputlist):
-        chrdict = {}
-        chr_count = 1
-        for chr in inputlist:
-            chrdict[chr] = chr_count
-            chr_count += 1
-        return chrdict
+    def _print_df(mydf, out_file):
+        log.info("Writing out file  .....:{}".format(out_file))
+        mydf.to_csv(out_file, sep='\t', mode='w', header=True,
+                    index=True, index_label='sgRNA', doublequote=False)

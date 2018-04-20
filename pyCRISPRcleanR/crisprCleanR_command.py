@@ -14,7 +14,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 version = pkg_resources.require("pyCRISPRcleanR")[0].version
 
 
-def main():
+def main():  # pragma: no cover
     usage = "\n %prog [options] -f counts.tsv -l library.tsv"
 
     optParser = argparse.ArgumentParser(prog='pyCRISPRCleanR',
@@ -51,6 +51,9 @@ def main():
 
     optional.add_argument("-np", "--num_processors", type=int, dest="num_processors", required=False,
                           default=1, help="Number of processors to use for parallel jobs")
+
+    optional.add_argument("-cc", "--correct_counts", type=int, dest="correct_counts", required=False,
+                          default=None, help="Correct counts using CBS [Y/y]")
 
     optional.add_argument("-pl", "--plot_data", type=str, dest="plot_data", required=False,
                           default=None, help="Generate pdf and interactive plotly images [y or 1]")

@@ -7,7 +7,6 @@ from pyCRISPRcleanR.plots import PlotData as PLT
 
 log = logging.getLogger(__name__)
 
-
 '''
   This code run's Francesco's CRISPRcleanR algorithm implementation in python
 '''
@@ -15,7 +14,22 @@ log = logging.getLogger(__name__)
 
 class CrisprCleanR(AbstractCrispr):
     """
-       Main class , loads user defined paramters and files
+        Main class , loads user defined parameters and files
+        final data columns # sgRNA: guideRNA
+        # <control sample count: raw 1..N replicates> : raw count
+        # <treatment sample count: raw 1..N replicates> : raw count
+        # gene: gene name as defined in the library file
+        # chr: Chromosome name
+        # start: gRNA start position
+        # end: gRNA end position
+        # <control sample count:normalised 1..N replicates> : Normalised count
+        # <treatment sample count: normalised 1..N replicates> : Normalised count (postfixed _nc)
+        # avgFC: average fold change values
+        # BP: Base pair location ( used for DNAcopy analysis)
+        # correction: correction factor
+        # correctedFC: corrected foldchange values
+        # <treatment sample count:corrected 1..N >: corrected count (postfixed _cc)
+
     """
 
     def check_input(self):
@@ -50,28 +64,28 @@ class CrisprCleanR(AbstractCrispr):
             log.info("Running analysis, input file checks DONE.....")
             cldf = SM.combine_count_n_library(self.countfile, self.libfile,
                                               plot_flag=self.plot_data, outdir=outdir)
-            log.info("Count and library data combined.....data")
-            cldf = SM.cleanup_data(cldf)
-            log.info("Data cleanup completed.....")
+            log.info("Count and library data combined.....")
             cldf = SM.filter_data(cldf, controls, min_read_count)
             log.info("Data filtering DONE.....")
             cldf, num_rep = SM.get_norm_count_n_fold_changes(cldf, controls,
                                                              plot_flag=self.plot_data, outdir=outdir)
-            log.info("Completed normalised count and foldchange calculation .....")
-            cbs_dict = SM.run_cbs(cldf, cpus, sample)
-            log.info("CBS analysis completed  .....")
-            all_data = SM.process_segments(cbs_dict, ignored_genes, min_target_genes, controls, num_rep)
-            log.info("Processed CBS segments  .....")
-            all_data.to_csv(outdir + "/corrected_counts_alldata.tsv", sep='\t', mode='w', header=True, index=True,
-                            index_label='gRNA', doublequote=False)
-            log.info("Writing out files  .....")
-            if self.plot_data:
-                cbs_dict_norm = SM.run_cbs(all_data, cpus, sample, fc_col="correctedFC")
-                log.info("CBS analysis on normalised fold changes completed.....")
-                PLT.plot_segments(cbs_dict, cbs_dict_norm, sample, outdir=outdir)
-                log.info("Done plots.....")
+            log.info("Completed normalised count and fold change calculation .....")
+
+            # save normalised count and fold changes
+            if self.runcrispr:
+                cbs_dict = SM.run_cbs(cldf, cpus, sample)
+                log.info("CBS analysis completed  .....")
+                all_data = SM.process_segments(cbs_dict, ignored_genes, min_target_genes, controls, num_rep,
+                                               outdir=outdir)
+                log.info("Processed CBS segments  .....")
+                SM._print_df(all_data, outdir + "/crispr_cleanr_alldata.tsv")
+                if self.plot_data:
+                    cbs_dict_norm = SM.run_cbs(all_data, cpus, sample, fc_col="correctedFC")
+                    log.info("CBS analysis on normalised fold changes completed.....")
+                    PLT.plot_segments(cbs_dict, cbs_dict_norm, sample, outdir=outdir)
+                    log.info("Done plots.....")
             log.info("Analysis completed successfully.....")
             print("Analysis completed successfully.....")
             # print(all_data[all_data.gene == 'CCT8L2'])
         else:
-            sys.exit('No valid input type provided')
+            sys.exit('Input data is not in required format, see inputFormat in README file')

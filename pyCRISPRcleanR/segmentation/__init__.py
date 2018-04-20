@@ -7,7 +7,7 @@ from . import cbs
 def do_segmentation(cnarr, cpus, sample, fc_col='avgFC'):
     cnseg_dict = {}
     with Pool(cpus) as (pool):
-        result = list(pool.map(_ds, ((chrname, ca, sample, fc_col) for chrname, ca in cnarr.groupby('CHR'))))
+        result = list(pool.map(_ds, ((chrname, ca, sample, fc_col) for chrname, ca in cnarr.groupby('chr'))))
         for result_dict in result:
             cnseg_dict.update(result_dict)
     return cnseg_dict
