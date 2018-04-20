@@ -41,9 +41,9 @@ Various exceptions can occur for malformed input files.
 
 ### inputFormat
  * ```gRNA Counts``` file: tab separated file containing following fields
-   sgRNA	gene	<control_count 1...N> <sample_count 1..N>
+ * sgRNA gene <control_count 1...N> <sample_count 1..N>
  * ```sgRNA library``` file format
-   sgRNA gene chr start end
+ * sgRNA gene chr start end
 ### outputFormat
 
   following tab separated output files were produced
@@ -59,13 +59,13 @@ Various exceptions can occur for malformed input files.
  * gene: gene name as defined in the library file
  * <treatment sample fold chages: fold changes 1..N>
 
- 3. crispr_cleanr_corrected_counts.tsv [ only when ```--segmentation``` option is selected ]
+ 3. crispr_cleanr_corrected_counts.tsv [ generated only when ```--segmentation``` option is selected ]
  * sgRNA: guideRNA
  * gene: gene name as defined in the library file
  * <control sample count:corrected 1..N> : corrected count
  * <treatment sample count:corrected 1..N >: corrected count
 
- 4. crispr_cleanr_alldata.tsv [ only when ```--segmentation``` option is selected ]
+ 4. crispr_cleanr_alldata.tsv [ generated only when ```--segmentation``` option is selected ]
  * sgRNA: guideRNA
  * <control sample count: raw 1..N> : raw count
  * <treatment sample count: raw 1..N> : raw count

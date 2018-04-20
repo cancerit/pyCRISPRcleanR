@@ -149,9 +149,10 @@ class StaticMthods(object):
             cnarr.is_copy = False
             cnarr['correction'] = 0
             cnarr['correctedFC'] = cnarr.avgFC
+            n_genes_in_seg = 0
             reverted_counts = cnarr.iloc[:, cnarr.columns.get_loc('end') +
                                         controls + 1:cnarr.columns.get_loc('avgFC')]
-            n_genes_in_seg = 0
+
             for segment in segrows.itertuples():
                 idxs = list(range(segment.startRow - 1, segment.endRow))
                 included_genes = cnarr.gene.iloc[idxs].unique()
