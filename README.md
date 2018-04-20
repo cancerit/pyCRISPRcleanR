@@ -11,6 +11,7 @@ correction of gene independent cell responses to CRISPR-cas9 targeting
 - [Design](#design)
 - [Tools](#tools)
 	- [pyCRISPRCleanR](#pycrisprcleanr)
+	- [inputFormat] (#inputfotmat)
 	- [outputFormat] (#outputfotmat)
 - [INSTALL](#install)
 	- [Package Dependencies](#package-dependencies)
@@ -38,22 +39,48 @@ inverse transformed corrected treatment counts
 
 Various exceptions can occur for malformed input files.
 
+### inputFormat
+ * ```gRNA Counts``` file: tab separated file containing following fields
+ * sgRNA gene <control_count 1...N> <sample_count 1..N>
+ * ```sgRNA library``` file format
+ * sgRNA gene chr start end
 ### outputFormat
-  output contains tab separated raw and normalised data in following order
- * gRNA: guideRNA
- * <control sample count raw 1..N replicates> : raw count
- * <treatment sample count raw 1..N replicates> : raw count
+
+  following tab separated output files were produced
+
+ 1. crispr_cleanr_normalised_counts.tsv
+ * sgRNA: guideRNA
  * gene: gene name as defined in the library file
- * CHR: Chromosome name
- * startp: gRNA start position
- * endp: gRNA end position
- * <control sample count normalised 1..N replicates> : Normalised count
- * <treatment sample count normalised 1..N replicates> : Normalised count (postfixed nc)
+ * <control sample count:normalised 1..N> : Normalised count
+ * <treatment sample count: normalised 1..N> : Normalised count
+
+ 2. crispr_cleanr_fold_changes.tsv
+ * sgRNA: guideRNA
+ * gene: gene name as defined in the library file
+ * <treatment sample fold chages: fold changes 1..N>
+
+ 3. crispr_cleanr_corrected_counts.tsv [ generated only when ```--segmentation``` option is selected ]
+ * sgRNA: guideRNA
+ * gene: gene name as defined in the library file
+ * <control sample count:corrected 1..N> : corrected count
+ * <treatment sample count:corrected 1..N >: corrected count
+
+ 4. crispr_cleanr_alldata.tsv [ generated only when ```--segmentation``` option is selected ]
+ * sgRNA: guideRNA
+ * <control sample count: raw 1..N> : raw count
+ * <treatment sample count: raw 1..N> : raw count
+ * gene: gene name as defined in the library file
+ * chr: Chromosome name
+ * start: gRNA start position
+ * end: gRNA end position
+ * <control sample count:normalised 1..N> : Normalised count (postfixed _nc)
+ * <treatment sample count: normalised 1..N> : Normalised count (postfixed _nc)
  * avgFC: average fold change values
  * BP: Base pair location ( used for DNAcopy analysis)
  * correction: correction factor
  * correctedFC: corrected foldchange values
- * <sample_count_corrected 1..N >: corrected count (postfixed nc_rev)
+ * <control sample count:corrected 1..N> : corrected count (postfixed _cc)
+ * <treatment sample count:corrected 1..N >: corrected count (postfixed _cc)
 
 ## INSTALL
 Installing via `pip install` .Simply execute with the path to the compiled 'whl' found on the [release page][pyCRISPRCleanR-releases]:
@@ -161,3 +188,4 @@ pip install --find-links=~/wheels pyCRISPRCleanR
  [travis-master-badge]: https://travis-ci.org/cancerit/pyCRISPRcleanR.svg?branch=master
  [travis-develop-badge]: https://travis-ci.org/cancerit/pyCRISPRcleanR.svg?branch=develop
  [travis-repo]: https://travis-ci.org/cancerit/pyCRISPRcleanR
+ [pyCRISPRCleanR-releases]: https://github.com/cancerit/pyCRISPRcleanR/releases

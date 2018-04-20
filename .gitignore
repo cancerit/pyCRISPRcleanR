@@ -1,3 +1,4 @@
+*.tsv
 env
 **/__pycache__/
 **/*.pyc

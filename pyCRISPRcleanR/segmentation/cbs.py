@@ -19,12 +19,12 @@ def runCBS(cnarr, sample_id='mysample', fc_col='avgFC'):
          to covert R data frame to python use rx [ and rx2 [[ R brackets
          rx2 returns data frame
     """
-    chr_name = cnarr['CHR'].unique()[0]
+    chr_name = cnarr['chr'].unique()[0]
     tbl = pandas2ri.py2ri(cnarr)
     kwargs = {'data.type': "logratio", 'sampleid': sample_id, 'presorted': True}
     # set seed
     base.set_seed(0xA5EED)
-    cna = dnacopy.CNA(tbl.rx2(fc_col), tbl.rx2('CHR'), tbl.rx2('BP'), **kwargs)
+    cna = dnacopy.CNA(tbl.rx2(fc_col), tbl.rx2('chr'), tbl.rx2('BP'), **kwargs)
 
     smoothed_cna = dnacopy.smooth_CNA(cna)
     cnseg = dnacopy.segment(smoothed_cna, verbose=1)

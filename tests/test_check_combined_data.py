@@ -28,9 +28,7 @@ class TestClass():
         # check input type function
         mystatic_obj=sm.StaticMthods()
         cldf=mystatic_obj.combine_count_n_library(t_countfile, t_libfile)
-        assert (2072, 12) == cldf.shape,'combined_count_n_lib'
-        cldf=mystatic_obj.cleanup_data(cldf)
-        assert (2072, 8) == cldf.shape, 'cleanup_data'
+        assert (2072, 8) == cldf.shape,'combined_count_n_lib'
         cldf=mystatic_obj.filter_data(cldf, controls, min_read_count)
         assert (2038, 8) == cldf.shape, 'filter_data'
         cldf,no_rep=mystatic_obj.get_norm_count_n_fold_changes(cldf,controls)
@@ -43,7 +41,7 @@ class TestClass():
         #alldata.to_pickle('pickled_df_HT-29.pkl', compression='gzip', protocol=-1)
         expected_df=pd.read_pickle(picke_file, compression='gzip')
         result=expected_df.equals(alldata)
-        assert (2038, 19) == alldata.shape, 'process_segments'
+        assert (2038, 20) == alldata.shape, 'process_segments'
         #assert True == result, 'process_segments: check results'
 
 if __name__ == '__main__':
