@@ -1,4 +1,4 @@
-# pyCRISPRCleanR
+# pyCRISPRcleanR
 | Master                                              | Develop                                               |
 | --------------------------------------------------- | ----------------------------------------------------- |
 | [![Master Badge][travis-master-badge]][travis-repo] | [![Develop Badge][travis-develop-badge]][travis-repo] |
@@ -10,7 +10,7 @@ correction of gene independent cell responses to CRISPR-cas9 targeting
 
 - [Design](#design)
 - [Tools](#tools)
-	- [pyCRISPRCleanR](#pycrisprcleanr)
+	- [pyCRISPRcleanR](#pycrisprcleanr)
 	- [inputFormat](#inputformat)
 	- [outputFormat](#outputformat)
 - [INSTALL](#install)
@@ -29,9 +29,9 @@ Uses DNAcopy R pcakage to perform CBS[ Circular Binary Segmentation of count  da
 
 ## Tools
 
-`pyCRISPRCleanR` has multiple commands, listed with `pyCRISPRCleanR --help`.
+`pyCRISPRcleanR` has multiple commands, listed with `pyCRISPRcleanR --help`.
 
-### pyCRISPRCleanR
+### pyCRISPRcleanR
 
 Takes the input count data, library file and other associated files/parameters
 The output is tab separated files for normalised fold changes and
@@ -84,13 +84,13 @@ Various exceptions can occur for malformed input files.
  * <treatment sample count:corrected 1..N >: corrected count (postfixed _cc)
 
 ## INSTALL
-Installing via `pip install`. Simply execute with the path to the compiled 'whl' found on the [release page][pyCRISPRCleanR-releases]:
+Installing via `pip install`. Simply execute with the path to the compiled 'whl' found on the [release page][pyCRISPRcleanR-releases]:
 
 ```bash
-pip install pyCRISPRCleanR.X.X.X-py3-none-any.whl
+pip install pyCRISPRcleanR.X.X.X-py3-none-any.whl
 ```
 
-Release `.whl` files are generated as part of the release process and can be found on the [release page][pyCRISPRCleanR-releases]
+Release `.whl` files are generated as part of the release process and can be found on the [release page][pyCRISPRcleanR-releases]
 
 ### Package Dependancies
 
@@ -177,7 +177,7 @@ Install .whl
 # this creates an wheel archive which can be copied to a deployment location, e.g.
 scp dist/pyCRISPRCleanR.X.X.X-py3-none-any.whl user@host:~/wheels
 # on host
-pip install --find-links=~/wheels pyCRISPRCleanR
+pip install --find-links=~/wheels pyCRISPRcleanR
 ```
 <!--refs-->
  [NumPy]: http://www.numpy.org/
@@ -189,4 +189,4 @@ pip install --find-links=~/wheels pyCRISPRCleanR
  [travis-master-badge]: https://travis-ci.org/cancerit/pyCRISPRcleanR.svg?branch=master
  [travis-develop-badge]: https://travis-ci.org/cancerit/pyCRISPRcleanR.svg?branch=develop
  [travis-repo]: https://travis-ci.org/cancerit/pyCRISPRcleanR
- [pyCRISPRCleanR-releases]: https://github.com/cancerit/pyCRISPRcleanR/releases
+ [pyCRISPRcleanR-releases]: https://github.com/cancerit/pyCRISPRcleanR/releases
