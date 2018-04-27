@@ -11,8 +11,8 @@ correction of gene independent cell responses to CRISPR-cas9 targeting
 - [Design](#design)
 - [Tools](#tools)
 	- [pyCRISPRCleanR](#pycrisprcleanr)
-	- [inputFormat] (#inputfotmat)
-	- [outputFormat] (#outputfotmat)
+	- [inputFormat] (#inputformat)
+	- [outputFormat] (#outputformat)
 - [INSTALL](#install)
 	- [Package Dependencies](#package-dependencies)
   - [R packages](#r-packages)
@@ -58,6 +58,7 @@ Various exceptions can occur for malformed input files.
  * sgRNA: guideRNA
  * gene: gene name as defined in the library file
  * <treatment sample fold chages: fold changes 1..N>
+ * avgFC: average fold change values
 
  3. crispr_cleanr_corrected_counts.tsv [ generated only when ```--segmentation``` option is selected ]
  * sgRNA: guideRNA
@@ -83,7 +84,7 @@ Various exceptions can occur for malformed input files.
  * <treatment sample count:corrected 1..N >: corrected count (postfixed _cc)
 
 ## INSTALL
-Installing via `pip install` .Simply execute with the path to the compiled 'whl' found on the [release page][pyCRISPRCleanR-releases]:
+Installing via `pip install`. Simply execute with the path to the compiled 'whl' found on the [release page][pyCRISPRCleanR-releases]:
 
 ```bash
 pip install pyCRISPRCleanR.X.X.X-py3-none-any.whl
