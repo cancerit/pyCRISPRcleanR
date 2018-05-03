@@ -48,25 +48,31 @@ Various exceptions can occur for malformed input files.
 
   following tab separated output files were produced
 
- 1. crispr_cleanr_normalised_counts.tsv
+ 1. normalised_counts.tsv
  * sgRNA: guideRNA
  * gene: gene name as defined in the library file
  * <control sample count:normalised 1..N> : Normalised count
  * <treatment sample count: normalised 1..N> : Normalised count
 
- 2. crispr_cleanr_fold_changes.tsv
+ 2. normalised_fold_changes.tsv
  * sgRNA: guideRNA
  * gene: gene name as defined in the library file
  * <treatment sample fold chages: fold changes 1..N>
  * avgFC: average fold change values
 
- 3. crispr_cleanr_corrected_counts.tsv [ generated only when ```--segmentation``` option is selected ]
+ 3. crispr_cleanr_corrected_counts.tsv [ generated only when ```--crispr_cleanr``` option is selected ]
  * sgRNA: guideRNA
  * gene: gene name as defined in the library file
  * <control sample count:corrected 1..N> : corrected count
  * <treatment sample count:corrected 1..N >: corrected count
 
- 4. crispr_cleanr_alldata.tsv [ generated only when ```--segmentation``` option is selected ]
+ 4. crispr_cleanr_fold_changes.tsv [ generated only when ```--crispr_cleanr``` option is selected ]
+ * sgRNA: guideRNA
+ * gene: gene name as defined in the library file
+ * <treatment sample fold chages: fold changes 1..N>
+ * avgFC: average fold change values
+
+ 5. alldata.tsv [ generated only when ```--crispr_cleanr``` option is selected ]
  * sgRNA: guideRNA
  * <control sample count: raw 1..N> : raw count
  * <treatment sample count: raw 1..N> : raw count
@@ -82,6 +88,8 @@ Various exceptions can occur for malformed input files.
  * correctedFC: corrected foldchange values
  * <control sample count:corrected 1..N> : corrected count (postfixed _cc)
  * <treatment sample count:corrected 1..N >: corrected count (postfixed _cc)
+ * <treatment sample fold chages: fold changes 1..N> (postfixed _cf)
+ * avgFC_cf: average fold change values based on corrected counts
 
 ## INSTALL
 Installing via `pip install`. Simply execute with the path to the compiled 'whl' found on the [release page][pyCRISPRCleanR-releases]:

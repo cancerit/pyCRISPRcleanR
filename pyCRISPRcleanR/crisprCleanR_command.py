@@ -52,8 +52,8 @@ def main():  # pragma: no cover
     optional.add_argument("-np", "--num_processors", type=int, dest="num_processors", required=False,
                           default=1, help="Number of processors to use for parallel jobs")
 
-    optional.add_argument("-cc", "--correct_counts", type=int, dest="correct_counts", required=False,
-                          default=None, help="Correct counts using CBS [Y/y]")
+    optional.add_argument("-cc", "--crispr_cleanr", type=str, dest="crispr_cleanr", required=False,
+                          default=None, help="run CRISPRcleanR [Y/y]")
 
     optional.add_argument("-pl", "--plot_data", type=str, dest="plot_data", required=False,
                           default=None, help="Generate pdf and interactive plotly images [y or 1]")

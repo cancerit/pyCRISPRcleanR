@@ -41,7 +41,7 @@ class TestClass():
         #alldata.to_pickle('pickled_df_HT-29.pkl', compression='gzip', protocol=-1)
         expected_df=pd.read_pickle(picke_file, compression='gzip')
         result=expected_df.equals(alldata)
-        assert (2038, 20) == alldata.shape, 'process_segments'
+        assert (2038, 24) == alldata.shape, 'process_segments'
         #assert True == result, 'process_segments: check results'
 
 if __name__ == '__main__':

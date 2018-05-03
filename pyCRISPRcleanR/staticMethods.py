@@ -115,12 +115,12 @@ class StaticMthods(object):
 
         cldf = cldf.join(normed, rsuffix='_nc')
         normed.insert(0, 'gene', cldf['gene'])
-        StaticMthods._print_df(normed, outdir + "/crispr_cleanr_normalised_counts.tsv")
+        StaticMthods._print_df(normed, outdir + "/normalised_counts.tsv")
 
         cldf['avgFC'] = fc.mean(axis=1)
         fc['avgFC'] = cldf['avgFC']
         fc.insert(0, 'gene', cldf['gene'])
-        StaticMthods._print_df(fc, outdir + "/crispr_cleanr_fold_changes.tsv")
+        StaticMthods._print_df(fc, outdir + "/normalised_fold_changes.tsv")
 
         cldf['BP'] = round(cldf['start'] + (cldf['end'] - cldf['start']) / 2).astype(int)
         cldf.sort_values(by=['chr', 'start'], ascending=True, inplace=True)
@@ -171,10 +171,21 @@ class StaticMthods(object):
         alldata = pd.concat(chrdata_list)
         # get control counts to and join with corrected_counts for printing
         nc_control_count = alldata.iloc[:, alldata.columns.get_loc('end') + 1:
-                                        alldata.columns.get_loc('end') + controls + 1]
+                                    alldata.columns.get_loc('end') + controls + 1]
         corrected_count = nc_control_count.join(corrected_count)
         corrected_count = corrected_count.rename(columns=lambda x: str(x)[:-3])
+        # calculate corrected fold changes
+        corrected_fc = corrected_count.apply(
+            lambda x: np.log2((x + 0.5) / (corrected_count.iloc[:, 0:controls].mean(axis=1) + 0.5)))
+        corrected_fc.drop(corrected_fc.columns[0:controls], axis=1, inplace=True)
+        corrected_fc['avgFC'] = corrected_fc.mean(axis=1)
         alldata = alldata.join(corrected_count, rsuffix='_cc')
+        alldata = alldata.join(corrected_fc, rsuffix='_cf')
+
+        # add gene names before writing to a file
+        corrected_fc.insert(0, 'gene', alldata['gene'])
+        StaticMthods._print_df(corrected_fc, outdir + "/crispr_cleanr_fold_changes.tsv")
+        # add gene names before writing to a file
         corrected_count.insert(0, 'gene', alldata['gene'])
         StaticMthods._print_df(corrected_count, outdir + "/crispr_cleanr_corrected_counts.tsv")
         return alldata
