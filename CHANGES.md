@@ -1,4 +1,7 @@
 # CHANGES
+## 1.1.1
+ * Added segmentation module in setup.py
+
 ## 1.1.0
  * Additional output formats for normalised and corrected counts
  * segmentation is now optional
