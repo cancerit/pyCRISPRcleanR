@@ -52,11 +52,11 @@ def main():  # pragma: no cover
     optional.add_argument("-np", "--num_processors", type=int, dest="num_processors", required=False,
                           default=1, help="Number of processors to use for parallel jobs")
 
-    optional.add_argument("-cc", "--crispr_cleanr", type=str, dest="crispr_cleanr", required=False,
-                          default=None, help="run CRISPRcleanR [Y/y]")
+    optional.add_argument("-cc", "--crispr_cleanr", action='store_true', dest="crispr_cleanr",
+                          help="flag to run CRISPRcleanR")
 
-    optional.add_argument("-pl", "--plot_data", type=str, dest="plot_data", required=False,
-                          default=None, help="Generate pdf and interactive plotly images [y or 1]")
+    optional.add_argument("-pl", "--plot_data", action='store_true', dest="plot_data",
+                          help="Generate pdf and interactive plotly images")
 
     optional.add_argument("-o", "--outdir", type=str, dest="outdir",
                           default='./', help="path to output folder ")

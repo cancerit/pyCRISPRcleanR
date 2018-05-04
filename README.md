@@ -3,7 +3,7 @@
 | --------------------------------------------------- | ----------------------------------------------------- |
 | [![Master Badge][travis-master-badge]][travis-repo] | [![Develop Badge][travis-develop-badge]][travis-repo] |
 
-This is python implementation of Francesco's [CRISPRcleanR] R package for unsupervised identification and
+This is python implementation [CRISPRcleanR] package for unsupervised identification and
 correction of gene independent cell responses to CRISPR-cas9 targeting 
 
 <!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
@@ -40,10 +40,12 @@ inverse transformed corrected treatment counts
 Various exceptions can occur for malformed input files.
 
 ### inputFormat
+
  * ```gRNA Counts``` file: tab separated file containing following fields
  * sgRNA gene <control_count 1...N> <sample_count 1..N>
  * ```sgRNA library``` file format
  * sgRNA gene chr start end
+
 ### outputFormat
 
   following tab separated output files were produced
@@ -60,13 +62,13 @@ Various exceptions can occur for malformed input files.
  * <treatment sample fold chages: fold changes 1..N>
  * avgFC: average fold change values
 
- 3. crispr_cleanr_corrected_counts.tsv [ generated only when ```--crispr_cleanr``` option is selected ]
+ 3. crispr_cleanr_corrected_counts.tsv [ generated only when ```--crispr_cleanr``` flag is set ]
  * sgRNA: guideRNA
  * gene: gene name as defined in the library file
  * <control sample count:corrected 1..N> : corrected count
  * <treatment sample count:corrected 1..N >: corrected count
 
- 4. crispr_cleanr_fold_changes.tsv [ generated only when ```--crispr_cleanr``` option is selected ]
+ 4. crispr_cleanr_fold_changes.tsv [ generated only when ```--crispr_cleanr```  flag is set ]
  * sgRNA: guideRNA
  * gene: gene name as defined in the library file
  * <treatment sample fold chages: fold changes 1..N>
