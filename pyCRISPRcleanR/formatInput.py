@@ -78,7 +78,7 @@ class CrisprCleanR(AbstractCrispr):
                 all_data = SM.process_segments(cbs_dict, ignored_genes, min_target_genes, controls, num_rep,
                                                outdir=outdir)
                 log.info("Processed CBS segments  .....")
-                SM._print_df(all_data, outdir + "/crispr_cleanr_alldata.tsv")
+                SM._print_df(all_data, outdir + "/alldata.tsv")
                 if self.plot_data:
                     cbs_dict_norm = SM.run_cbs(all_data, cpus, sample, fc_col="correctedFC")
                     log.info("CBS analysis on normalised fold changes completed.....")
