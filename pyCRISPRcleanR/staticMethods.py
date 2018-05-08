@@ -150,8 +150,8 @@ class StaticMthods(object):
             cnarr['correction'] = 0
             cnarr['correctedFC'] = cnarr.avgFC
             n_genes_in_seg = 0
-            reverted_counts = cnarr.iloc[:, cnarr.columns.get_loc('end') +
-                                        controls + 1:cnarr.columns.get_loc('avgFC')]
+            reverted_counts = cnarr.iloc[:, cnarr.columns.get_loc('end') + controls + 1:
+                                        cnarr.columns.get_loc('avgFC')]
 
             for segment in segrows.itertuples():
                 idxs = list(range(segment.startRow - 1, segment.endRow))
@@ -202,8 +202,8 @@ class StaticMthods(object):
         c = nc.mean(axis=1)
         n = segdata.correctedFC
         reverted['revc'] = c * (pow(2, n))
-        normed_num = segdata.iloc[:, segdata.columns.get_loc('end') +
-                                controls + 1:segdata.columns.get_loc('avgFC')]
+        normed_num = segdata.iloc[:, segdata.columns.get_loc('end') + controls + 1:
+                                segdata.columns.get_loc('avgFC')]
         normed_num += 1
         proportions = normed_num.div(normed_num.agg('sum', axis=1), axis=0)
         reverted = reverted * no_rep

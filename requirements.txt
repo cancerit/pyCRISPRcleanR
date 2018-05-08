@@ -1,4 +1,4 @@
-tzlocal
+tzlocal==1.5.1
 numpy==1.14.3
 pandas==0.22.0
 rpy2==2.9.3
