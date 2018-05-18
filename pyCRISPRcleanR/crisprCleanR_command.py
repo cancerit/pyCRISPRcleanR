@@ -31,18 +31,18 @@ def main():  # pragma: no cover
     optional.add_argument("-e", "--expname", type=str, dest="expname", required=False,
                           default='myexperiment', help="name of the experiment")
 
-    optional.add_argument("-mr", "--minreads", type=str, dest="minreads", required=False,
+    optional.add_argument("-mr", "--minreads", type=int, dest="minreads", required=False,
                           default=30, help="minimum read count in control sample \
                           to be used for filtering ")
 
-    optional.add_argument("-mg", "--mingenes", type=str, dest="mingenes", required=False,
+    optional.add_argument("-mg", "--mingenes", type=int, dest="mingenes", required=False,
                           default=3, help="minimum number of genes in a CNV segment to\
                           consider it for count normalization ")
 
     optional.add_argument("-ig", "--ignored_genes", nargs='*', type=str, dest="ignored_genes", required=False,
                           default=[], help="space separate list of ignored genes")
 
-    optional.add_argument("-nc", "--ncontrols", type=str, dest="ncontrols", required=False,
+    optional.add_argument("-nc", "--ncontrols", type=int, dest="ncontrols", required=False,
                           default=1, help="Number of control samples in raw count file [ \
                            Note: at least one control sample is required ]")
 
@@ -74,7 +74,7 @@ def main():  # pragma: no cover
         sys.exit('\nERROR Arguments required\n\tPlease run: pyCRISPRCleanR --help\n')
         log.debug('ERROR Arguments required \n Please run: pyCRISPRCleanR --help')
     log.debug('Analysis started....')
-
+    print(opts)
     mycrispr = CrisprCleanR(**vars(opts))
     mycrispr.run_analysis()
 

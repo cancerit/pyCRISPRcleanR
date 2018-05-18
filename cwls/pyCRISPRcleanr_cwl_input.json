@@ -1,0 +1,22 @@
+{
+"countfile": {
+  "class": "File",
+  "path": "../tests/data/HT-29_counts_chr22.tsv.gz"
+},
+
+"libfile":{
+  "class": "File",
+  "path": "../tests/data/KY_libv1.0_chr22.tsv.gz"
+},
+"expname": "myexperiemnt",
+"minreads": 3,
+"mingenes": 3,
+"ignored_genes": [],
+"ncontrols": 1,
+"sample": "mysample",
+"num_processors": 1,
+"crispr_cleanr": true,
+"plot_data": true,
+"outdir":"testout",
+"extractfile": "goodbye.txt"
+}
