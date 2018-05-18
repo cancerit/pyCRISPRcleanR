@@ -34,7 +34,9 @@ RUN apt-get update && \
 RUN R -e 'source("http://bioconductor.org/biocLite.R"); biocLite("DNAcopy", ask=FALSE, lib="'"${R_LIBS_USER}"'")'
 
 # install crisprcleanr
-RUN pip3 --no-cache-dir install https://github.com/cancerit/pyCRISPRcleanR/releases/download/1.1.1/pyCRISPRcleanR-1.1.1-py3-none-any.whl
+#RUN pip3 --no-cache-dir install https://github.com/cancerit/pyCRISPRcleanR/releases/download/1.1.1/pyCRISPRcleanR-1.1.1-py3-none-any.whl
+COPY pyCRISPRcleanR-1.1.1-py3-none-any.whl $OPT
+RUN pip3 --no-cache-dir install $OPT/pyCRISPRcleanR-1.1.1-py3-none-any.whl
 ### security upgrades and cleanup
 RUN apt-get -yq update && \
     apt-get -yq install unattended-upgrades && \

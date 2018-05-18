@@ -17,6 +17,5 @@
 "num_processors": 1,
 "crispr_cleanr": true,
 "plot_data": true,
-"outdir":"testout",
-"extractfile": "goodbye.txt"
+"outdir":"analysis_results"
 }

@@ -118,6 +118,15 @@ inputs:
       separate: true
       position: 12
 
-outputs: []
+outputs:
+  output_data:
+    type: Directory
+    outputBinding:
+      glob: $(inputs.outdir)
+
+  output_log:
+    type: File
+    outputBinding:
+      glob: "*.log"
 
 baseCommand: ["pyCRISPRCleanR"]
