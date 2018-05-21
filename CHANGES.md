@@ -1,4 +1,8 @@
 # CHANGES
+
+## 1.1.2
+ * updated appropriate types [int, str etc.,] for commandline inputs
+
 ## 1.1.1
  * Added segmentation module in setup.py
  * added requirements.txt file
