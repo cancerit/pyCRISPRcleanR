@@ -13,3 +13,5 @@ pyCRISPRcleanR.egg-info/entry_points.txt
 pyCRISPRcleanR.egg-info/requires.txt
 pyCRISPRcleanR.egg-info/top_level.txt
 pyCRISPRcleanR/config/logging.conf
+pyCRISPRcleanR/segmentation/__init__.py
+pyCRISPRcleanR/segmentation/cbs.py
