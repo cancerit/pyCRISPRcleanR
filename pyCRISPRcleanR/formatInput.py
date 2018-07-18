@@ -102,9 +102,8 @@ class CrisprCleanR(AbstractCrispr):
                 if self.plot_data and self.gene_sig_dir:
                     print("move to top")
                 if self.run_qc:
-                    norm_gene_summary, corrected_gene_summary = SM.run_mageck(outdir, norm_count_file,
-                                                                              corrected_count_file,
-                                                                              exp_name=expname)
+                    norm_gene_summary, corrected_gene_summary = SM.run_mageck(norm_count_file, corrected_count_file,
+                                                                              outdir=outdir, exp_name=expname)
                     PLT.impact_on_phenotype(norm_gene_summary, corrected_gene_summary,
                                             saveto=outdir + '/impact_on_phenotype',
                                             exp_name=expname)

@@ -44,7 +44,7 @@ class PlotData(object):
         return config
 
     @staticmethod
-    def box_plot_ly(df, title='mytitle', saveto='./myfile.html', ylabel='ylabel', xlabel='xlabel'):
+    def box_plot_ly(df, title='mytitle', saveto='./myfile', ylabel='ylabel', xlabel='xlabel'):
         """
         :param df:
         :param title:

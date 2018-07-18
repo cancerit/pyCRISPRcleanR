@@ -238,7 +238,7 @@ class StaticMthods(object):
                     index=True, index_label='sgRNA', doublequote=False)
 
     @staticmethod
-    def run_mageck(outdir, norm_count_file, corrected_count_file, exp_name='myexperiemnt'):
+    def run_mageck(norm_count_file, corrected_count_file, outdir="./", exp_name='myexperiemnt'):
         global CONTROL_SAMPLES
         global TREATMENT_SAMPLES
         prefix_norm = outdir + '/mageckOut/normCounts_' + exp_name
