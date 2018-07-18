@@ -1,6 +1,7 @@
 import sys
 import os
 import tarfile
+from subprocess import Popen, PIPE, STDOUT
 import pandas as pd
 import numpy as np
 import logging
@@ -8,6 +9,12 @@ from pyCRISPRcleanR.plots import PlotData as PLT
 from . import segmentation
 
 log = logging.getLogger(__name__)
+
+MAGECK_CMD = "mageck test --count-table {} --control-id {} --treatment-id {} --output-prefix {} --norm-method {}"
+SIGNATURE_FILES = ("essential", "non_essential", "dna_replication", "rna_polymerase",
+                   "proteasome", "ribosomal_proteins", "spliceosome")
+CONTROL_SAMPLES = 'NA'
+TREATMENT_SAMPLES = 'NA'
 
 
 class StaticMthods(object):
@@ -82,6 +89,9 @@ class StaticMthods(object):
             sample fold changes only
             Sort dataframe using chr and start position of gRNA
         """
+        global CONTROL_SAMPLES
+        global TREATMENT_SAMPLES
+
         normed = cldf.iloc[:, 0:cldf.columns.get_loc('gene')].div(
             cldf.iloc[:, 0:cldf.columns.get_loc('gene')].agg('sum')) * 10e6
         # plot normalised counts
@@ -117,14 +127,22 @@ class StaticMthods(object):
         normed.insert(0, 'gene', cldf['gene'])
         StaticMthods._print_df(normed, outdir + "/normalised_counts.tsv")
 
+        # MAGECK  specific prms.....
+        CONTROL_SAMPLES = ",".join(normed.columns[1:controls + 1].values.tolist())
+        TREATMENT_SAMPLES = ",".join(normed.columns[controls + 1:].values.tolist())
+        # end MAGECK specific prms
+
         cldf['avgFC'] = fc.mean(axis=1)
         fc['avgFC'] = cldf['avgFC']
         fc.insert(0, 'gene', cldf['gene'])
         StaticMthods._print_df(fc, outdir + "/normalised_fold_changes.tsv")
-
+        # mean fold changes grouped by gene
+        geneFC = fc.groupby(['gene'])['avgFC'].mean()
+        sgRNAFC = fc['avgFC']
         cldf['BP'] = round(cldf['start'] + (cldf['end'] - cldf['start']) / 2).astype(int)
         cldf.sort_values(by=['chr', 'start'], ascending=True, inplace=True)
-        return cldf, no_rep
+
+        return cldf, no_rep, outdir + "/normalised_counts.tsv", geneFC, sgRNAFC
 
     @staticmethod
     def run_cbs(cldf, cpus, sample, fc_col='avgFC'):
@@ -151,7 +169,7 @@ class StaticMthods(object):
             cnarr['correctedFC'] = cnarr.avgFC
             n_genes_in_seg = 0
             reverted_counts = cnarr.iloc[:, cnarr.columns.get_loc('end') + controls + 1:
-                                        cnarr.columns.get_loc('avgFC')]
+                                         cnarr.columns.get_loc('avgFC')]
 
             for segment in segrows.itertuples():
                 idxs = list(range(segment.startRow - 1, segment.endRow))
@@ -171,7 +189,7 @@ class StaticMthods(object):
         alldata = pd.concat(chrdata_list)
         # get control counts to and join with corrected_counts for printing
         nc_control_count = alldata.iloc[:, alldata.columns.get_loc('end') + 1:
-                                    alldata.columns.get_loc('end') + controls + 1]
+                                        alldata.columns.get_loc('end') + controls + 1]
         corrected_count = nc_control_count.join(corrected_count)
         corrected_count = corrected_count.rename(columns=lambda x: str(x)[:-3])
         # calculate corrected fold changes
@@ -181,19 +199,22 @@ class StaticMthods(object):
         corrected_fc['avgFC'] = corrected_fc.mean(axis=1)
         alldata = alldata.join(corrected_count, rsuffix='_cc')
         alldata = alldata.join(corrected_fc, rsuffix='_cf')
-
         # add gene names before writing to a file
         corrected_fc.insert(0, 'gene', alldata['gene'])
         StaticMthods._print_df(corrected_fc, outdir + "/crispr_cleanr_fold_changes.tsv")
         # add gene names before writing to a file
         corrected_count.insert(0, 'gene', alldata['gene'])
         StaticMthods._print_df(corrected_count, outdir + "/crispr_cleanr_corrected_counts.tsv")
-        return alldata
+        return alldata, outdir + '/crispr_cleanr_corrected_counts.tsv'
 
     @staticmethod
     def _correct_counts(segdata, controls, no_rep):
         """
-          correct count based on segmentation output
+        :correct count based on segmentation output
+        :param segdata:
+        :param controls:
+        :param no_rep:
+        :return: reverted: counts
         """
         reverted = pd.DataFrame()
         # average fold change
@@ -203,7 +224,7 @@ class StaticMthods(object):
         n = segdata.correctedFC
         reverted['revc'] = c * (pow(2, n))
         normed_num = segdata.iloc[:, segdata.columns.get_loc('end') + controls + 1:
-                                segdata.columns.get_loc('avgFC')]
+                                  segdata.columns.get_loc('avgFC')]
         normed_num += 1
         proportions = normed_num.div(normed_num.agg('sum', axis=1), axis=0)
         reverted = reverted * no_rep
@@ -215,3 +236,74 @@ class StaticMthods(object):
         log.info("Writing out file  .....:{}".format(out_file))
         mydf.to_csv(out_file, sep='\t', mode='w', header=True,
                     index=True, index_label='sgRNA', doublequote=False)
+
+    @staticmethod
+    def run_mageck(outdir, norm_count_file, corrected_count_file, exp_name='myexperiemnt'):
+        global CONTROL_SAMPLES
+        global TREATMENT_SAMPLES
+        prefix_norm = outdir + '/mageckOut/normCounts_' + exp_name
+        cmd = MAGECK_CMD.format(norm_count_file, CONTROL_SAMPLES, TREATMENT_SAMPLES,
+                                prefix_norm, 'none')
+        StaticMthods._run_command(cmd)
+
+        prefix_corrected = outdir + '/mageckOut/correctedCounts_' + exp_name
+        cmd = MAGECK_CMD.format(corrected_count_file, CONTROL_SAMPLES, TREATMENT_SAMPLES,
+                                prefix_corrected, 'none')
+        StaticMthods._run_command(cmd)
+
+        return prefix_norm + '.gene_summary.txt', prefix_corrected + '.gene_summary.txt',
+
+    @staticmethod
+    def _run_command(cmd):
+        """
+
+        :param cmd:
+        :return: command output
+        """
+        """ runs command in a shell, returns stdout and exit code"""
+        if not len(cmd):
+            raise ValueError("Must supply at least one argument")
+        try:
+            # To capture standard error in the result, use stderr=subprocess.STDOUT:
+            cmd_obj = Popen(cmd, stdin=None, stdout=PIPE, stderr=PIPE,
+                            shell=True, universal_newlines=True, bufsize=-1,
+                            close_fds=True, executable='/bin/bash')
+            print("running command:{}".format(cmd))
+            (out, error) = cmd_obj.communicate()
+            exit_code = cmd_obj.returncode
+            if (exit_code == 0):
+                print("mageck run successfully")
+            else:
+                print("Error: mageck exited with non zero exit status, please check log file more details")
+                log.error("OUT:{}:Error:{}:Exit:{}".format(out, error, exit_code))
+            return 0
+        except OSError as oe:
+            log.error("Unable to run command:{} Error:{}".format(cmd, oe.args[0]))
+            sys.exit("Unable to run command:{} Error:{}".format(cmd, oe.args[0]))
+
+    @staticmethod
+    def load_signature_files(sig_dir_path, df):
+        """
+        :param sig_dir_path:
+        :return: signature_dict
+        """
+        signature_dict = {}
+        signature = None
+        try:
+            for signature in SIGNATURE_FILES:
+                with open(sig_dir_path + '/' + signature + '.txt') as f:
+                    gene_list = f.read().splitlines()
+                    sgRNA_list = df[df.gene.isin(gene_list)].index.tolist()
+                    signature_dict[signature + '_sgRNAs'] = sgRNA_list
+                    signature_dict[signature + '_genes'] = gene_list
+        except IOError:
+            log.error("Unable to load signature file for:" + signature)
+        return signature_dict
+
+    @staticmethod
+    def get_obs_predictions(df_data, positive, negative):
+        df = df_data.to_frame()
+        df = df[df.index.isin(positive + negative)]
+        df['tf'] = df.index.isin(positive)
+        df.sort_values(by=['avgFC'], inplace=True)
+        return df

@@ -20,6 +20,8 @@ class AbstractCrispr(ABC):
         self.runcrispr = kwargs.get('crispr_cleanr', None)
         self.num_processors = kwargs.get('num_processors', 1)
         self.plot_data = kwargs.get('plot_data', None)
+        self.run_qc = kwargs.get('run_qc', None)
+        self.gene_sig_dir = kwargs.get('gene_signatures', None)
         super().__init__()
 
     @abstractmethod

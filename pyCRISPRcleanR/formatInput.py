@@ -54,9 +54,10 @@ class CrisprCleanR(AbstractCrispr):
         sample = self.sample
         cpus = self.num_processors
         outdir = self.outdir
+        expname = self.expname
+        global MAGECK_CMD
         if outdir:
-            os.makedirs(outdir, exist_ok=True)
-
+            os.makedirs(outdir + '/mageckOut', exist_ok=True)
         # check input files
         (input1, input2) = self.check_input()
 
@@ -67,16 +68,30 @@ class CrisprCleanR(AbstractCrispr):
             log.info("Count and library data combined.....")
             cldf = SM.filter_data(cldf, controls, min_read_count)
             log.info("Data filtering DONE.....")
-            cldf, num_rep = SM.get_norm_count_n_fold_changes(cldf, controls,
-                                                             plot_flag=self.plot_data, outdir=outdir)
+            cldf, num_rep, norm_count_file, geneFC, sgRNAFC = \
+                SM.get_norm_count_n_fold_changes(cldf, controls, plot_flag=self.plot_data, outdir=outdir)
             log.info("Completed normalised count and fold change calculation .....")
+            ref_gene_list_dict = SM.load_signature_files(self.gene_sig_dir, cldf)
+            # ROC for sgRNA
+            obs_pred_df = SM.get_obs_predictions(sgRNAFC, ref_gene_list_dict['essential_sgRNAs'],
+                                                 ref_gene_list_dict['non_essential_sgRNAs'])
 
+            PLT.roc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/roc_curve')
+            PLT.pr_rc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/pr_rc_curve')
+            # ROC for gene
+            obs_pred_df = SM.get_obs_predictions(geneFC, ref_gene_list_dict['essential_genes'],
+                                                 ref_gene_list_dict['non_essential_genes'])
+            PLT.roc_curve(obs_pred_df, data_type='gene', saveto=outdir + '/roc_curve')
+            PLT.pr_rc_curve(obs_pred_df, data_type='gene', saveto=outdir + '/pr_rc_curve')
+            PLT.depletion_profile_with_gene_signature(geneFC, ref_gene_list_dict, obs_pred_df,
+                                                      data_type='genes',
+                                                      saveto=outdir + '/genes_depletion_profile')
             # save normalised count and fold changes
             if self.runcrispr:
                 cbs_dict = SM.run_cbs(cldf, cpus, sample)
                 log.info("CBS analysis completed  .....")
-                all_data = SM.process_segments(cbs_dict, ignored_genes, min_target_genes, controls, num_rep,
-                                               outdir=outdir)
+                all_data, corrected_count_file = SM.process_segments(cbs_dict, ignored_genes, min_target_genes,
+                                                                     controls, num_rep, outdir=outdir)
                 log.info("Processed CBS segments  .....")
                 SM._print_df(all_data, outdir + "/alldata.tsv")
                 if self.plot_data:
@@ -84,8 +99,19 @@ class CrisprCleanR(AbstractCrispr):
                     log.info("CBS analysis on normalised fold changes completed.....")
                     PLT.plot_segments(cbs_dict, cbs_dict_norm, sample, outdir=outdir)
                     log.info("Done plots.....")
+                if self.plot_data and self.gene_sig_dir:
+                    print("move to top")
+                if self.run_qc:
+                    norm_gene_summary, corrected_gene_summary = SM.run_mageck(outdir, norm_count_file,
+                                                                              corrected_count_file,
+                                                                              exp_name=expname)
+                    PLT.impact_on_phenotype(norm_gene_summary, corrected_gene_summary,
+                                            saveto=outdir + '/impact_on_phenotype',
+                                            exp_name=expname)
+
             log.info("Analysis completed successfully.....")
             print("Analysis completed successfully.....")
             # print(all_data[all_data.gene == 'CCT8L2'])
+
         else:
             sys.exit('Input data is not in required format, see inputFormat in README file')

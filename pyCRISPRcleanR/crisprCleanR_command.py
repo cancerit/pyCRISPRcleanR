@@ -58,6 +58,12 @@ def main():  # pragma: no cover
     optional.add_argument("-pl", "--plot_data", action='store_true', dest="plot_data",
                           help="Generate pdf and interactive plotly images")
 
+    optional.add_argument("-gs", "--gene_signatures", type=str, dest="gene_signatures", required=False,
+                          help="Directory path containing .txt files for signature genes")
+
+    optional.add_argument("-qc", "--run_qc", action='store_true', dest="run_qc",
+                          help="flag to generate low and high level QC plots")
+
     optional.add_argument("-o", "--outdir", type=str, dest="outdir",
                           default='./', help="path to output folder ")
 
