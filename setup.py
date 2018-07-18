@@ -11,8 +11,8 @@ config = {
     'author_email': 'cgphelp@sanger.ac.uk',
     'python_requires': '>= 3.3',
     'setup_requires': ['pytest','pytest-cover', 'radon'],
-    'install_requires': ['rpy2', 'pandas', 'numpy', 'plotly', 'tzlocal'],
-    'find_links' : 'https://sourceforge.net/projects/mageck/files/0.5/mageck-0.5.7.tar.gz/download',
+    'dependency_links' : ['https://sourceforge.net/projects/mageck/files/0.5/mageck-0.5.7.tar.gz/download'],
+    'install_requires': ['mageck==0.5.7','rpy2', 'pandas', 'numpy', 'plotly', 'tzlocal'],
     'packages': ['pyCRISPRcleanR'],
     'package_data': {'pyCRISPRcleanR':['config/*.conf','segmentation/*.py']},
     'entry_points': {
