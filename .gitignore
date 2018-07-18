@@ -21,3 +21,4 @@ cgpCRISPRcleanR.egg-info*
 /tmp*
 .nfs*
 .idea
+.pytest_cach
