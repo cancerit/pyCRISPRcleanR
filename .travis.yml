@@ -31,13 +31,12 @@ python:
     - "3.6"
 
 install:
-  #  - pip install --upgrade setuptools  # to avoid egg_info erro code 1 exit
+  - pip install --upgrade setuptools  # to avoid egg_info erro code 1 exit
   - pip install pytest
   - pip install pytest-cover
   - pip install radon
   - pip install tzlocal
-  - pip install -U wheel
-  - pip install -U setuptools
+  - pip install --upgrade wheel
   - pip install https://sourceforge.net/projects/mageck/files/0.5/mageck-0.5.7.tar.gz/download
   - pip install .
 
