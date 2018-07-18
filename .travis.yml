@@ -36,6 +36,8 @@ install:
   - pip install pytest-cover
   - pip install radon
   - pip install tzlocal
+  - pip install wheel
+  - pip install setuptools
   - pip install https://sourceforge.net/projects/mageck/files/0.5/mageck-0.5.7.tar.gz/download
   - pip install .
 
