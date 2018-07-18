@@ -13,5 +13,5 @@ ipak <- function(pkg){
   sapply(pkg, library, character.only = TRUE)
 }
 
-biocPackages <- c("DNAcopy")
+biocPackages <- c("DNAcopy","pROC","PRROC","graphics")
 ipak(biocPackages)
