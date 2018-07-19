@@ -29,6 +29,7 @@ class TestClass():
         ignored_genes = []
         sample = 'mytest'
         expname='myexperiment'
+        gene_sig_dir= testdir + '/ref_genes/'
         cpus = 1
         outdir=tempfile.mkdtemp(dir=".")
         if outdir:
@@ -44,6 +45,7 @@ class TestClass():
         cldf,no_rep, norm_counts_file, geneFC, sgRNAFC = mystatic_obj.get_norm_count_n_fold_changes(cldf,controls,plot_flag=1,outdir=outdir)
         assert (2038, 14) == cldf.shape, 'get_norm_count_n_fold_changes'
         assert 3 == no_rep, 'number of replicates'
+        ref_gene_list_dict = mystatic_obj.load_signature_files(gene_sig_dir, cldf)
         cbs_dict=mystatic_obj.run_cbs(cldf, cpus, sample)
         assert "dict_keys([22])" == "{}".format(cbs_dict.keys()), 'run_cbs'
         alldata, corrected_counts_file = mystatic_obj.process_segments(cbs_dict, ignored_genes, min_target_genes, controls, no_rep,outdir=outdir)
@@ -58,9 +60,9 @@ class TestClass():
         assert filecmp.cmp(expected_corrected_gene_summary, corrected_gene_summary, shallow=True), 'mageck files are identical'
         cbs_dict_norm = mystatic_obj.run_cbs(alldata, cpus, sample, fc_col="correctedFC")
         myPLT.plot_segments(cbs_dict, cbs_dict_norm, sample, outdir=outdir)
-        myPLT.impact_on_phenotype(norm_gene_summary, corrected_gene_summary,
-                                saveto=outdir + '/impact_on_phenotype',
-                                exp_name=expname)
+        #myPLT.impact_on_phenotype(norm_gene_summary, corrected_gene_summary,
+        #                        saveto=outdir + '/impact_on_phenotype',
+        #                        exp_name=expname)
         #assert True == result, 'process_segments: check results'
 
 if __name__ == '__main__':
