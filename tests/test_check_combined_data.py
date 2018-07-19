@@ -28,10 +28,7 @@ class TestClass():
         min_target_genes = 3
         ignored_genes = []
         sample = 'mytest'
-        expname='myexperiment'
         gene_sig_dir= testdir + '/ref_genes/'
-        SIGNATURE_FILES = ("essential", "non_essential", "dna_replication", "rna_polymerase",
-                           "proteasome", "ribosomal_proteins", "spliceosome")
         cpus = 1
         outdir=tempfile.mkdtemp(dir=".")
         if outdir:
@@ -47,7 +44,12 @@ class TestClass():
         assert (2038, 14) == cldf.shape, 'get_norm_count_n_fold_changes'
         assert 3 == no_rep, 'number of replicates'
         ref_gene_list_dict = mystatic_obj.load_signature_files(gene_sig_dir, cldf)
-        assert ref_gene_list_dict == list(SIGNATURE_FILES)
+
+        obs_pred_df = mystatic_obj.get_obs_predictions(sgRNAFC, ref_gene_list_dict['essential_sgRNAs'],
+                                             ref_gene_list_dict['non_essential_sgRNAs'])
+        assert (94,2) == obs_pred_df.shape, 'get data for roc'
+        myPLT.roc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/roc_curve')
+        myPLT.pr_rc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/pr_rc_curve')
         cbs_dict=mystatic_obj.run_cbs(cldf, cpus, sample)
         assert "dict_keys([22])" == "{}".format(cbs_dict.keys()), 'run_cbs'
         alldata, corrected_counts_file = mystatic_obj.process_segments(cbs_dict, ignored_genes, min_target_genes, controls, no_rep,outdir=outdir)
@@ -62,9 +64,6 @@ class TestClass():
         assert filecmp.cmp(expected_corrected_gene_summary, corrected_gene_summary, shallow=True), 'mageck files are identical'
         cbs_dict_norm = mystatic_obj.run_cbs(alldata, cpus, sample, fc_col="correctedFC")
         myPLT.plot_segments(cbs_dict, cbs_dict_norm, sample, outdir=outdir)
-        #myPLT.impact_on_phenotype(norm_gene_summary, corrected_gene_summary,
-        #                        saveto=outdir + '/impact_on_phenotype',
-        #                        exp_name=expname)
         #assert True == result, 'process_segments: check results'
 
 if __name__ == '__main__':
