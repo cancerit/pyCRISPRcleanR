@@ -109,6 +109,8 @@ Release `.whl` files are generated as part of the release process and can be fou
 * [Pandas]
 * [rpy2]
 * [plotly]
+* [MAGeCK]
+* [SciPy]
 
 ### R packages
 
@@ -192,6 +194,8 @@ pip install --find-links=~/wheels pyCRISPRcleanR
 <!--refs-->
  [NumPy]: http://www.numpy.org/
  [plotly]: https://plot.ly/python/
+ [MAGeCK]: https://sourceforge.net/projects/mageck/
+ [SciPy]: https://www.scipy.org
  [Pandas]: http://pandas.pydata.org/
  [rpy2]: https://rpy2.bitbucket.io/
  [DNAcopy]: https://www.bioconductor.org/packages/release/bioc/html/DNAcopy.html 
