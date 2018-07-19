@@ -30,6 +30,8 @@ class TestClass():
         sample = 'mytest'
         expname='myexperiment'
         gene_sig_dir= testdir + '/ref_genes/'
+        SIGNATURE_FILES = ("essential", "non_essential", "dna_replication", "rna_polymerase",
+                           "proteasome", "ribosomal_proteins", "spliceosome")
         cpus = 1
         outdir=tempfile.mkdtemp(dir=".")
         if outdir:
@@ -37,7 +39,6 @@ class TestClass():
         # check input type function
         mystatic_obj = sm.StaticMthods()
         myPLT = PLT.PlotData()
-
         cldf=mystatic_obj.combine_count_n_library(t_countfile, t_libfile, plot_flag=1, outdir=outdir)
         assert (2072, 8) == cldf.shape,'combined_count_n_lib'
         cldf=mystatic_obj.filter_data(cldf, controls, min_read_count)
@@ -46,6 +47,7 @@ class TestClass():
         assert (2038, 14) == cldf.shape, 'get_norm_count_n_fold_changes'
         assert 3 == no_rep, 'number of replicates'
         ref_gene_list_dict = mystatic_obj.load_signature_files(gene_sig_dir, cldf)
+        assert ref_gene_list_dict == list(SIGNATURE_FILES)
         cbs_dict=mystatic_obj.run_cbs(cldf, cpus, sample)
         assert "dict_keys([22])" == "{}".format(cbs_dict.keys()), 'run_cbs'
         alldata, corrected_counts_file = mystatic_obj.process_segments(cbs_dict, ignored_genes, min_target_genes, controls, no_rep,outdir=outdir)
