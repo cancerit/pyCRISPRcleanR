@@ -57,10 +57,13 @@ class StaticMthods(object):
             sys.exit('counts data does not contain required column:[gene]')
         # plot raw counts
         if plot_flag:
-            PLT.box_plot_r(counts.iloc[:, 1:], title="Raw sgRNA counts", saveto=outdir + '/raw_counts',
+            PLT.box_plot_r(counts, title="Raw sgRNA counts", saveto=outdir + '/raw_counts',
                            ylabel='Raw Counts', xlabel='Sample Names')
-            PLT.box_plot_ly(counts.iloc[:, 1:], title="Raw sgRNA counts", saveto=outdir + '/raw_counts_plotly',
+            PLT.box_plot_ly(counts, title="Raw sgRNA counts", saveto=outdir + '/raw_counts_plotly',
                             ylabel='Raw Counts', xlabel='Sample Names')
+            PLT.histogram_ly(counts, title="Raw sgRNA counts", saveto=outdir + '/raw_counts_hist',
+                             ylabel='Raw Counts',
+                             xlabel='sgRNAbins')
             log.info("Plotted raw counts.....")
 
         if {'gene', 'chr', 'start', 'end'}.issubset(libdata.columns):
@@ -106,12 +109,17 @@ class StaticMthods(object):
                             ylabel='Normalised Counts',
                             xlabel='Sample Names')
 
+            PLT.histogram_ly(normed, title="Normalised sgRNA counts", saveto=outdir + '/normalised_counts_hist',
+                            ylabel='Normalised Counts',
+                            xlabel='Sample Names')
+
         fc = normed.apply(lambda x: np.log2((x + 0.5) / (normed.iloc[:, 0:controls].mean(axis=1) + 0.5)))
         # drop control columns
         fc.drop(fc.columns[0:controls], axis=1, inplace=True)
 
         if fc.empty:
             sys.exit('Foldchange data frame is empty')
+
             # plot fold Changes
         elif plot_flag:
             PLT.box_plot_r(fc, title="Fold Changes sgRNA", saveto=outdir + '/fold_changes',
@@ -120,6 +128,15 @@ class StaticMthods(object):
             PLT.box_plot_ly(fc, title="Fold Changes sgRNA", saveto=outdir + '/fold_changes_plotly',
                             ylabel='Fold Changes',
                             xlabel='Sample Names')
+            PLT.histogram_ly(fc, title="Fold changes sgRNA", saveto=outdir + '/fold_changes_hist',
+                             ylabel='Normalised Counts',
+                             xlabel='Sample Names')
+        # testing this
+        PLT.correlation_matrix_plot(fc, title="Correlation Fold changes sgRNA", saveto=outdir + '/matrix_fc',
+                             ylabel='Normalised Counts',
+                             xlabel='Sample Names')
+
+        sys.exit(0)
 
         no_rep = len(fc.columns)
 

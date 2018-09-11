@@ -1,6 +1,0 @@
-mageck==0.5.7
-rpy2
-pandas
-numpy
-plotly
-tzlocal

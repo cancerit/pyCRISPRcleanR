@@ -1,3 +1,0 @@
-[console_scripts]
-pyCRISPRCleanR = pyCRISPRcleanR.crisprCleanR_command:main
-

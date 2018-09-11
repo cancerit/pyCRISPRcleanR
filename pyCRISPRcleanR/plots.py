@@ -1,12 +1,17 @@
 from math import log10
+import plotly.graph_objs as go
 import plotly.offline as py
 import pandas as pd
 import numpy as np
-import plotly.graph_objs as go
+import plotly.tools as tls
 from rpy2.robjects import r, pandas2ri
 import rpy2.robjects.numpy2ri as numpy2ri
 from rpy2.robjects.packages import importr
+import plotly.figure_factory as ff
+from scipy import stats
 import re
+import sys
+import os
 
 pandas2ri.activate()
 numpy2ri.activate()
@@ -33,7 +38,7 @@ class PlotData(object):
         :return:
         """
         config = {
-            'linkText': "Link to documentation plot.ly !!!",
+            'linkText': "Link to edit plot (!!!WARNING your data is copied to plotly server) !!!",
             'scrollZoom': True,
             'editable': True
         }
@@ -42,6 +47,134 @@ class PlotData(object):
             for key, val in cfprm.items():
                 config[key] = val
         return config
+
+    @staticmethod
+    def histogram_ly(df, title='mytitle', saveto='./myfile', ylabel='ylabel', xlabel='xlabel'):
+        """
+        :param df:
+        :param title:
+        :param saveto:
+        :param ylabel:
+        :param xlabel:
+        :return:
+        """
+        figure = tls.make_subplots(rows=len(df.columns), cols=1, shared_xaxes=True, shared_yaxes=True)
+        count = 0
+        for col in df.columns:
+            count += 1
+            x_val = df[col].tolist()
+            trace1 = go.Histogram(
+                name=col,
+                x=x_val,
+                opacity=0.75
+            )
+            figure.append_trace(trace1, count, 1)
+            figure['layout']['xaxis' + str(count)].update(title='')
+            figure['layout']['yaxis' + str(count)].update(title='')
+            # if count==len(df.columns):
+            #    figure['layout'][xaxis].update(title='counts')
+            #    figure['layout'][yaxix].update(title='bins')
+
+        figure['layout'].update(height=700, width=1200, title=title)
+        py.plot(figure, filename=saveto + '.html', auto_open=False, config=PlotData.plotly_conf())
+        return None
+
+    @staticmethod
+    def correlation_matrix_plot(df, title='mytitle', saveto='./myfile', ylabel='ylabel', xlabel='xlabel'):
+        figure = ff.create_scatterplotmatrix(df, diag='histogram', height=800, width=800)
+        py.plot(figure, filename=saveto + '.html', auto_open=False, config=PlotData.plotly_conf())
+        return None
+
+    @staticmethod
+    def correlation_plot(df, title='mytitle', saveto='./myfile', ylabel='ylabel', xlabel='xlabel'):
+        figure = tls.make_subplots(rows=len(df.columns), cols=len(df.columns),
+                                   shared_xaxes=True, shared_yaxes=True)
+        xcounter = 0
+        for col1 in df.columns:
+            x = df[col1]
+            xcounter += 1
+            ycounter = 0
+            for col2 in df.columns:
+                y = df[col2]
+                ycounter += 1
+                if xcounter == ycounter:
+                    continue
+                slope, intercept, r_value, p_value, std_err = stats.linregress(df[col1], df[col2])
+                line = slope * df[col1] + intercept
+                # print("r_cal:{} Sample:{}_vs_{}".format(r_value,col1,col2))
+                # plot only lift digonal
+                if xcounter >= ycounter:
+                    trace1 = go.Scatter(
+                        name=col1 + '_vs_' + col2,
+                        x=x,
+                        y=y,
+                        opacity=0.75,
+                        mode='markers'
+                    )
+                    figure.append_trace(trace1, xcounter, ycounter)
+                if xcounter < ycounter:
+                    trace2 = go.Scatter(
+                        name='Fit',
+                        x=x,
+                        y=line,
+                        opacity=0.75,
+                        mode='lines'
+                    )
+                    figure.append_trace(trace1, xcounter, ycounter)
+                    figure.append_trace(trace2, xcounter, ycounter)
+                    figure['layout']['xaxis' + str(xcounter)].update(title='', showline=True)
+                    figure['layout']['yaxis' + str(ycounter)].update(title='', showline=True)
+                else:
+                    annotation = {
+                        'x': 3.5,
+                        'y': 23.5,
+                        'xref': 'x' + str(xcounter),
+                        'yref': 'y' + str(ycounter),
+                        'text': '$R^2$ =' + str(r_value),
+                        'showarrow': False,
+                    }
+                    figure['layout'].update(annotations=[annotation])
+
+        figure['layout'].update(height=700, width=1200, title=title)
+        py.plot(figure, filename=saveto + '.html', auto_open=False, config=PlotData.plotly_conf())
+        return None
+
+    @staticmethod
+    def correlation_plot_ly(df, title='mytitle', saveto='./myfile', ylabel='ylabel', xlabel='xlabel'):
+
+        dimensions = []
+        for col in df.columns:
+            d1 = {'label': col,
+                  'values': df[col]}
+            dimensions.append(d1)
+
+        trace1 = go.Splom(dimensions=dimensions, diagonal=dict(visible=False))
+        trace1['dimensions'][1].update(visible=False)
+        axis = dict(showline=True,
+                    zeroline=False,
+                    gridcolor='#fff',
+                    ticklen=4)
+        layout = go.Layout(
+            title=title,
+            dragmode='select',
+            width=600,
+            height=600,
+            autosize=False,
+            hovermode='closest',
+            plot_bgcolor='rgba(240,240,240, 0.95)',
+            # for i in range(len(df.columns)):
+            xaxis1=dict(axis),
+            xaxis2=dict(axis),
+            xaxis3=dict(axis),
+            yaxis1=dict(axis),
+            yaxis2=dict(axis),
+            yaxis3=dict(axis)
+        )
+
+        figure = dict(data=[trace1], layout=layout)
+        py.plot(figure, filename=saveto + '.html', auto_open=False, config=PlotData.plotly_conf())
+
+        return None
 
     @staticmethod
     def box_plot_ly(df, title='mytitle', saveto='./myfile', ylabel='ylabel', xlabel='xlabel'):

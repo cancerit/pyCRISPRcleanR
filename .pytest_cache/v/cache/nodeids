@@ -1,4 +1,0 @@
-[
-  "tests/test_check_combined_data.py::TestClass::()::test_static_methods",
-  "tests/test_check_input.py::TestClass::()::test_file_input"
-]
