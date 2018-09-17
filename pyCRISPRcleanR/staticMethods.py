@@ -110,8 +110,12 @@ class StaticMthods(object):
                             xlabel='Sample Names')
 
             PLT.histogram_ly(normed, title="Normalised sgRNA counts", saveto=outdir + '/normalised_counts_hist',
-                            ylabel='Normalised Counts',
-                            xlabel='Sample Names')
+                             ylabel='Normalised Counts',
+                             xlabel='Sample Names')
+            PLT.correlation_plot_ly(normed, title="Correlation normalised sgRNA counts",
+                                    saveto=outdir + '/matrix_normalised_counts',
+                                    ylabel='Normalised Counts',
+                                    xlabel='Sample Names')
 
         fc = normed.apply(lambda x: np.log2((x + 0.5) / (normed.iloc[:, 0:controls].mean(axis=1) + 0.5)))
         # drop control columns
@@ -131,12 +135,11 @@ class StaticMthods(object):
             PLT.histogram_ly(fc, title="Fold changes sgRNA", saveto=outdir + '/fold_changes_hist',
                              ylabel='Normalised Counts',
                              xlabel='Sample Names')
-        # testing this
-        PLT.correlation_matrix_plot(fc, title="Correlation Fold changes sgRNA", saveto=outdir + '/matrix_fc',
-                             ylabel='Normalised Counts',
-                             xlabel='Sample Names')
-
-        sys.exit(0)
+            # testing this
+            PLT.correlation_plot_ly(fc, title="Correlation Fold changes sgRNA",
+                                    saveto=outdir + '/matrix_foldchanges',
+                                    ylabel='Normalised Counts',
+                                    xlabel='Sample Names')
 
         no_rep = len(fc.columns)
 
@@ -186,7 +189,7 @@ class StaticMthods(object):
             cnarr['correctedFC'] = cnarr.avgFC
             n_genes_in_seg = 0
             reverted_counts = cnarr.iloc[:, cnarr.columns.get_loc('end') + controls + 1:
-                                         cnarr.columns.get_loc('avgFC')]
+                                        cnarr.columns.get_loc('avgFC')]
 
             for segment in segrows.itertuples():
                 idxs = list(range(segment.startRow - 1, segment.endRow))
@@ -241,7 +244,7 @@ class StaticMthods(object):
         n = segdata.correctedFC
         reverted['revc'] = c * (pow(2, n))
         normed_num = segdata.iloc[:, segdata.columns.get_loc('end') + controls + 1:
-                                  segdata.columns.get_loc('avgFC')]
+                                segdata.columns.get_loc('avgFC')]
         normed_num += 1
         proportions = normed_num.div(normed_num.agg('sum', axis=1), axis=0)
         reverted = reverted * no_rep

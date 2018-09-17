@@ -55,6 +55,7 @@ class CrisprCleanR(AbstractCrispr):
         cpus = self.num_processors
         outdir = self.outdir
         expname = self.expname
+        gene_sig_dir = self.gene_sig_dir
         global MAGECK_CMD
         if outdir:
             os.makedirs(outdir + '/mageckOut', exist_ok=True)
@@ -71,19 +72,19 @@ class CrisprCleanR(AbstractCrispr):
             cldf, num_rep, norm_count_file, geneFC, sgRNAFC = \
                 SM.get_norm_count_n_fold_changes(cldf, controls, plot_flag=self.plot_data, outdir=outdir)
             log.info("Completed normalised count and fold change calculation .....")
-            ref_gene_list_dict = SM.load_signature_files(self.gene_sig_dir, cldf)
+            if gene_sig_dir:
+                ref_gene_list_dict = SM.load_signature_files(gene_sig_dir, cldf)
             # ROC for sgRNA
-            obs_pred_df = SM.get_obs_predictions(sgRNAFC, ref_gene_list_dict['essential_sgRNAs'],
+                obs_pred_df = SM.get_obs_predictions(sgRNAFC, ref_gene_list_dict['essential_sgRNAs'],
                                                  ref_gene_list_dict['non_essential_sgRNAs'])
-
-            PLT.roc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/roc_curve')
-            PLT.pr_rc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/pr_rc_curve')
+                PLT.roc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/roc_curve')
+                PLT.pr_rc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/pr_rc_curve')
             # ROC for gene
-            obs_pred_df = SM.get_obs_predictions(geneFC, ref_gene_list_dict['essential_genes'],
+                obs_pred_df = SM.get_obs_predictions(geneFC, ref_gene_list_dict['essential_genes'],
                                                  ref_gene_list_dict['non_essential_genes'])
-            PLT.roc_curve(obs_pred_df, data_type='gene', saveto=outdir + '/roc_curve')
-            PLT.pr_rc_curve(obs_pred_df, data_type='gene', saveto=outdir + '/pr_rc_curve')
-            PLT.depletion_profile_with_gene_signature(geneFC, ref_gene_list_dict, obs_pred_df,
+                PLT.roc_curve(obs_pred_df, data_type='gene', saveto=outdir + '/roc_curve')
+                PLT.pr_rc_curve(obs_pred_df, data_type='gene', saveto=outdir + '/pr_rc_curve')
+                PLT.depletion_profile_with_gene_signature(geneFC, ref_gene_list_dict, obs_pred_df,
                                                       data_type='genes',
                                                       saveto=outdir + '/genes_depletion_profile')
             # save normalised count and fold changes

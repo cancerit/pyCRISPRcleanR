@@ -59,9 +59,8 @@ class PlotData(object):
         :return:
         """
         figure = tls.make_subplots(rows=len(df.columns), cols=1, shared_xaxes=True, shared_yaxes=True)
-        count = 0
+        count = 1
         for col in df.columns:
-            count += 1
             x_val = df[col].tolist()
             trace1 = go.Histogram(
                 name=col,
@@ -69,8 +68,9 @@ class PlotData(object):
                 opacity=0.75
             )
             figure.append_trace(trace1, count, 1)
-            figure['layout']['xaxis' + str(count)].update(title='')
-            figure['layout']['yaxis' + str(count)].update(title='')
+            # figure['layout']['xaxis' + str(count)].update(title='')
+            # figure['layout']['yaxis' + str(count)].update(title='')
+            count += 1
             # if count==len(df.columns):
             #    figure['layout'][xaxis].update(title='counts')
             #    figure['layout'][yaxix].update(title='bins')
@@ -86,9 +86,27 @@ class PlotData(object):
         return None
 
     @staticmethod
-    def correlation_plot(df, title='mytitle', saveto='./myfile', ylabel='ylabel', xlabel='xlabel'):
-        figure = tls.make_subplots(rows=len(df.columns), cols=len(df.columns),
-                                   shared_xaxes=True, shared_yaxes=True)
+    def correlation_plot_ly(df, title='mytitle', saveto='./myfile', ylabel='ylabel', xlabel='xlabel'):
+        """
+        :
+        :param df:
+        :param title:
+        :param saveto:
+        :param ylabel:
+        :param xlabel:
+        :return:
+        """
+        dimensions = []
+        for col in df.columns:
+            d1 = {'label': col,
+                  'values': df[col]}
+            dimensions.append(d1)
+
+        trace1 = go.Splom(dimensions=dimensions, diagonal=dict(visible=False))
+        trace1['dimensions'][1].update(visible=True)
+        trace1['showupperhalf'] = False
+        annotation_list = []
+        yaxis_val = 1
         xcounter = 0
         for col1 in df.columns:
             x = df[col1]
@@ -97,63 +115,25 @@ class PlotData(object):
             for col2 in df.columns:
                 y = df[col2]
                 ycounter += 1
+
                 if xcounter == ycounter:
                     continue
-                slope, intercept, r_value, p_value, std_err = stats.linregress(df[col1], df[col2])
-                line = slope * df[col1] + intercept
-                # print("r_cal:{} Sample:{}_vs_{}".format(r_value,col1,col2))
-                # plot only lift digonal
-                if xcounter >= ycounter:
-                    trace1 = go.Scatter(
-                        name=col1 + '_vs_' + col2,
-                        x=x,
-                        y=y,
-                        opacity=0.75,
-                        mode='markers'
-                    )
-                    figure.append_trace(trace1, xcounter, ycounter)
                 if xcounter < ycounter:
-                    trace2 = go.Scatter(
-                        name='Fit',
-                        x=x,
-                        y=line,
-                        opacity=0.75,
-                        mode='lines'
-                    )
-                    figure.append_trace(trace1, xcounter, ycounter)
-                    figure.append_trace(trace2, xcounter, ycounter)
-                    figure['layout']['xaxis' + str(xcounter)].update(title='', showline=True)
-                    figure['layout']['yaxis' + str(ycounter)].update(title='', showline=True)
-                else:
-                    annotation = {
-                        'x': 3.5,
-                        'y': 23.5,
-                        'xref': 'x' + str(xcounter),
-                        'yref': 'y' + str(ycounter),
-                        'text': '$R^2$ =' + str(r_value),
-                        'showarrow': False,
-                    }
-                    figure['layout'].update(annotations=[annotation])
+                    continue
+                slope, intercept, r_value, p_value, std_err = stats.linregress(df[col1], df[col2])
+                # line = slope * df[col1] + intercept
+                format_r_value = "<i>{}_vs_{}: R<sup>2</sup>={:02.2f}</i>".format(col1, col2, r_value)
+                annot_dict = dict(x=1,
+                                  y=yaxis_val,
+                                  xref='paper',
+                                  yref='paper',
+                                  text=format_r_value,
+                                  showarrow=False,
+                                  font=dict(size=10)
+                                  )
+                annotation_list.append(annot_dict)
+                yaxis_val -= 0.05
 
-        figure['layout'].update(height=700, width=1200, title=title)
-        py.plot(figure, filename=saveto + '.html', auto_open=False, config=PlotData.plotly_conf())
-        return None
-
-    @staticmethod
-    def correlation_plot_ly(df, title='mytitle', saveto='./myfile', ylabel='ylabel', xlabel='xlabel'):
-
-        dimensions = []
-        for col in df.columns:
-            d1 = {'label': col,
-                  'values': df[col]}
-            dimensions.append(d1)
-
-        trace1 = go.Splom(dimensions=dimensions, diagonal=dict(visible=False))
-        trace1['dimensions'][1].update(visible=False)
-        axis = dict(showline=True,
-                    zeroline=False,
-                    gridcolor='#fff',
-                    ticklen=4)
         layout = go.Layout(
             title=title,
             dragmode='select',
@@ -162,13 +142,7 @@ class PlotData(object):
             autosize=False,
             hovermode='closest',
             plot_bgcolor='rgba(240,240,240, 0.95)',
-            # for i in range(len(df.columns)):
-            xaxis1=dict(axis),
-            xaxis2=dict(axis),
-            xaxis3=dict(axis),
-            yaxis1=dict(axis),
-            yaxis2=dict(axis),
-            yaxis3=dict(axis)
+            annotations=annotation_list
         )
 
         figure = dict(data=[trace1], layout=layout)
@@ -429,17 +403,15 @@ class PlotData(object):
         labels = [i for i in range(min_log, max_log, 1)]
         tickvalue = [i for i in range(min_log, max_log, 1)]
 
-        trace1 = go.Scatter(x=x_fc, y=y_fc,
+        trace1 = go.Scatter(x=x_fc, y=list(range(y_fc + 1)),
                             name="",
                             mode='markers',
                             showlegend=False,
                             text=list_b,
-                            marker=dict(
-                                opacity=1,
-                                color='black',
+                            marker=dict(opacity=1,
+                                        color='black'
+                                        )
                             )
-                            )
-
         trace_list.append(trace1)
         count = max_log
         for sig_name in sig_index_pos_dict_above_fdr:
@@ -505,7 +477,7 @@ class PlotData(object):
                 size=16,
                 color='red'
             ),
-            align='bottom',
+            align='center'
         )
 
         x_label1 = dict(
@@ -721,10 +693,12 @@ class PlotData(object):
         py.plot(figure, filename=saveto + '.html', auto_open=False,
                 config=PlotData.plotly_conf(cfprm={'theme': 'ggplot'}))
 
-        pichart_dict = {('Overall impact', '_'): [IMPACTEDg, 100 - IMPACTEDg],
-                        ('Overall distortion', '_'): [DISTORTEDg, 100 - DISTORTEDg],
-                        ('Impact (G/L fitness genes)', '_'): [IMPACTED_phenGenes, 100 - IMPACTED_phenGenes],
-                        ('Distortion (G/L fitness genes)', '_'): [DISTORTED_phenGenes, 100 - DISTORTED_phenGenes]}
+        pichart_dict = {('Overall impact', 'Rest of the genes'): [IMPACTEDg, 100 - IMPACTEDg],
+                        ('Overall distortion', 'Rest of the genes'): [DISTORTEDg, 100 - DISTORTEDg],
+                        ('Impact (G/L fitness genes)', 'Rest of the genes'): [IMPACTED_phenGenes,
+                                                                              100 - IMPACTED_phenGenes],
+                        ('Distortion (G/L fitness genes)', 'Rest of the genes'): [DISTORTED_phenGenes,
+                                                                                  100 - DISTORTED_phenGenes]}
         pi_colors = ['red', 'blue', 'green', 'orange']
         pi_x = [[0, .48], [.52, 1], [0, .48], [.52, 1]]
         pi_y = [[0, .49], [0, .49], [.51, 1], [.51, 1]]
@@ -745,8 +719,8 @@ class PlotData(object):
                            'line': {'color': '#000000',
                                     'width': 0.5},
                            },
-                'hoverinfo': 'labels+percent',
-                'textinfo': 'labels'
+                'hoverinfo': 'label+percent',
+                'textinfo': 'label'
             }
             count += 1
 
