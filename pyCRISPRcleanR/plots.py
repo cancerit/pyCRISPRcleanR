@@ -684,7 +684,7 @@ class PlotData(object):
                     showarrow=False,
                     xref="paper",
                     yref="paper",
-                    xanchor="top",
+                    xanchor="left",
                     yanchor="top"
                 )]
         )
