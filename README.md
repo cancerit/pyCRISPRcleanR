@@ -104,7 +104,7 @@ Release `.whl` files are generated as part of the release process and can be fou
 
 ### Package Dependancies
 
-`pip` will install the relevant dependancies, listed here for convenience:
+`pip` will install the relevant dependancies, listed here for convenience, please refer requirements.txt for versions:
 * [NumPy]
 * [Pandas]
 * [rpy2]
