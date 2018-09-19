@@ -52,6 +52,24 @@ class PlotData(object):
         return config
 
     @staticmethod
+    def box_plot_ly(df, title='mytitle', saveto='./myfile', ylabel='ylabel', xlabel='xlabel'):
+        """
+        :param df: pandas df
+        :param title:
+        :param saveto:
+        :param ylabel:
+        :param xlabel:
+        :return:
+        """
+        data = []
+        for col in df.columns:
+            data.append(go.Box(y=df[col], name=col, showlegend=False))
+
+        layout = go.Layout(title=title, yaxis=dict(title=ylabel), xaxis=dict(title=xlabel))
+        figure = go.Figure(data=data, layout=layout)
+        py.plot(figure, filename=saveto + '.html', auto_open=False, config=PlotData.plotly_conf())
+
+    @staticmethod
     def histogram_ly(df, title='mytitle', saveto='./myfile', ylabel='ylabel', xlabel='xlabel'):
         """
         :param df:
@@ -68,11 +86,13 @@ class PlotData(object):
             trace1 = go.Histogram(
                 name=col,
                 x=x_val,
-                opacity=0.75
+                opacity=0.75,
             )
             figure.append_trace(trace1, count, 1)
+            yaxis_name = 'yaxis' + str(count)
+            figure['layout'][yaxis_name].update(title=ylabel)
             count += 1
-        figure['layout'].update(height=700, width=1200, title=title)
+        figure['layout'].update(title=title, xaxis1=dict(title=xlabel))
         py.plot(figure, filename=saveto + '.html', auto_open=False, config=PlotData.plotly_conf())
         return None
 
@@ -142,42 +162,25 @@ class PlotData(object):
         return None
 
     @staticmethod
-    def box_plot_ly(df, title='mytitle', saveto='./myfile', ylabel='ylabel', xlabel='xlabel'):
-        """
-        :param df:
-        :param title:
-        :param saveto:
-        :param ylabel:
-        :param xlabel:
-        :return:
-        """
-        data = []
-        for col in df.columns:
-            data.append(go.Box(y=df[col], name=col, showlegend=False))
-
-        layout = go.Layout(title=title, yaxis=dict(title=ylabel), xaxis=dict(title=xlabel))
-        figure = go.Figure(data=data, layout=layout)
-        py.plot(figure, filename=saveto + '.html', auto_open=False, config=PlotData.plotly_conf())
-
-    @staticmethod
     def plot_segments(cbs_fc, cbs_normfc, sample_id, outdir='./'):
         """
-        :param cbs_fc:
-        :param cbs_normfc:
+        :param cbs_fc: raw fold chnages
+        :param cbs_normfc: normalised fold changes
         :param sample_id:
         :param outdir:
         :return:
         """
-        pdf_prm = {'file': "{}/{}_raw_vs_postCrispr_FC.pdf".format(outdir, sample_id), 'width': 7.5, 'height': 7.5}
+        pdf_prm = {'file': "{}/9_Raw_vs_postCRISPRcleanR_segmentation_fold_changes.pdf".format(outdir),
+                   'width': 7.5, 'height': 7.5}
         grdevices.pdf(**pdf_prm)
         r.par(mfrow=r.c(2, 1))
         for chr_name, (_, _, cnseg_raw) in cbs_fc.items():
             (_, _, cnseg_norm) = cbs_normfc[chr_name]
-            plot_prm = {'main': "{}_FCs_chr{}".format(sample_id, chr_name), 'xlab': 'sgRNA_Index',
+            plot_prm = {'main': "raw_FCs_chr{}".format(chr_name), 'xlab': 'sgRNA_Index',
                         'ylab': 'FCs'}
             dnacopy.plotSample(cnseg_raw, **plot_prm)
             # plot normalised fold changes
-            plot_prm = {'main': "{}_postCRISPRcleanR_chr{}".format(sample_id, chr_name), 'xlab': 'sgRNA_Index',
+            plot_prm = {'main': "CRISPRcleanR_FCs_chr{}".format(chr_name), 'xlab': 'sgRNA_Index',
                         'ylab': 'FCs'}
             dnacopy.plotSample(cnseg_norm, **plot_prm)
         grdevices.dev_off()
@@ -370,7 +373,7 @@ class PlotData(object):
         """
         :param FCsprofile: fold change profile
         :param fdrth:
-        :param signatures:
+        :param signatures: signature dictionary
         :param df: original data frame
         :param data_type:
         :param saveto:
@@ -485,7 +488,7 @@ class PlotData(object):
             x=0.85,
             y=-0.075,
             showarrow=False,
-            text="% of genes above and below {}%FDR cutoff".format(100 * fdrth),
+            text="% of genes below {}%FDR cutoff".format(100 * fdrth),
             xref='paper',
             yref='paper',
             font=dict(size=14)
@@ -553,8 +556,6 @@ class PlotData(object):
         # get ROC data
         df, auc, sens, FDR5percTh = PlotData._roc_curve_r(df.tf.values, df.avgFC.values)
         FDRpercRANK = (FCsprofile[FCsprofile.avgFC <= FDR5percTh]).shape[0]
-        # print("{}:{}:{}:FDRpercRANK:{},FDR5percTh:{}".format(FCsprofile.head(), auc,
-        # sens,FDRpercRANK,FDR5percTh))
 
         y_fc = FCsprofile.shape[0]
         x_fc = FCsprofile.avgFC.values
@@ -571,21 +572,33 @@ class PlotData(object):
                 sig_index_pos_dict_below_fdr[sig] = [(i, v) for i, v in index_tuple if i <= FDRpercRANK]
                 sig_index_pos_dict_above_fdr[sig] = [(i, v) for i, v in index_tuple if i > FDRpercRANK]
                 fdr_percent[sig] = round((len(sig_index_pos_dict_below_fdr[sig]) / len(index_tuple)) * 100)
-                # print("Signature:{}:index above:{}: below:{}:fdr_perc:{}".format(sig,
-                # len(sig_index_pos_dict_above_fdr[sig]),
-                # len(sig_index_pos_dict_below_fdr[sig]),fdr_percent[sig] ))
 
         return [x_fc, y_fc, FDRpercRANK, sig_index_pos_dict_above_fdr, sig_index_pos_dict_below_fdr,
                 fdr_percent, list_b]
 
     @staticmethod
     def _get_indices(a, b):
+        """
+        :param a: list a
+        :param b: list b
+        :return:
+        """
         b_set = set(b)
         return [(i, v) for i, v in enumerate(a) if v in b_set]
 
     @staticmethod
     def density_plot_ly(essential, non_essential, other, title='Pre and Post CRISPRcleanR Density Plot',
                         saveto='./myfile', ylabel='Density', xlabel='sgRNA_logFC'):
+        """
+        :param essential: pandas df of essential genes
+        :param non_essential: pandas df
+        :param other: pandas df
+        :param title:
+        :param saveto:
+        :param ylabel:
+        :param xlabel:
+        :return:
+        """
 
         my_fig = tls.make_subplots(subplot_titles=('preCRISPRcleanR', 'postCRISPRcleanR'), rows=2, cols=1,
                                    shared_xaxes=True, shared_yaxes=False)
@@ -627,7 +640,6 @@ class PlotData(object):
         """
         pre = pd.read_csv(mo_uncorrected_file, compression='infer', sep="\t", index_col='id')
         post = pd.read_csv(mo_corrected_file, compression='infer', sep="\t", index_col='id')
-        # print(pre.head())
 
         pre.sort_index(inplace=True)
         post.sort_index(inplace=True)
@@ -636,15 +648,10 @@ class PlotData(object):
         preE = set(pre[(pre['neg|fdr'] >= fdrth) & (pre['pos|fdr'] < fdrth)].index.tolist())
         preNULL = pre_genes.difference(preD.union(preE))
 
-        # print("all:{}pred:{}preE{}preNULL:{}".format(len(pre_genes),len(preD),len(preE),len(preNULL)))
-
         post_genes = set(post.index.tolist())
         postD = set(post[(post['neg|fdr'] < fdrth) & (post['pos|fdr'] >= fdrth)].index.tolist())
         postE = set(post[(post['neg|fdr'] >= fdrth) & (post['pos|fdr'] < fdrth)].index.tolist())
         postNULL = post_genes.difference(postD.union(postE))
-
-        # print("all:{}postd:{}postE{}postNULL:{}".format(len(post_genes), len(postD),
-        # len(postE), len(postNULL)))
 
         aDD = len(preD.intersection(postD))
         aDN = len(preD.intersection(postNULL))
@@ -665,9 +672,6 @@ class PlotData(object):
         DISTORTED_phenGenes = (cm[2, 0] + cm[0, 2]) / (cm[[0, 2]]).sum() * 100
         cm_fitmat = np.divide(cm.T, np.concatenate([cm.sum(1).T] * 3)) * 100
 
-        # print("IMPACTEDg:{}IMPACTED_phenGenes:{}DISTORTEDg:{}DISTORTED_phenGenes:{},cm:{}".format(IMPACTEDg,
-        # IMPACTED_phenGenes, DISTORTEDg,DISTORTED_phenGenes,cm_fitmat*100))
-
         original_counts = cm.sum(1).T.tolist()[0]
         label_list = ['loss_of_fitness', 'no_phenotype', 'gain_of_fitness']
         mod_label = ["{}<br>{}</br>".format(original_counts[i], label_list[i]) for i in range(3)]
@@ -683,7 +687,7 @@ class PlotData(object):
             barplot_list.append(trace1)
 
         layout = go.Layout(
-            title=exp_name,
+            title='Impact on phenotype',
 
             xaxis=dict(
                 title="Original Counts",
@@ -712,7 +716,7 @@ class PlotData(object):
         )
         figure = go.Figure(data=barplot_list, layout=layout)
 
-        py.plot(figure, filename=saveto + '.html', auto_open=False,
+        py.plot(figure, filename=saveto + '_barchart.html', auto_open=False,
                 config=PlotData.plotly_conf(cfprm={'theme': 'ggplot'}))
 
         pichart_dict = {('Overall impact', 'Rest of the genes'): [IMPACTEDg, 100 - IMPACTEDg],
@@ -753,7 +757,7 @@ class PlotData(object):
 
         figure = go.Figure(data=pie_list, layout=layout)
 
-        py.plot(figure, filename=saveto + 'piechart.html', auto_open=False,
+        py.plot(figure, filename=saveto + '_piechart.html', auto_open=False,
                 config=PlotData.plotly_conf())
 
         return None

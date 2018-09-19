@@ -27,7 +27,7 @@ class CrisprCleanR(AbstractCrispr):
         # avgFC: average fold change values
         # BP: Base pair location ( used for DNAcopy analysis)
         # correction: correction factor
-        # correctedFC: corrected foldchange values
+        # correctedFC: corrected foldchanges
         # <treatment sample count:corrected 1..N >: corrected count (postfixed _cc)
 
     """
@@ -77,22 +77,23 @@ class CrisprCleanR(AbstractCrispr):
                 # ROC for sgRNA
                 obs_pred_df = SM.get_obs_predictions(sgRNAFC, ref_gene_list_dict['essential_sgRNAs'],
                                                      ref_gene_list_dict['non_essential_sgRNAs'])
-                PLT.roc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/roc_curve')
-                PLT.pr_rc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/pr_rc_curve')
+                PLT.roc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/4_roc_curve')
+                PLT.pr_rc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/4_pr_rc_curve')
                 # ROC for gene
                 obs_pred_df = SM.get_obs_predictions(geneFC, ref_gene_list_dict['essential_genes'],
                                                      ref_gene_list_dict['non_essential_genes'])
-                PLT.roc_curve(obs_pred_df, data_type='gene', saveto=outdir + '/roc_curve')
-                PLT.pr_rc_curve(obs_pred_df, data_type='gene', saveto=outdir + '/pr_rc_curve')
+                PLT.roc_curve(obs_pred_df, data_type='gene', saveto=outdir + '/5_roc_curve')
+                PLT.pr_rc_curve(obs_pred_df, data_type='gene', saveto=outdir + '/5_pr_rc_curve')
                 PLT.depletion_profile_with_gene_signature(geneFC, ref_gene_list_dict, obs_pred_df,
                                                           data_type='genes',
-                                                          saveto=outdir + '/genes_depletion_profile')
+                                                          saveto=outdir + '/6_genes_depletion_profile')
             # save normalised count and fold changes
             if self.runcrispr:
                 cbs_dict = SM.run_cbs(cldf, cpus, sample, fc_col='avgFC')
                 log.info("CBS analysis completed  .....")
                 all_data, corrected_count_file = SM.process_segments(cbs_dict, ignored_genes, min_target_genes,
-                                                                     controls, num_rep, outdir=outdir)
+                                                                     controls, num_rep, outdir=outdir,
+                                                                     plot_flag=self.plot_data)
                 if gene_sig_dir:
                     essential, non_essential, other = SM.get_data_for_density_plot(all_data,
                                                                                    ref_gene_list_dict[
@@ -101,7 +102,7 @@ class CrisprCleanR(AbstractCrispr):
                                                                                        'non_essential_sgRNAs'])
 
                     PLT.density_plot_ly(essential, non_essential, other,
-                                        saveto=outdir + '/density_plots_pre_and_post_CRISPRcleanR')
+                                        saveto=outdir + '/10_density_plots_pre_and_post_CRISPRcleanR')
 
                 log.info("Processed CBS segments  .....")
                 SM._print_df(all_data, outdir + "/alldata.tsv")
@@ -115,7 +116,7 @@ class CrisprCleanR(AbstractCrispr):
                                                                               corrected_count_file,
                                                                               outdir=outdir, exp_name=expname)
                     PLT.impact_on_phenotype(norm_gene_summary, corrected_gene_summary,
-                                            saveto=outdir + '/impact_on_phenotype',
+                                            saveto=outdir + '/11_impact_on_phenotype',
                                             exp_name=expname)
 
             log.info("Analysis completed successfully.....")
