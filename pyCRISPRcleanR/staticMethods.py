@@ -321,6 +321,13 @@ class StaticMthods(object):
         return signature_dict
 
     @staticmethod
+    def get_data_for_density_plot(df, essential, non_essential):
+        essential_df = df[df.index.isin(essential)]
+        non_essential_df = df[df.index.isin(non_essential)]
+        other_df = df[~df.index.isin(essential + non_essential)]
+        return essential_df, non_essential_df, other_df
+
+    @staticmethod
     def get_obs_predictions(df_data, positive, negative):
         df = df_data.to_frame()
         df = df[df.index.isin(positive + negative)]

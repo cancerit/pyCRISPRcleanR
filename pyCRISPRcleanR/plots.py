@@ -1,4 +1,5 @@
 from math import log10
+import warnings
 import plotly.graph_objs as go
 import plotly.offline as py
 import pandas as pd
@@ -15,6 +16,8 @@ import os
 
 pandas2ri.activate()
 numpy2ri.activate()
+
+warnings.filterwarnings('ignore')
 
 d = {'package.dependencies': 'package_dot_dependencies',
      'package_dependencies': 'package_uscore_dependencies'}
@@ -68,20 +71,8 @@ class PlotData(object):
                 opacity=0.75
             )
             figure.append_trace(trace1, count, 1)
-            # figure['layout']['xaxis' + str(count)].update(title='')
-            # figure['layout']['yaxis' + str(count)].update(title='')
             count += 1
-            # if count==len(df.columns):
-            #    figure['layout'][xaxis].update(title='counts')
-            #    figure['layout'][yaxix].update(title='bins')
-
         figure['layout'].update(height=700, width=1200, title=title)
-        py.plot(figure, filename=saveto + '.html', auto_open=False, config=PlotData.plotly_conf())
-        return None
-
-    @staticmethod
-    def correlation_matrix_plot(df, title='mytitle', saveto='./myfile', ylabel='ylabel', xlabel='xlabel'):
-        figure = ff.create_scatterplotmatrix(df, diag='histogram', height=800, width=800)
         py.plot(figure, filename=saveto + '.html', auto_open=False, config=PlotData.plotly_conf())
         return None
 
@@ -591,6 +582,37 @@ class PlotData(object):
     def _get_indices(a, b):
         b_set = set(b)
         return [(i, v) for i, v in enumerate(a) if v in b_set]
+
+    @staticmethod
+    def density_plot_ly(essential, non_essential, other, title='Pre and Post CRISPRcleanR Density Plot',
+                        saveto='./myfile', ylabel='Density', xlabel='sgRNA_logFC'):
+
+        my_fig = tls.make_subplots(subplot_titles=('preCRISPRcleanR', 'postCRISPRcleanR'), rows=2, cols=1,
+                                   shared_xaxes=True, shared_yaxes=False)
+
+        hist_data = [essential['avgFC'], non_essential['avgFC'], other['avgFC']]
+        group_labels = ['Essential', 'nonEssential', 'others']
+        fig1 = ff.create_distplot(hist_data, group_labels, show_hist=False, show_rug=False,
+                                  curve_type='kde', histnorm='probability density', bin_size=1.)
+
+        hist_data = [essential['correctedFC'], non_essential['correctedFC'], other['correctedFC']]
+        group_labels = ['Essential', 'nonEssential', 'other']
+        fig2 = ff.create_distplot(hist_data, group_labels, show_hist=False, show_rug=False,
+                                  curve_type='kde', histnorm='probability density', bin_size=1.)
+
+        distplot1 = fig1['data']
+        distplot2 = fig2['data']
+        for count in range(3):
+            trace1 = distplot1[count]
+            trace1.update(showlegend=False)
+            my_fig.append_trace(trace1, 1, 1)
+            my_fig.append_trace(distplot2[count], 2, 1)
+
+        my_fig['layout'].update(title=title, xaxis1=dict(title=xlabel),
+                                yaxis1=dict(title=ylabel), yaxis2=dict(title=ylabel))
+        my_fig['layout'].update({'xaxis1': {'zeroline': False}})
+        py.plot(my_fig, filename=saveto + '.html', auto_open=False, config=PlotData.plotly_conf())
+        return None
 
     @staticmethod
     def impact_on_phenotype(mo_uncorrected_file, mo_corrected_file, fdrth=0.05, saveto='./impact_on_phenotype',
