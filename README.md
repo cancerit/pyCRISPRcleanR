@@ -114,7 +114,7 @@ Various exceptions can occur for malformed input files.
  * 03_fold_changes_correlation_matrix.html
 
  4. stats plots: precision recall and ROC curves based on known tru positive sgRNA/gene set
-    [generated only when ```----gene_signatures``` flag is set]
+    [generated only when ```--gene_signatures``` flag is set]
  * 04_pr_rc_curve_sgRNA.html
  * 04_roc_curve_sgRNA.html
  * 05_pr_rc_curve_gene.html
