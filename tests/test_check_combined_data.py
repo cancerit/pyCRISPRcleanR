@@ -36,11 +36,11 @@ class TestClass():
         # check input type function
         mystatic_obj = sm.StaticMthods()
         myPLT = PLT.PlotData()
-        cldf=mystatic_obj.combine_count_n_library(t_countfile, t_libfile, plot_flag=1, outdir=outdir)
+        cldf=mystatic_obj.combine_count_n_library(t_countfile, t_libfile, outdir=outdir)
         assert (2072, 8) == cldf.shape,'combined_count_n_lib'
         cldf=mystatic_obj.filter_data(cldf, controls, min_read_count)
         assert (2038, 8) == cldf.shape, 'filter_data'
-        cldf,no_rep, norm_counts_file, geneFC, sgRNAFC = mystatic_obj.get_norm_count_n_fold_changes(cldf,controls,plot_flag=1,outdir=outdir)
+        cldf,no_rep, norm_counts_file, geneFC, sgRNAFC = mystatic_obj.get_norm_count_n_fold_changes(cldf,controls,outdir=outdir)
         assert (2038, 14) == cldf.shape, 'get_norm_count_n_fold_changes'
         assert 3 == no_rep, 'number of replicates'
         ref_gene_list_dict = mystatic_obj.load_signature_files(gene_sig_dir, cldf)

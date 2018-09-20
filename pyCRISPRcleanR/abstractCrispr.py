@@ -19,8 +19,7 @@ class AbstractCrispr(ABC):
         self.ignored_genes = kwargs.get('ignored_genes', [])
         self.runcrispr = kwargs.get('crispr_cleanr', None)
         self.num_processors = kwargs.get('num_processors', 1)
-        self.plot_data = kwargs.get('plot_data', None)
-        self.run_qc = kwargs.get('run_qc', None)
+        self.run_mageck = kwargs.get('run_mageck', None)
         self.gene_sig_dir = kwargs.get('gene_signatures', None)
         super().__init__()
 

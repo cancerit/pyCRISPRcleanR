@@ -15,7 +15,7 @@ config = {
     'packages': ['pyCRISPRcleanR'],
     'package_data': {'pyCRISPRcleanR':['config/*.conf','segmentation/*.py']},
     'entry_points': {
-        'console_scripts': ['pyCRISPRCleanR=pyCRISPRcleanR.crisprCleanR_command:main'],
+        'console_scripts': ['pyCRISPRcleanR=pyCRISPRcleanR.crisprCleanR_command:main'],
     }
 }
 

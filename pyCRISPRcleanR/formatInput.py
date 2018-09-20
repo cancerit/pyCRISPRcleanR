@@ -64,15 +64,14 @@ class CrisprCleanR(AbstractCrispr):
 
         if input1 and input2:
             log.info("Running analysis, input file checks DONE.....")
-            cldf = SM.combine_count_n_library(self.countfile, self.libfile,
-                                              plot_flag=self.plot_data, outdir=outdir)
+            cldf = SM.combine_count_n_library(self.countfile, self.libfile, outdir=outdir)
             log.info("Count and library data combined.....")
             cldf = SM.filter_data(cldf, controls, min_read_count)
             log.info("Data filtering DONE.....")
             cldf, num_rep, norm_count_file, geneFC, sgRNAFC = \
-                SM.get_norm_count_n_fold_changes(cldf, controls, plot_flag=self.plot_data, outdir=outdir)
+                SM.get_norm_count_n_fold_changes(cldf, controls, outdir=outdir)
             log.info("Completed normalised count and fold change calculation .....")
-            if gene_sig_dir and self.plot_data:
+            if gene_sig_dir:
                 ref_gene_list_dict = SM.load_signature_files(gene_sig_dir, cldf)
                 # ROC for sgRNA
                 obs_pred_df = SM.get_obs_predictions(sgRNAFC, ref_gene_list_dict['essential_sgRNAs'],
@@ -86,42 +85,37 @@ class CrisprCleanR(AbstractCrispr):
                 PLT.pr_rc_curve(obs_pred_df, data_type='gene', saveto=outdir + '/5_pr_rc_curve')
                 PLT.depletion_profile_with_gene_signature(geneFC, ref_gene_list_dict, obs_pred_df,
                                                           data_type='genes',
-                                                          saveto=outdir + '/6_genes_depletion_profile')
+                                                          saveto=outdir + '/6_depletion_profile')
             # save normalised count and fold changes
             if self.runcrispr:
                 cbs_dict = SM.run_cbs(cldf, cpus, sample, fc_col='avgFC')
                 log.info("CBS analysis completed  .....")
                 all_data, corrected_count_file = SM.process_segments(cbs_dict, ignored_genes, min_target_genes,
-                                                                     controls, num_rep, outdir=outdir,
-                                                                     plot_flag=self.plot_data)
+                                                                     controls, num_rep, outdir=outdir)
                 if gene_sig_dir:
                     essential, non_essential, other = SM.get_data_for_density_plot(all_data,
                                                                                    ref_gene_list_dict[
                                                                                        'essential_sgRNAs'],
                                                                                    ref_gene_list_dict[
                                                                                        'non_essential_sgRNAs'])
-
                     PLT.density_plot_ly(essential, non_essential, other,
                                         saveto=outdir + '/10_density_plots_pre_and_post_CRISPRcleanR')
 
                 log.info("Processed CBS segments  .....")
                 SM._print_df(all_data, outdir + "/alldata.tsv")
-                if self.plot_data:
-                    cbs_dict_norm = SM.run_cbs(all_data, cpus, sample, fc_col="correctedFC")
-                    log.info("CBS analysis on normalised fold changes completed.....")
-                    PLT.plot_segments(cbs_dict, cbs_dict_norm, sample, outdir=outdir)
-                    log.info("Done plots.....")
-                if self.run_qc:
+                cbs_dict_norm = SM.run_cbs(all_data, cpus, sample, fc_col="correctedFC")
+                log.info("CBS analysis on normalised fold changes completed.....")
+                PLT.plot_segments(cbs_dict, cbs_dict_norm, sample, outdir=outdir)
+                log.info("Done plots.....")
+
+                if self.run_mageck:
+                    log.info("Running Mageck.....")
                     norm_gene_summary, corrected_gene_summary = SM.run_mageck(norm_count_file,
                                                                               corrected_count_file,
                                                                               outdir=outdir, exp_name=expname)
                     PLT.impact_on_phenotype(norm_gene_summary, corrected_gene_summary,
                                             saveto=outdir + '/11_impact_on_phenotype',
                                             exp_name=expname)
-
             log.info("Analysis completed successfully.....")
-            print("Analysis completed successfully.....")
-            # print(all_data[all_data.gene == 'CCT8L2'])
-
         else:
             sys.exit('Input data is not in required format, see inputFormat in README file')

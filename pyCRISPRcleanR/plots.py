@@ -186,15 +186,6 @@ class PlotData(object):
         grdevices.dev_off()
 
     @staticmethod
-    def box_plot_r(df, title='mytitle', saveto='./myfile.pdf', ylabel='ylabel', xlabel='xlabel'):
-        pdf_prm = {'file': saveto + '.pdf', 'width': 7.5, 'height': 7.5}
-        grdevices.pdf(**pdf_prm)
-        rtbl = pandas2ri.py2ri(df)
-        plot_prm = {'main': title, 'names': df.columns, 'xlab': xlabel, 'ylab': ylabel}
-        graphics.boxplot(rtbl, **plot_prm)
-        grdevices.dev_off()
-
-    @staticmethod
     def roc_curve(df, data_type='', fdrth=0.05, saveto='./roc_curve'):
         """
         :param df: data frame with fold changes
@@ -550,7 +541,6 @@ class PlotData(object):
         :return x_fc, y_fc, FDRpercRANK, sig_index_pos_dict_above_fdr, sig_index_pos_dict_below_fdr,
         fdr_percent, list_b
         """
-        print("Draw signature profile")
         FCsprofile = FCsprofile_np.to_frame()
         FCsprofile.sort_values(by=['avgFC'], inplace=True)
         # get ROC data

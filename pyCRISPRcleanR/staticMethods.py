@@ -41,12 +41,11 @@ class StaticMthods(object):
 
     # ------------------------------Analysis methods---------------------------------
     @staticmethod
-    def combine_count_n_library(countfile, libfile, plot_flag=None, outdir='./'):
+    def combine_count_n_library(countfile, libfile, outdir='./'):
         """
          Combine counts and library file data based on union of indexes
         :param countfile:
         :param libfile:
-        :param plot_flag:
         :param outdir:
         :return:
         """
@@ -61,18 +60,16 @@ class StaticMthods(object):
         else:
             sys.exit('counts data does not contain required column:[gene]')
         # plot raw counts
-        if plot_flag:
-            PLT.box_plot_ly(counts, title="Raw sgRNA counts", saveto=outdir + '/1_raw_counts_boxplot',
-                            ylabel='Raw Counts', xlabel='Sample Names')
-            PLT.histogram_ly(counts, title="Raw sgRNA counts", saveto=outdir + '/1_raw_counts_histogram',
-                             ylabel='Raw Counts',
-                             xlabel='sgRNAbins')
-            PLT.correlation_plot_ly(counts, title="Correlation matrix: raw sgRNA counts",
-                                    saveto=outdir + '/1_raw_counts_correlation_matrix',
-                                    ylabel='Raw Counts',
-                                    xlabel='Sample Names')
-
-            log.info("Plotted raw counts.....")
+        PLT.box_plot_ly(counts, title="Raw sgRNA counts", saveto=outdir + '/1_raw_counts_boxplot',
+                        ylabel='Raw Counts', xlabel='Sample Names')
+        PLT.histogram_ly(counts, title="Raw sgRNA counts", saveto=outdir + '/1_raw_counts_histogram',
+                         ylabel='Raw Counts',
+                         xlabel='sgRNAbins')
+        PLT.correlation_plot_ly(counts, title="Correlation matrix: raw sgRNA counts",
+                                saveto=outdir + '/1_raw_counts_correlation_matrix',
+                                ylabel='Raw Counts',
+                                xlabel='Sample Names')
+        log.info("Plotted raw counts.....")
         if {'gene', 'chr', 'start', 'end'}.issubset(libdata.columns):
             libdata = libdata.get(['gene', 'chr', 'start', 'end'])
         else:
@@ -91,7 +88,7 @@ class StaticMthods(object):
         return cldf
 
     @staticmethod
-    def get_norm_count_n_fold_changes(cldf, controls, plot_flag=None, outdir='./'):
+    def get_norm_count_n_fold_changes(cldf, controls, outdir='./'):
         """
             Calculate normalised count and avarage fold change using raw count data for
             control and sample, add  it to main data frame
@@ -100,7 +97,6 @@ class StaticMthods(object):
             Sort dataframe using chr and start position of gRNA
         :param cldf: counts and annotation library df
         :param controls:
-        :param plot_flag:
         :param outdir:
         :return:
         """
@@ -113,20 +109,19 @@ class StaticMthods(object):
         if normed.empty:
             sys.exit('Normalized data frame is empty check if required columns are present')
 
-        elif plot_flag:
-            PLT.box_plot_ly(normed, title="Normalised sgRNA counts",
-                            saveto=outdir + '/2_normalised_counts_boxplot',
-                            ylabel='Normalised Counts',
-                            xlabel='Sample Names')
+        PLT.box_plot_ly(normed, title="Normalised sgRNA counts",
+                        saveto=outdir + '/2_normalised_counts_boxplot',
+                        ylabel='Normalised Counts',
+                        xlabel='Sample Names')
 
-            PLT.histogram_ly(normed, title="Normalised sgRNA counts",
-                             saveto=outdir + '/2_normalised_counts_histogram',
-                             ylabel='Normalised Counts',
-                             xlabel='sgRNAbins')
-            PLT.correlation_plot_ly(normed, title="Correlation matrix: normalised sgRNA counts",
-                                    saveto=outdir + '/2_normalised_counts_correlation_matrix',
-                                    ylabel='Normalised Counts',
-                                    xlabel='Sample Names')
+        PLT.histogram_ly(normed, title="Normalised sgRNA counts",
+                         saveto=outdir + '/2_normalised_counts_histogram',
+                         ylabel='Normalised Counts',
+                         xlabel='sgRNAbins')
+        PLT.correlation_plot_ly(normed, title="Correlation matrix: normalised sgRNA counts",
+                                saveto=outdir + '/2_normalised_counts_correlation_matrix',
+                                ylabel='Normalised Counts',
+                                xlabel='Sample Names')
 
         fc = normed.apply(lambda x: np.log2((x + 0.5) / (normed.iloc[:, 0:controls].mean(axis=1) + 0.5)))
         # drop control columns
@@ -136,18 +131,17 @@ class StaticMthods(object):
             sys.exit('Foldchange data frame is empty')
 
             # plot fold Changes
-        elif plot_flag:
 
-            PLT.box_plot_ly(fc, title="Fold Changes sgRNA", saveto=outdir + '/3_fold_changes_boxplot',
-                            ylabel='Fold Changes',
-                            xlabel='Sample Names')
-            PLT.histogram_ly(fc, title="Fold changes sgRNA", saveto=outdir + '/3_fold_changes_histogram',
-                             ylabel='Fold changes',
-                             xlabel='sgRNAbins')
-            PLT.correlation_plot_ly(fc, title="Correlation matrix: Fold changes sgRNA",
-                                    saveto=outdir + '/3_fold_changes_correlation_matrix',
-                                    ylabel='Fold changes',
-                                    xlabel='Sample Names')
+        PLT.box_plot_ly(fc, title="Fold Changes sgRNA", saveto=outdir + '/3_fold_changes_boxplot',
+                        ylabel='Fold Changes',
+                        xlabel='Sample Names')
+        PLT.histogram_ly(fc, title="Fold changes sgRNA", saveto=outdir + '/3_fold_changes_histogram',
+                         ylabel='Fold changes',
+                         xlabel='sgRNAbins')
+        PLT.correlation_plot_ly(fc, title="Correlation matrix: Fold changes sgRNA",
+                                saveto=outdir + '/3_fold_changes_correlation_matrix',
+                                ylabel='Fold changes',
+                                xlabel='Sample Names')
         no_rep = len(fc.columns)
 
         cldf = cldf.join(normed, rsuffix='_nc')
@@ -182,7 +176,7 @@ class StaticMthods(object):
         return cbs_dict
 
     @staticmethod
-    def process_segments(cbs_dict, ignored_genes, min_genes, controls, no_rep, outdir='./', plot_flag=None):
+    def process_segments(cbs_dict, ignored_genes, min_genes, controls, no_rep, outdir='./'):
         """
         :Process CBS derived copy number segment to get Correted foldchanges and reverse transformed counts
         :param cbs_dict:
@@ -196,7 +190,7 @@ class StaticMthods(object):
         corrected_count_list = []
         chrdata_list = []
         for chr, (cnarr, segrows, cnseg) in cbs_dict.items():
-            print("Correcting counts on Chr :{} : sgRNA:{} segments{}".format(chr, cnarr.shape, segrows.shape))
+            log.info("Correcting counts on Chr :{} : sgRNA:{} segments{}".format(chr, cnarr.shape, segrows.shape))
             cnarr.is_copy = False
             cnarr['correction'] = 0
             cnarr['correctedFC'] = cnarr.avgFC
@@ -230,29 +224,28 @@ class StaticMthods(object):
             lambda x: np.log2((x + 0.5) / (corrected_count.iloc[:, 0:controls].mean(axis=1) + 0.5)))
         corrected_fc.drop(corrected_fc.columns[0:controls], axis=1, inplace=True)
 
-        if plot_flag:
-            PLT.box_plot_ly(corrected_count, title="CRISPRcleanR corrected count sgRNA",
-                            saveto=outdir + '/7_CRISPRcleanR_corrected_count_boxplot',
-                            ylabel='count',
-                            xlabel='Sample Names')
-            PLT.histogram_ly(corrected_count, title="CRISPRcleanR corrected count sgRNA",
-                             saveto=outdir + '/7_CRISPRcleanR_corrected_count_histogram',
-                             ylabel='count', xlabel='sgRNAbins')
-            PLT.correlation_plot_ly(corrected_count,
-                                    title="Correlation matrix: CRISPRcleanR corrected count sgRNA",
-                                    saveto=outdir + '/7_CRISPRcleanR_corrected_count_correlation_matrix',
-                                    ylabel='count', xlabel='Sample Names')
+        PLT.box_plot_ly(corrected_count, title="CRISPRcleanR corrected count sgRNA",
+                        saveto=outdir + '/7_CRISPRcleanR_corrected_count_boxplot',
+                        ylabel='count',
+                        xlabel='Sample Names')
+        PLT.histogram_ly(corrected_count, title="CRISPRcleanR corrected count sgRNA",
+                         saveto=outdir + '/7_CRISPRcleanR_corrected_count_histogram',
+                         ylabel='count', xlabel='sgRNAbins')
+        PLT.correlation_plot_ly(corrected_count,
+                                title="Correlation matrix: CRISPRcleanR corrected count sgRNA",
+                                saveto=outdir + '/7_CRISPRcleanR_corrected_count_correlation_matrix',
+                                ylabel='count', xlabel='Sample Names')
 
-            PLT.box_plot_ly(corrected_fc, title="CRISPRcleanR corrected Fold Changes sgRNA",
-                            saveto=outdir + '/8_CRISPRcleanR_corrected_fold_changes_boxplot',
-                            ylabel='Fold Changes', xlabel='Sample Names')
-            PLT.histogram_ly(corrected_fc, title="CRISPRcleanR Fold changes sgRNA",
-                             saveto=outdir + '/8_CRISPRcleanR_corrected_fold_changes_histogram',
-                             ylabel='Fold changes', xlabel='sgRNAbins')
-            PLT.correlation_plot_ly(corrected_fc,
-                                    title="Correlation matrix: CRISPRcleanR corrected Fold changes sgRNA",
-                                    saveto=outdir + '/8_CRISPRcleanR_corrected_foldchanges_correlation_matrix',
-                                    ylabel='Fold changes', xlabel='Sample Names')
+        PLT.box_plot_ly(corrected_fc, title="CRISPRcleanR corrected Fold Changes sgRNA",
+                        saveto=outdir + '/8_CRISPRcleanR_corrected_fold_changes_boxplot',
+                        ylabel='Fold Changes', xlabel='Sample Names')
+        PLT.histogram_ly(corrected_fc, title="CRISPRcleanR Fold changes sgRNA",
+                         saveto=outdir + '/8_CRISPRcleanR_corrected_fold_changes_histogram',
+                         ylabel='Fold changes', xlabel='sgRNAbins')
+        PLT.correlation_plot_ly(corrected_fc,
+                                title="Correlation matrix: CRISPRcleanR corrected Fold changes sgRNA",
+                                saveto=outdir + '/8_CRISPRcleanR_corrected_foldchanges_correlation_matrix',
+                                ylabel='Fold changes', xlabel='Sample Names')
 
         corrected_fc['avgFC'] = corrected_fc.mean(axis=1)
         alldata = alldata.join(corrected_count, rsuffix='_cc')
@@ -334,13 +327,13 @@ class StaticMthods(object):
             cmd_obj = Popen(cmd, stdin=None, stdout=PIPE, stderr=PIPE,
                             shell=True, universal_newlines=True, bufsize=-1,
                             close_fds=True, executable='/bin/bash')
-            print("running command:{}".format(cmd))
+            log.info("running command:{}".format(cmd))
             (out, error) = cmd_obj.communicate()
             exit_code = cmd_obj.returncode
             if (exit_code == 0):
-                print("mageck run successfully")
+                log.info("mageck run successfully")
             else:
-                print("Error: mageck exited with non zero exit status, please check log file more details")
+                log.debug("Error: mageck exited with non zero exit status, please check log file more details")
                 log.error("OUT:{}:Error:{}:Exit:{}".format(out, error, exit_code))
             return 0
         except OSError as oe:

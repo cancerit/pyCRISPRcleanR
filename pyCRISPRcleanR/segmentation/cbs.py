@@ -1,12 +1,15 @@
 import sys
 from rpy2.robjects import r, pandas2ri
 from rpy2.robjects.packages import importr
+import logging
+
+log = logging.getLogger(__name__)
 
 pandas2ri.activate()
 d = {'package.dependencies': 'package_dot_dependencies',
      'package_dependencies': 'package_uscore_dependencies'}
 base = importr('base', robject_translations=d)
-print(base._libPaths())
+log.info(base._libPaths())
 dnacopy = importr("DNAcopy", robject_translations=d)
 
 
