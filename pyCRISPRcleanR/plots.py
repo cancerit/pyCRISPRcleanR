@@ -170,7 +170,7 @@ class PlotData(object):
         :param outdir:
         :return:
         """
-        pdf_prm = {'file': "{}/9_Raw_vs_postCRISPRcleanR_segmentation_fold_changes.pdf".format(outdir),
+        pdf_prm = {'file': "{}/09_Raw_vs_postCRISPRcleanR_segmentation_fold_changes.pdf".format(outdir),
                    'width': 7.5, 'height': 7.5}
         grdevices.pdf(**pdf_prm)
         r.par(mfrow=r.c(2, 1))

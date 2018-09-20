@@ -60,13 +60,13 @@ class StaticMthods(object):
         else:
             sys.exit('counts data does not contain required column:[gene]')
         # plot raw counts
-        PLT.box_plot_ly(counts, title="Raw sgRNA counts", saveto=outdir + '/1_raw_counts_boxplot',
+        PLT.box_plot_ly(counts, title="Raw sgRNA counts", saveto=outdir + '/01_raw_counts_boxplot',
                         ylabel='Raw Counts', xlabel='Sample Names')
-        PLT.histogram_ly(counts, title="Raw sgRNA counts", saveto=outdir + '/1_raw_counts_histogram',
+        PLT.histogram_ly(counts, title="Raw sgRNA counts", saveto=outdir + '/01_raw_counts_histogram',
                          ylabel='Raw Counts',
                          xlabel='sgRNAbins')
         PLT.correlation_plot_ly(counts, title="Correlation matrix: raw sgRNA counts",
-                                saveto=outdir + '/1_raw_counts_correlation_matrix',
+                                saveto=outdir + '/01_raw_counts_correlation_matrix',
                                 ylabel='Raw Counts',
                                 xlabel='Sample Names')
         log.info("Plotted raw counts.....")
@@ -110,16 +110,16 @@ class StaticMthods(object):
             sys.exit('Normalized data frame is empty check if required columns are present')
 
         PLT.box_plot_ly(normed, title="Normalised sgRNA counts",
-                        saveto=outdir + '/2_normalised_counts_boxplot',
+                        saveto=outdir + '/02_normalised_counts_boxplot',
                         ylabel='Normalised Counts',
                         xlabel='Sample Names')
 
         PLT.histogram_ly(normed, title="Normalised sgRNA counts",
-                         saveto=outdir + '/2_normalised_counts_histogram',
+                         saveto=outdir + '/02_normalised_counts_histogram',
                          ylabel='Normalised Counts',
                          xlabel='sgRNAbins')
         PLT.correlation_plot_ly(normed, title="Correlation matrix: normalised sgRNA counts",
-                                saveto=outdir + '/2_normalised_counts_correlation_matrix',
+                                saveto=outdir + '/02_normalised_counts_correlation_matrix',
                                 ylabel='Normalised Counts',
                                 xlabel='Sample Names')
 
@@ -132,14 +132,14 @@ class StaticMthods(object):
 
             # plot fold Changes
 
-        PLT.box_plot_ly(fc, title="Fold Changes sgRNA", saveto=outdir + '/3_fold_changes_boxplot',
+        PLT.box_plot_ly(fc, title="Fold Changes sgRNA", saveto=outdir + '/03_fold_changes_boxplot',
                         ylabel='Fold Changes',
                         xlabel='Sample Names')
-        PLT.histogram_ly(fc, title="Fold changes sgRNA", saveto=outdir + '/3_fold_changes_histogram',
+        PLT.histogram_ly(fc, title="Fold changes sgRNA", saveto=outdir + '/03_fold_changes_histogram',
                          ylabel='Fold changes',
                          xlabel='sgRNAbins')
         PLT.correlation_plot_ly(fc, title="Correlation matrix: Fold changes sgRNA",
-                                saveto=outdir + '/3_fold_changes_correlation_matrix',
+                                saveto=outdir + '/03_fold_changes_correlation_matrix',
                                 ylabel='Fold changes',
                                 xlabel='Sample Names')
         no_rep = len(fc.columns)
@@ -225,26 +225,26 @@ class StaticMthods(object):
         corrected_fc.drop(corrected_fc.columns[0:controls], axis=1, inplace=True)
 
         PLT.box_plot_ly(corrected_count, title="CRISPRcleanR corrected count sgRNA",
-                        saveto=outdir + '/7_CRISPRcleanR_corrected_count_boxplot',
+                        saveto=outdir + '/07_CRISPRcleanR_corrected_count_boxplot',
                         ylabel='count',
                         xlabel='Sample Names')
         PLT.histogram_ly(corrected_count, title="CRISPRcleanR corrected count sgRNA",
-                         saveto=outdir + '/7_CRISPRcleanR_corrected_count_histogram',
+                         saveto=outdir + '/07_CRISPRcleanR_corrected_count_histogram',
                          ylabel='count', xlabel='sgRNAbins')
         PLT.correlation_plot_ly(corrected_count,
                                 title="Correlation matrix: CRISPRcleanR corrected count sgRNA",
-                                saveto=outdir + '/7_CRISPRcleanR_corrected_count_correlation_matrix',
+                                saveto=outdir + '/07_CRISPRcleanR_corrected_count_correlation_matrix',
                                 ylabel='count', xlabel='Sample Names')
 
         PLT.box_plot_ly(corrected_fc, title="CRISPRcleanR corrected Fold Changes sgRNA",
-                        saveto=outdir + '/8_CRISPRcleanR_corrected_fold_changes_boxplot',
+                        saveto=outdir + '/08_CRISPRcleanR_corrected_fold_changes_boxplot',
                         ylabel='Fold Changes', xlabel='Sample Names')
         PLT.histogram_ly(corrected_fc, title="CRISPRcleanR Fold changes sgRNA",
-                         saveto=outdir + '/8_CRISPRcleanR_corrected_fold_changes_histogram',
+                         saveto=outdir + '/08_CRISPRcleanR_corrected_fold_changes_histogram',
                          ylabel='Fold changes', xlabel='sgRNAbins')
         PLT.correlation_plot_ly(corrected_fc,
                                 title="Correlation matrix: CRISPRcleanR corrected Fold changes sgRNA",
-                                saveto=outdir + '/8_CRISPRcleanR_corrected_foldchanges_correlation_matrix',
+                                saveto=outdir + '/08_CRISPRcleanR_corrected_foldchanges_correlation_matrix',
                                 ylabel='Fold changes', xlabel='Sample Names')
 
         corrected_fc['avgFC'] = corrected_fc.mean(axis=1)
