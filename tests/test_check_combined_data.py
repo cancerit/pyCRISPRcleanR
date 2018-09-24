@@ -27,7 +27,6 @@ class TestClass():
         min_read_count = 30
         min_target_genes = 3
         ignored_genes = []
-        sample = 'mytest'
         gene_sig_dir= testdir + '/ref_genes/'
         cpus = 1
         outdir=tempfile.mkdtemp(dir=".")
@@ -50,7 +49,7 @@ class TestClass():
         assert (94,2) == obs_pred_df.shape, 'get data for roc'
         myPLT.roc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/roc_curve')
         myPLT.pr_rc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/pr_rc_curve')
-        cbs_dict=mystatic_obj.run_cbs(cldf, cpus, sample)
+        cbs_dict=mystatic_obj.run_cbs(cldf, cpus)
         assert "dict_keys([22])" == "{}".format(cbs_dict.keys()), 'run_cbs'
         alldata, corrected_counts_file = mystatic_obj.process_segments(cbs_dict, ignored_genes, min_target_genes, controls, no_rep,outdir=outdir)
         # only used to create final test results
@@ -59,11 +58,12 @@ class TestClass():
         result=expected_df.equals(alldata)
         assert (2038, 24) == alldata.shape, 'process_segments'
         # test code no checks
-        norm_gene_summary, corrected_gene_summary = mystatic_obj.run_mageck(norm_counts_file,corrected_counts_file,outdir=outdir)
-        assert filecmp.cmp(expected_norm_gene_summary,norm_gene_summary,shallow=True) , 'mageck files are identical'
-        assert filecmp.cmp(expected_corrected_gene_summary, corrected_gene_summary, shallow=True), 'mageck files are identical'
-        cbs_dict_norm = mystatic_obj.run_cbs(alldata, cpus, sample, fc_col="correctedFC")
-        myPLT.plot_segments(cbs_dict, cbs_dict_norm, sample, outdir=outdir)
+        norm_gene_summary = mystatic_obj.run_mageck(norm_counts_file, outfile_prefix=outdir + '/mageckOut/normalised')
+        assert filecmp.cmp(expected_norm_gene_summary,norm_gene_summary,shallow=True) , 'mageck out files are identical'
+        corrected_gene_summary = mystatic_obj.run_mageck(corrected_counts_file, outfile_prefix=outdir + '/mageckOut/corrected')
+        assert filecmp.cmp(expected_corrected_gene_summary, corrected_gene_summary, shallow=True), 'mageck out files are identical'
+        cbs_dict_norm = mystatic_obj.run_cbs(alldata, cpus, fc_col="correctedFC")
+        myPLT.plot_segments(cbs_dict, cbs_dict_norm, outdir=outdir)
         #assert True == result, 'process_segments: check results'
 
 if __name__ == '__main__':

@@ -13,7 +13,7 @@ log.info(base._libPaths())
 dnacopy = importr("DNAcopy", robject_translations=d)
 
 
-def runCBS(cnarr, sample_id='mysample', fc_col='avgFC'):
+def runCBS(cnarr, fc_col='avgFC'):
     """
          rub CBS using DNAcopy in R
          cnseg is a final R dataframe contains 'output [#ID chrom  loc.start  loc.end
@@ -24,7 +24,7 @@ def runCBS(cnarr, sample_id='mysample', fc_col='avgFC'):
     """
     chr_name = cnarr['chr'].unique()[0]
     tbl = pandas2ri.py2ri(cnarr)
-    kwargs = {'data.type': "logratio", 'sampleid': sample_id, 'presorted': True}
+    kwargs = {'data.type': "logratio", 'presorted': True}
     # set seed
     base.set_seed(0xA5EED)
     cna = dnacopy.CNA(tbl.rx2(fc_col), tbl.rx2('chr'), tbl.rx2('BP'), **kwargs)

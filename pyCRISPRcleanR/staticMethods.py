@@ -166,13 +166,13 @@ class StaticMthods(object):
         return cldf, no_rep, outdir + "/normalised_counts.tsv", geneFC, sgRNAFC
 
     @staticmethod
-    def run_cbs(cldf, cpus, sample, fc_col='avgFC'):
+    def run_cbs(cldf, cpus, fc_col='avgFC'):
         """
             Runs CBS algorithm from DNAcopy and returns a dictionay
             of per chr raw dataframe and cbs segments
 
         """
-        cbs_dict = segmentation.do_segmentation(cldf, cpus, sample, fc_col=fc_col)
+        cbs_dict = segmentation.do_segmentation(cldf, cpus, fc_col=fc_col)
         return cbs_dict
 
     @staticmethod
@@ -290,27 +290,20 @@ class StaticMthods(object):
                     index=True, index_label='sgRNA', doublequote=False)
 
     @staticmethod
-    def run_mageck(norm_count_file, corrected_count_file, outdir="./", exp_name='myexperiemnt'):
+    def run_mageck(count_file, outfile_prefix="./mageckOut/mageck", ):
         """
         :param norm_count_file:
         :param corrected_count_file:
         :param outdir:
-        :param exp_name:
         :return:
         """
         global CONTROL_SAMPLES
         global TREATMENT_SAMPLES
-        prefix_norm = outdir + '/mageckOut/normCounts_' + exp_name
-        cmd = MAGECK_CMD.format(norm_count_file, CONTROL_SAMPLES, TREATMENT_SAMPLES,
-                                prefix_norm, 'none')
-        StaticMthods._run_command(cmd)
 
-        prefix_corrected = outdir + '/mageckOut/correctedCounts_' + exp_name
-        cmd = MAGECK_CMD.format(corrected_count_file, CONTROL_SAMPLES, TREATMENT_SAMPLES,
-                                prefix_corrected, 'none')
+        cmd = MAGECK_CMD.format(count_file, CONTROL_SAMPLES, TREATMENT_SAMPLES,
+                                outfile_prefix, 'none')
         StaticMthods._run_command(cmd)
-
-        return prefix_norm + '.gene_summary.txt', prefix_corrected + '.gene_summary.txt',
+        return outfile_prefix + '.gene_summary.txt'
 
     @staticmethod
     def _run_command(cmd):

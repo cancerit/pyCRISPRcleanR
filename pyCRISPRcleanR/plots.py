@@ -162,11 +162,10 @@ class PlotData(object):
         return None
 
     @staticmethod
-    def plot_segments(cbs_fc, cbs_normfc, sample_id, outdir='./'):
+    def plot_segments(cbs_fc, cbs_normfc, outdir='./'):
         """
         :param cbs_fc: raw fold chnages
         :param cbs_normfc: normalised fold changes
-        :param sample_id:
         :param outdir:
         :return:
         """
@@ -618,12 +617,10 @@ class PlotData(object):
         return None
 
     @staticmethod
-    def impact_on_phenotype(mo_uncorrected_file, mo_corrected_file, fdrth=0.05, saveto='./impact_on_phenotype',
-                            exp_name='myexp'):
+    def impact_on_phenotype(mo_uncorrected_file, mo_corrected_file, fdrth=0.05, saveto='./impact_on_phenotype'):
         """
         :param fdrth: fdr cutoff
         :param saveto: path to save file
-        :param exp_name: user defined name for experiment
         :param mo_uncorrected_file: mageck uncorrected output
         :param mo_corrected_file: mageck corrected output
         :return: None

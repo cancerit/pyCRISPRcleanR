@@ -51,10 +51,8 @@ class CrisprCleanR(AbstractCrispr):
         min_read_count = self.minreads
         min_target_genes = self.mingenes
         ignored_genes = self.ignored_genes
-        sample = self.sample
         cpus = self.num_processors
         outdir = self.outdir
-        expname = self.expname
         gene_sig_dir = self.gene_sig_dir
         global MAGECK_CMD
         if outdir:
@@ -71,6 +69,8 @@ class CrisprCleanR(AbstractCrispr):
             cldf, num_rep, norm_count_file, geneFC, sgRNAFC = \
                 SM.get_norm_count_n_fold_changes(cldf, controls, outdir=outdir)
             log.info("Completed normalised count and fold change calculation .....")
+            if self.run_mageck:
+                norm_gene_summary = SM.run_mageck(norm_count_file, outfile_prefix=outdir + '/mageckOut/normCounts')
             if gene_sig_dir:
                 ref_gene_list_dict = SM.load_signature_files(gene_sig_dir, cldf)
                 # ROC for sgRNA
@@ -88,7 +88,7 @@ class CrisprCleanR(AbstractCrispr):
                                                           saveto=outdir + '/06_depletion_profile')
             # save normalised count and fold changes
             if self.runcrispr:
-                cbs_dict = SM.run_cbs(cldf, cpus, sample, fc_col='avgFC')
+                cbs_dict = SM.run_cbs(cldf, cpus, fc_col='avgFC')
                 log.info("CBS analysis completed  .....")
                 all_data, corrected_count_file = SM.process_segments(cbs_dict, ignored_genes, min_target_genes,
                                                                      controls, num_rep, outdir=outdir)
@@ -103,19 +103,19 @@ class CrisprCleanR(AbstractCrispr):
 
                 log.info("Processed CBS segments  .....")
                 SM._print_df(all_data, outdir + "/alldata.tsv")
-                cbs_dict_norm = SM.run_cbs(all_data, cpus, sample, fc_col="correctedFC")
+                cbs_dict_norm = SM.run_cbs(all_data, cpus, fc_col="correctedFC")
                 log.info("CBS analysis on normalised fold changes completed.....")
-                PLT.plot_segments(cbs_dict, cbs_dict_norm, sample, outdir=outdir)
+                PLT.plot_segments(cbs_dict, cbs_dict_norm, outdir=outdir)
                 log.info("Done plots.....")
 
                 if self.run_mageck:
                     log.info("Running Mageck.....")
-                    norm_gene_summary, corrected_gene_summary = SM.run_mageck(norm_count_file,
-                                                                              corrected_count_file,
-                                                                              outdir=outdir, exp_name=expname)
+                    corrected_gene_summary = SM.run_mageck(corrected_count_file,
+                                                           outfile_prefix=outdir + '/mageckOut/correctedCounts')
+
                     PLT.impact_on_phenotype(norm_gene_summary, corrected_gene_summary,
                                             saveto=outdir + '/11_impact_on_phenotype',
-                                            exp_name=expname)
+                                            )
             log.info("Analysis completed successfully.....")
         else:
             sys.exit('Input data is not in required format, see inputFormat in README file')

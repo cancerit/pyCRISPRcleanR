@@ -28,9 +28,6 @@ def main():  # pragma: no cover
     required.add_argument("-l", "--libfile", type=str, dest="libfile", required=True,
                           default="", help="sgRNA library file, accepts compressed file")
 
-    optional.add_argument("-e", "--expname", type=str, dest="expname", required=False,
-                          default='myexperiment', help="name of the experiment")
-
     optional.add_argument("-mr", "--minreads", type=int, dest="minreads", required=False,
                           default=30, help="minimum read count in control sample \
                           to be used for filtering ")
@@ -45,9 +42,6 @@ def main():  # pragma: no cover
     optional.add_argument("-nc", "--ncontrols", type=int, dest="ncontrols", required=False,
                           default=1, help="Number of control samples in raw count file [ \
                            Note: at least one control sample is required ]")
-
-    optional.add_argument("-s", "--sample", type=str, dest="sample", required=False,
-                          default='mysample', help="sample name in counts file")
 
     optional.add_argument("-np", "--num_processors", type=int, dest="num_processors", required=False,
                           default=1, help="Number of processors to use for parallel jobs")
