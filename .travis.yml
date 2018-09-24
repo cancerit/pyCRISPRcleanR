@@ -28,14 +28,10 @@ before_install: # installs R3.3
 language: python
 
 python: 
-    - "3.6"
+    - "3.6.1"
 
 install:
-  #  - pip install --upgrade setuptools  # to avoid egg_info erro code 1 exit
-  - pip install pytest
-  - pip install pytest-cover
-  - pip install tzlocal
-  - pip install .
+  - pip install -r requirements.txt
 
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
