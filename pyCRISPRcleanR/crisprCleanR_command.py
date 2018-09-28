@@ -6,6 +6,7 @@ import pkg_resources
 import logging.config
 
 configdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config/')
+results_json = configdir + 'results.json'
 log_config = configdir + 'logging.conf'
 logging.config.fileConfig(log_config)
 log = logging.getLogger(__name__)
@@ -53,10 +54,19 @@ def main():  # pragma: no cover
                           help="Directory path containing .txt files for signature genes")
 
     optional.add_argument("-mk", "--run_mageck", action='store_true', dest="run_mageck",
-                          help="flag to run mageck")
+                          help="flag to run MAGeCK")
+
+    optional.add_argument("-bl", "--run_bagel", action='store_true', dest="run_bagel",
+                          help="flag to run BAGEL")
+
+    optional.add_argument("-N", "--numiter", type=int, dest="numiter", required=False,
+                          default=1000, help="Number of bootstrap iterations for BAGEL (default 1000)")
 
     optional.add_argument("-o", "--outdir", type=str, dest="outdir",
                           default='./', help="path to output folder ")
+
+    optional.add_argument("-results", "--results_cfg", type=str, dest="results_cfg",
+                          default=results_json, help=argparse.SUPPRESS)
 
     optional.add_argument("-v", "--version", action='version', version='%(prog)s ' + version)
     optional.add_argument("-q", "--quiet", action="store_false", dest="verbose", default=True)

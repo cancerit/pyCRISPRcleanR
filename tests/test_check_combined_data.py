@@ -39,7 +39,7 @@ class TestClass():
         assert (2072, 8) == cldf.shape,'combined_count_n_lib'
         cldf=mystatic_obj.filter_data(cldf, controls, min_read_count)
         assert (2038, 8) == cldf.shape, 'filter_data'
-        cldf,no_rep, norm_counts_file, geneFC, sgRNAFC = mystatic_obj.get_norm_count_n_fold_changes(cldf,controls,outdir=outdir)
+        cldf,no_rep, norm_counts_file, geneFC, sgRNAFC, fc, fc_file = mystatic_obj.get_norm_count_n_fold_changes(cldf,controls,outdir=outdir)
         assert (2038, 14) == cldf.shape, 'get_norm_count_n_fold_changes'
         assert 3 == no_rep, 'number of replicates'
         ref_gene_list_dict = mystatic_obj.load_signature_files(gene_sig_dir, cldf)
@@ -47,11 +47,11 @@ class TestClass():
         obs_pred_df = mystatic_obj.get_obs_predictions(sgRNAFC, ref_gene_list_dict['essential_sgRNAs'],
                                              ref_gene_list_dict['non_essential_sgRNAs'])
         assert (94,2) == obs_pred_df.shape, 'get data for roc'
-        myPLT.roc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/roc_curve')
-        myPLT.pr_rc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/pr_rc_curve')
+        myPLT.roc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/04_roc_curve')
+        myPLT.pr_rc_curve(obs_pred_df, data_type='sgRNA', saveto=outdir + '/04_pr_rc_curve')
         cbs_dict=mystatic_obj.run_cbs(cldf, cpus)
         assert "dict_keys([22])" == "{}".format(cbs_dict.keys()), 'run_cbs'
-        alldata, corrected_counts_file = mystatic_obj.process_segments(cbs_dict, ignored_genes, min_target_genes, controls, no_rep,outdir=outdir)
+        alldata, corrected_counts_file, cfc, cfc_file = mystatic_obj.process_segments(cbs_dict, ignored_genes, min_target_genes, controls, no_rep,outdir=outdir)
         # only used to create final test results
         #alldata.to_pickle('pickled_df_HT-29.pkl', compression='gzip', protocol=-1)
         expected_df=pd.read_pickle(picke_file, compression='gzip')

@@ -1,9 +1,11 @@
 import logging
+import json
 import os
 import sys
 from pyCRISPRcleanR.abstractCrispr import AbstractCrispr
 from pyCRISPRcleanR.staticMethods import StaticMthods as SM
 from pyCRISPRcleanR.plots import PlotData as PLT
+from pyCRISPRcleanR.bagel import BAGEL as BGL
 
 log = logging.getLogger(__name__)
 
@@ -54,9 +56,13 @@ class CrisprCleanR(AbstractCrispr):
         cpus = self.num_processors
         outdir = self.outdir
         gene_sig_dir = self.gene_sig_dir
+        result_cfg = self.results_cfg
+
         global MAGECK_CMD
         if outdir:
             os.makedirs(outdir + '/mageckOut', exist_ok=True)
+            os.makedirs(outdir + '/bagelOut', exist_ok=True)
+
         # check input files
         (input1, input2) = self.check_input()
 
@@ -66,13 +72,18 @@ class CrisprCleanR(AbstractCrispr):
             log.info("Count and library data combined.....")
             cldf = SM.filter_data(cldf, controls, min_read_count)
             log.info("Data filtering DONE.....")
-            cldf, num_rep, norm_count_file, geneFC, sgRNAFC = \
+            cldf, num_rep, norm_count_file, geneFC, sgRNAFC, fc, fcfile = \
                 SM.get_norm_count_n_fold_changes(cldf, controls, outdir=outdir)
             log.info("Completed normalised count and fold change calculation .....")
             if self.run_mageck:
                 norm_gene_summary = SM.run_mageck(norm_count_file, outfile_prefix=outdir + '/mageckOut/normCounts')
             if gene_sig_dir:
                 ref_gene_list_dict = SM.load_signature_files(gene_sig_dir, cldf)
+                if self.run_bagel:
+                    BGL.run(fcfile, ref_gene_list_dict['essential_genes'],
+                            ref_gene_list_dict['non_essential_genes'],
+                            column_list=list(range(1, fc.shape[1] - 1, 1)), NUM_BOOTSTRAPS=self.numiter,
+                            outfilename=outdir + '/bagelOut/normalised_FC_bagel.out')
                 # ROC for sgRNA
                 obs_pred_df = SM.get_obs_predictions(sgRNAFC, ref_gene_list_dict['essential_sgRNAs'],
                                                      ref_gene_list_dict['non_essential_sgRNAs'])
@@ -90,8 +101,11 @@ class CrisprCleanR(AbstractCrispr):
             if self.runcrispr:
                 cbs_dict = SM.run_cbs(cldf, cpus, fc_col='avgFC')
                 log.info("CBS analysis completed  .....")
-                all_data, corrected_count_file = SM.process_segments(cbs_dict, ignored_genes, min_target_genes,
-                                                                     controls, num_rep, outdir=outdir)
+                all_data, corrected_count_file, crispr_fc, crispr_fc_file = SM.process_segments(cbs_dict,
+                                                                                                ignored_genes,
+                                                                                                min_target_genes,
+                                                                                                controls, num_rep,
+                                                                                                outdir=outdir)
                 if gene_sig_dir:
                     essential, non_essential, other = SM.get_data_for_density_plot(all_data,
                                                                                    ref_gene_list_dict[
@@ -101,8 +115,14 @@ class CrisprCleanR(AbstractCrispr):
                     PLT.density_plot_ly(essential, non_essential, other,
                                         saveto=outdir + '/10_density_plots_pre_and_post_CRISPRcleanR')
 
+                    if self.run_bagel:
+                        BGL.run(crispr_fc_file, ref_gene_list_dict['essential_genes'],
+                                ref_gene_list_dict['non_essential_genes'],
+                                column_list=list(range(1, crispr_fc.shape[1] - 1, 1)), NUM_BOOTSTRAPS=self.numiter,
+                                outfilename=outdir + '/bagelOut/CRISPRcleanR_FC_bagel.out')
+
                 log.info("Processed CBS segments  .....")
-                SM._print_df(all_data, outdir + "/alldata.tsv")
+                SM._print_df(all_data, outdir + "/05_alldata.tsv")
                 cbs_dict_norm = SM.run_cbs(all_data, cpus, fc_col="correctedFC")
                 log.info("CBS analysis on normalised fold changes completed.....")
                 PLT.plot_segments(cbs_dict, cbs_dict_norm, outdir=outdir)
@@ -114,8 +134,9 @@ class CrisprCleanR(AbstractCrispr):
                                                            outfile_prefix=outdir + '/mageckOut/correctedCounts')
 
                     PLT.impact_on_phenotype(norm_gene_summary, corrected_gene_summary,
-                                            saveto=outdir + '/11_impact_on_phenotype',
-                                            )
+                                            saveto=outdir + '/11_impact_on_phenotype')
+
+            SM.write_results(result_cfg, outdir)
             log.info("Analysis completed successfully.....")
         else:
             sys.exit('Input data is not in required format, see inputFormat in README file')

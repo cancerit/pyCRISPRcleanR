@@ -1,0 +1,64 @@
+{
+  "header" : ["<!DOCTYPE html> <html>",
+              "<head><style> #results {border-collapse: collapse; width: 100%;}",
+    "#results td, #results th { border: 1px solid #ddd; padding: 8px;}",
+    "#results tr:nth-child(even){background-color: #f2f2f2;}",
+    "#results tr:hover {background-color: #ddd;}",
+    "#results th {padding-top: 12px; padding-bottom: 12px; text-align: left; background-color: lightblue; color: black;} </style></head>",
+              "<body> <h2>CRISPRcleanR Analysis Results</h2> <table style=\"width:100%\" id=\"results\">"],
+  "table_header": "<tr><th>{}</th><th>{}</th><th>Description</th></tr>",
+
+  "table_row_images" : "<tr><td>{count}</td> <td><a href=\" ../{outdir}/{file_name}\"  target=\"_blank\" >{file_name}</a></td><td>{description}</td></tr>",
+  "table_row_files" : "<tr><td>{count}</td> <td><a href=\" ../{outdir}/{file_name}\">{file_name}</a></td><td>{description}</td></tr>",
+  "table_row_folders" : "<tr><td>{count}</td> <td>{outdir}/{file_name}</td><td>{description}</td></tr>",
+
+  "intermediate_row" : "<tr><th>{}</th></tr>",
+
+  "footer" : "</table> </body> </html>",
+
+  "images" : {
+        "01_raw_counts_boxplot.html" : ["Raw sgRNA counts"],
+        "01_raw_counts_correlation_matrix.html" : ["Raw sgRNA counts"],
+        "01_raw_counts_histogram.html" : ["Raw sgRNA counts"],
+        "02_normalised_counts_boxplot.html" : ["Normalised sgRNA counts (median-ratio normalisation of raw counts)"],
+        "02_normalised_counts_correlation_matrix.html": ["Normalised sgRNA counts (median-ratio normalisation of raw counts)"],
+        "02_normalised_counts_histogram.html" : ["Normalised sgRNA counts (median-ratio normalisation of raw counts)"],
+        "03_fold_changes_boxplot.html" : ["sgRNA fold changes with respect to plasmid sgRNA normalised count)"],
+        "03_fold_changes_correlation_matrix.html"  :[ "sgRNA fold changes  with respect to plasmid sgRNA normalised count"],
+        "03_fold_changes_histogram.html" : ["sgRNA fold changes with respect to plasmid sgRNA normalised count"],
+        "04_pr_rc_curve_sgRNA.html" : ["Precision/Recall(PrRc) evaluation curve  quantifying the performances in classifying the considered reference sets based on their logFCs"],
+        "04_roc_curve_sgRNA.html" : ["ROC curve quantifying the performances in classifying the user defined reference sets based on their logFCs"],
+        "05_pr_rc_curve_gene.html" : ["Precision/Recall(PrRc) evaluation curve  quantifying the performances in classifying the considered reference sets based on their logFCs"],
+        "05_roc_curve_gene.html" :["ROC curve quantifying the performances in classifying the user defined reference sets based on their logFCs"],
+        "06_depletion_profile_genes.html" : ["Shows visual inspection of enrichments of predefined sets of core-fitness essential genes",
+          "near the top of the genome wide essentiality profiles (composed of sgRNA or gene depletion logFCs ranked in increasing order),",
+          "and to compute their classification recall at a fixed FDR(e.g., 5%)"],
+
+        "07_CRISPRcleanR_corrected_count_boxplot.html" : ["Corrected counts are calculated using a unsuerpvised approach and correcting chromosomal segments of",
+                                                            "equal sgRNA log fold-changes if they include sgRNAs targeting at least 3 different",
+                                                            "genes, and without making any assumption on gene essentiality, nor knowing",
+                                                             "a priori the copy number status of the included genes"],
+        "07_CRISPRcleanR_corrected_count_correlation_matrix.html" : ["see description for 07_CRISPRcleanR_corrected_count_boxplot.html "],
+        "07_CRISPRcleanR_corrected_count_histogram.html" : ["see description for 07_CRISPRcleanR_corrected_count_boxplot.html"],
+        "08_CRISPRcleanR_corrected_fold_changes_boxplot.html" : ["see description for 07_CRISPRcleanR_corrected_count_boxplot.html"],
+        "08_CRISPRcleanR_corrected_foldchanges_correlation_matrix.ht" : ["see description for 07_CRISPRcleanR_corrected_count_boxplot.html"],
+        "08_CRISPRcleanR_corrected_fold_changes_histogram.html" : ["see description for 07_CRISPRcleanR_corrected_count_boxplot.html"],
+        "09_Raw_vs_postCRISPRcleanR_segmentation_fold_changes.pdf" :["one plot per chromosome, with segments of sgRNAs' equal log fold-change before and after the correction"],
+        "10_density_plots_pre_and_post_CRISPRcleanR.html" : ["Shows the variation induced by the CRISPRcleanR correction on thelogFCs’",
+                                                              "distributions of sgRNAs targeting defined sets of genes prior/post CRISPRcleanR correction"],
+        "11_impact_on_phenotype_barchart.html" : ["Evaluates the effect of the CRISPRcleanR correction on the genes showing a significant loss/gain-of-fitness",
+                                                    "effect (fitness genes) in the uncorrected data, a comparison of fitness gene sets (computed with MAGeCK) before/after CRISPRcleanR correction"],
+        "11_impact_on_phenotype_piechart.html" : ["see description for 11_impact_on_phenotype_barchart.html"]
+        },
+    "files" : {
+        "01_normalised_counts.tsv" : ["Normalised sgRNA counts (median-ratio normalisation of raw counts)"],
+        "02_normalised_fold_changes.tsv" : ["sgRNA fold changes  with respect to plasmid sgRNA normalised count"],
+        "03_crispr_cleanr_corrected_counts.tsv" : ["see description for 07_CRISPRcleanR_corrected_count_boxplot.html"],
+        "04_crispr_cleanr_fold_changes.tsv" : ["see description for 07_CRISPRcleanR_corrected_count_boxplot.html"],
+        "05_alldata.tsv" : ["Includes all data along with filtered raw counts"]
+        },
+    "folders" : {
+        "mageckOut" : ["results from MAGeCK algorithm "],
+        "bagelOut" : ["results from BAGEL algorithm"]
+        }
+}

@@ -18,7 +18,10 @@ class AbstractCrispr(ABC):
         self.runcrispr = kwargs.get('crispr_cleanr', None)
         self.num_processors = kwargs.get('num_processors', 1)
         self.run_mageck = kwargs.get('run_mageck', None)
+        self.run_bagel = kwargs.get('run_bagel', None)
+        self.numiter = kwargs.get('numiter', 1000)
         self.gene_sig_dir = kwargs.get('gene_signatures', None)
+        self.results_cfg = kwargs.get('results_cfg', None)
         super().__init__()
 
     @abstractmethod
