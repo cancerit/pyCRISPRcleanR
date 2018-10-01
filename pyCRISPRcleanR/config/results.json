@@ -1,16 +1,16 @@
 {
   "header" : ["<!DOCTYPE html> <html>",
-              "<head><style> #results {border-collapse: collapse; width: 100%;}",
-    "#results td, #results th { border: 1px solid #ddd; padding: 8px;}",
-    "#results tr:nth-child(even){background-color: #f2f2f2;}",
-    "#results tr:hover {background-color: #ddd;}",
-    "#results th {padding-top: 12px; padding-bottom: 12px; text-align: left; background-color: lightblue; color: black;} </style></head>",
-              "<body> <h2>CRISPRcleanR Analysis Results</h2> <table style=\"width:100%\" id=\"results\">"],
+              "<head><style> #results {{border-collapse: collapse; width: 100%;}}",
+    "#results td, #results th {{ border: 1px solid #ddd; padding: 8px;}}",
+    "#results tr:nth-child(even){{background-color: #f2f2f2;}}",
+    "#results tr:hover {{background-color: #ddd;}}",
+    "#results th {{padding-top: 12px; padding-bottom: 12px; text-align: left; background-color: lightblue; color: black;}} </style></head>",
+              "<body> <h2>CRISPRcleanR Analysis Results [ <a href=\" ../{outdir}/{file_name}\">Download results.tar.bz2</a> ]</h2> <table style=\"width:100%\" id=\"results\">"],
   "table_header": "<tr><th>{}</th><th>{}</th><th>Description</th></tr>",
 
   "table_row_images" : "<tr><td>{count}</td> <td><a href=\" ../{outdir}/{file_name}\"  target=\"_blank\" >{file_name}</a></td><td>{description}</td></tr>",
   "table_row_files" : "<tr><td>{count}</td> <td><a href=\" ../{outdir}/{file_name}\">{file_name}</a></td><td>{description}</td></tr>",
-  "table_row_folders" : "<tr><td>{count}</td> <td>{outdir}/{file_name}</td><td>{description}</td></tr>",
+  "table_row_folders" : "<tr><td>{count}</td> <td><a href=\" ../{outdir}/{file_name}\">{file_name}</a></td><td>{description}</td></tr>",
 
   "intermediate_row" : "<tr><th>{}</th></tr>",
 
@@ -34,7 +34,7 @@
           "near the top of the genome wide essentiality profiles (composed of sgRNA or gene depletion logFCs ranked in increasing order),",
           "and to compute their classification recall at a fixed FDR(e.g., 5%)"],
 
-        "07_CRISPRcleanR_corrected_count_boxplot.html" : ["Corrected counts are calculated using a unsuerpvised approach and correcting chromosomal segments of",
+        "07_CRISPRcleanR_corrected_count_boxplot.html" : ["Corrected counts are calculated using a unsupervised approach and correcting chromosomal segments of",
                                                             "equal sgRNA log fold-changes if they include sgRNAs targeting at least 3 different",
                                                             "genes, and without making any assumption on gene essentiality, nor knowing",
                                                              "a priori the copy number status of the included genes"],

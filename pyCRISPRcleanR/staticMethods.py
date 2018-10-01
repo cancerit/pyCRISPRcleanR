@@ -17,6 +17,8 @@ SIGNATURE_FILES = ("essential", "non_essential", "dna_replication", "rna_polymer
 CONTROL_SAMPLES = 'NA'
 TREATMENT_SAMPLES = 'NA'
 
+RESULTS_FILE = 'results'
+
 RAW_BOXPLOT = "/01_raw_counts_boxplot"
 RAW_HIST = "/01_raw_counts_histogram"
 RAW_MATRIX = "/01_raw_counts_correlation_matrix"
@@ -405,16 +407,27 @@ class StaticMthods(object):
 
     @staticmethod
     def write_results(result_cfg, outdir):
+        """
+
+        :param result_cfg: results config file
+        :param outdir: results output folder
+        :return:
+        """
+        global RESULTS_FILE
+        file_ext = '.tar.bz2'
+
+        StaticMthods._create_tar(outdir + '/' + RESULTS_FILE + file_ext, outdir)
         generated_files = []
         for (dirpath, dirnames, filenames) in os.walk(outdir):
             generated_files.extend(dirnames)
             generated_files.extend(filenames)
 
         try:
-            f = open(outdir + '/results.html', 'w')
+            f = open(outdir + '/' + RESULTS_FILE + '.html', 'w')
             with open(result_cfg, 'r') as cfgfile:
                 cfg = json.load(cfgfile)
-                f.write(''.join(cfg['header']))
+                rows = {'outdir': outdir, 'file_name': RESULTS_FILE + file_ext}
+                f.write(''.join(cfg['header']).format(**rows))
 
                 f.write(cfg['table_header'].format('I', 'pdf/Plotly images'))
                 counter = 0
@@ -434,17 +447,30 @@ class StaticMthods(object):
                                 'description': ' '.join(desc)}
                         f.write(cfg['table_row_files'].format(**rows))
 
-                f.write(cfg['table_header'].format('III', 'Other algoritm output folders'))
+                f.write(cfg['table_header'].format('III', 'Other algorithm output folders'))
                 counter = 0
                 for file_name, desc in cfg['folders'].items():
                     if file_name in generated_files:
+                        StaticMthods._create_tar(outdir + '/' + file_name + file_ext, outdir + '/' + file_name)
                         counter += 1
-                        rows = {'count': counter, 'outdir': outdir, 'file_name': file_name,
+                        rows = {'count': counter, 'outdir': outdir, 'file_name': file_name + file_ext,
                                 'description': ' '.join(desc)}
                         f.write(cfg['table_row_folders'].format(**rows))
 
                 f.write(cfg['footer'])
         except IOError as ioe:
             sys.exit('Can not create outfile:{}'.format(ioe.args[0]))
+
+        return 0
+
+    @staticmethod
+    def _create_tar(outfile_name, source_dir):
+        try:
+            with tarfile.open(outfile_name, "w:bz2") as tar:
+                tar.add(source_dir, arcname=os.path.basename(source_dir))
+        except tarfile.TarError as te:
+            log.info("error in tarfile generation:{}".format(te))
+        except IOError as ioe:
+            sys.exit('Error in tar file input folder file:{}'.format(ioe.args[0]))
 
         return 0

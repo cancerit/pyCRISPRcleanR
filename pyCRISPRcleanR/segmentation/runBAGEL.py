@@ -52,45 +52,9 @@ class BAGEL(object):
         return X_resample
 
     @staticmethod
-    def run(foldchangefile, coreEss, nonEss, column_list=[1, 2, 3], NUM_BOOTSTRAPS=1000,
-            outfilename='bagelOut/bagel.out'):
+    def run(bf, fc, gene_idx, genes_array, coreEss, nonEss, NUM_BOOTSTRAPS=1000):
+
         FC_THRESH = 2 ** -7
-        genes = {}
-        fc = {}
-
-        # LOAD FOLDCHANGES
-
-        fin = open(foldchangefile)
-        skipfields = fin.readline().rstrip().split('\t')
-        for i in column_list:
-            print("Using column:" + skipfields[i + 1])
-        for line in fin:
-            fields = line.rstrip().split('\t')
-            gsym = fields[1]
-            genes[gsym] = 1
-            if gsym not in fc:
-                fc[gsym] = []  # initialize dict entry as a list
-            for i in column_list:
-                # per user docs, GENE is column 0, first data column is col 1.
-                fc[gsym].append(float(fields[i + 1]))
-        fin.close()  # sb43 added filehandle closure
-        genes_array = np.array(list(genes.keys()))
-        gene_idx = np.arange(len(genes))
-        # print "Number of gRNA loaded:  " + str( len(genes_array) )
-        print("Number of unique genes:  " + str(len(genes)))
-
-        # DEFINE REFERENCE SETS
-        coreEss = np.array(coreEss)
-        print("Number of reference essentials: " + str(len(coreEss)))
-        nonEss = np.array(nonEss)
-        print("Number of reference nonessentials: " + str(len(nonEss)))
-        #
-        # INITIALIZE BFS
-        #
-        bf = {}
-        for g in genes_array:
-            bf[g] = []
-
         #
         # BOOTSTRAP ITERATIONS
         #
@@ -159,19 +123,4 @@ class BAGEL(object):
                 bayes_factor = sum([logratio_lookup[round(x * 100)] for x in foldchanges])
                 bf[g].append(bayes_factor)
 
-        fout = open(outfilename, 'w')
-        fout.write('GENE\tBF\tSTD\tNumObs\n')
-        for g in sorted(bf.keys()):
-            if bf[g]:  # sb43 added to avoid empty array error
-                num_obs = len(bf[g])
-                bf_mean = np.mean(bf[g])
-                bf_std = np.std(bf[g])
-                # if bf_std == 0:  # sb43 added to avoid division by zero error
-                #    bf_std = 1
-                # bf_norm = (bf[g] - bf_mean) / bf_std # commented as not used
-                # dstat, pval = stats.kstest( bf_norm, 'norm')
-                fout.write('{0:s}\t{1:4.3f}\t{2:4.3f}\t{3:d}\n'.format(g, bf_mean, bf_std, num_obs))
-
-        fout.close()
-
-        return 0
+        return bf
