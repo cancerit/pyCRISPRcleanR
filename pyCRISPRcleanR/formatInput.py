@@ -5,7 +5,6 @@ import sys
 from pyCRISPRcleanR.abstractCrispr import AbstractCrispr
 from pyCRISPRcleanR.staticMethods import StaticMthods as SM
 from pyCRISPRcleanR.plots import PlotData as PLT
-from pyCRISPRcleanR.bagel import BAGEL as BGL
 log = logging.getLogger(__name__)
 
 '''
