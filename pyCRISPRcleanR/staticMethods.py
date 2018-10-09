@@ -201,6 +201,31 @@ class StaticMthods(object):
         return cbs_dict
 
     @staticmethod
+    def run_bagel(fc_file, Ess, nonEss, cpus, column_list=[], NUM_BOOTSTRAPS=1000, outfilename='./bagel_out'):
+        """
+        :param fc_file: file containing crispr foldchange data as defined in BAGEL documentation
+        :param Ess: essential genes
+        :param nonEss: non essential genes
+        :param cpus: num of cpus
+        :param column_list: columns to analyse [see BAGEL documentation]
+        :param NUM_BOOTSTRAPS: number of bootstrap iterations
+        :param outfilename: output file
+        :return:  return on success
+        """
+        bf = segmentation.run_parallel_bagel(fc_file, column_list, Ess, nonEss,
+                                             cpus, NUM_BOOTSTRAPS=NUM_BOOTSTRAPS)
+        fout = open(outfilename, 'w')
+        fout.write('GENE\tBF\tSTD\tNumObs\n')
+        for g in sorted(bf.keys()):
+            if bf[g]:  # sb43 added to avoid empty array error
+                num_obs = len(bf[g])
+                bf_mean = np.mean(bf[g])
+                bf_std = np.std(bf[g])
+                fout.write('{0:s}\t{1:4.3f}\t{2:4.3f}\t{3:d}\n'.format(g, bf_mean, bf_std, num_obs))
+        fout.close()
+        return 0
+
+    @staticmethod
     def process_segments(cbs_dict, ignored_genes, min_genes, controls, no_rep, outdir='./'):
         """
         :Process CBS derived copy number segment to get Correted foldchanges and reverse transformed counts

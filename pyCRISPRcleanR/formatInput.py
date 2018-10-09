@@ -6,7 +6,6 @@ from pyCRISPRcleanR.abstractCrispr import AbstractCrispr
 from pyCRISPRcleanR.staticMethods import StaticMthods as SM
 from pyCRISPRcleanR.plots import PlotData as PLT
 from pyCRISPRcleanR.bagel import BAGEL as BGL
-
 log = logging.getLogger(__name__)
 
 '''
@@ -57,6 +56,7 @@ class CrisprCleanR(AbstractCrispr):
         outdir = self.outdir
         gene_sig_dir = self.gene_sig_dir
         result_cfg = self.results_cfg
+        iter = self.numiter
 
         global MAGECK_CMD
         if outdir:
@@ -80,9 +80,9 @@ class CrisprCleanR(AbstractCrispr):
             if gene_sig_dir:
                 ref_gene_list_dict = SM.load_signature_files(gene_sig_dir, cldf)
                 if self.run_bagel:
-                    BGL.run(fcfile, ref_gene_list_dict['essential_genes'],
-                            ref_gene_list_dict['non_essential_genes'],
-                            column_list=list(range(1, fc.shape[1] - 1, 1)), NUM_BOOTSTRAPS=self.numiter,
+                    SM.run_bagel(fcfile, ref_gene_list_dict['essential_genes'],
+                            ref_gene_list_dict['non_essential_genes'], cpus,
+                            column_list=list(range(1, fc.shape[1] - 1, 1)), NUM_BOOTSTRAPS=iter,
                             outfilename=outdir + '/bagelOut/normalised_FC_bagel.out')
                 # ROC for sgRNA
                 obs_pred_df = SM.get_obs_predictions(sgRNAFC, ref_gene_list_dict['essential_sgRNAs'],
@@ -116,9 +116,9 @@ class CrisprCleanR(AbstractCrispr):
                                         saveto=outdir + '/10_density_plots_pre_and_post_CRISPRcleanR')
 
                     if self.run_bagel:
-                        BGL.run(crispr_fc_file, ref_gene_list_dict['essential_genes'],
-                                ref_gene_list_dict['non_essential_genes'],
-                                column_list=list(range(1, crispr_fc.shape[1] - 1, 1)), NUM_BOOTSTRAPS=self.numiter,
+                        SM.run_bagel(crispr_fc_file, ref_gene_list_dict['essential_genes'],
+                                ref_gene_list_dict['non_essential_genes'], cpus,
+                                column_list=list(range(1, crispr_fc.shape[1] - 1, 1)), NUM_BOOTSTRAPS=iter,
                                 outfilename=outdir + '/bagelOut/CRISPRcleanR_FC_bagel.out')
 
                 log.info("Processed CBS segments  .....")
