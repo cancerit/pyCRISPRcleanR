@@ -1,5 +1,12 @@
 # CHANGES
 
+### 2.0.0
+* Added parallel version of BAGEL
+* Added MAGeCK
+* Html results summary and links to download data
+* GPL3 LICENSE added
+* Additional plotly figures
+
 ## 1.1.2
  * updated appropriate types [int, str etc.,] for commandline inputs
 
