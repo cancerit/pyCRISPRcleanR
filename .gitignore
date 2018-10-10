@@ -21,4 +21,4 @@ htmlcov
 .nfs*
 .idea
 .pytest_cache*
-pyCRISPRcleanR.egg-info
+pyCRISPRcleanR.egg-info/
