@@ -21,6 +21,7 @@ correction of gene independent cell responses to CRISPR-cas9 targeting
 		- [Setup VirtualEnv](#setup-virtualenv)
 - [Cutting a release](#cutting-a-release)
 	- [Install via `.whl` (wheel)](#install-via-whl-wheel)
+- [Reference](# reference)
 
 <!-- /TOC -->
 
@@ -241,6 +242,14 @@ scp dist/pyCRISPRcleanR.X.X.X-py3-none-any.whl user@host:~/wheels
 # on host
 pip install --find-links=~/wheels pyCRISPRcleanR
 ```
+
+### Reference
+Iorio F, Behan FM, Gonçalves E, Bhosle SG, Chen E, Shepherd R, Beaver C,
+Ansari R, Pooley R, Wilkinson P, Harper S, Butler AP, Stronach EA, Saez-Rodriguez
+J, Yusa K, Garnett MJ. Unsupervised correction of gene-independent cell responses
+to CRISPR-Cas9 targeting. BMC Genomics. 2018 Aug 13;19(1):604. doi:
+10.1186/s12864-018-4989-y.
+
 <!--refs-->
  [NumPy]: http://www.numpy.org/
  [plotly]: https://plot.ly/python/

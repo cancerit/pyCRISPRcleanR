@@ -74,7 +74,9 @@ def _prepare_data(foldchangefile, column_list):
     fin = open(foldchangefile)
     skipfields = fin.readline().rstrip().split('\t')
     for i in column_list:
-        print("Using column:" + skipfields[i + 1])
+        print(type(i))
+        exit(0)
+        print("Using column:{}".format(skipfields[i + 1]))
     for line in fin:
         fields = line.rstrip().split('\t')
         gsym = fields[1]

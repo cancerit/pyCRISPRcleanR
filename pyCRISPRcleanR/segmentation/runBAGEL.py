@@ -22,15 +22,17 @@ def round_to_hundredth(x):
     return np.round(x * 100) / 100.0
 
 
-def bootstrap_resample(X, n=None, ):
+def bootstrap_resample(X, user_seed, n=None):
     """ Bootstrap resample an array_like
     Parameters
     ----------
     X : array_like
       data to resample
+    user_seed: seed for bootstrapping
     n : int, optional
       length of resampled array, equal to len(X) if n==None
     Results
+
     -------
     returns X_resamples
 
@@ -41,9 +43,9 @@ def bootstrap_resample(X, n=None, ):
 
     if n is None:
         n = len(X)
+    # added by sb43 to achieve randomization in parallel steps and get reproducible results
 
-    # added by sb43 to achieve randomization in parallel steps
-    np.random.seed(None)
+    np.random.seed(user_seed)
     resample_i = np.floor(np.random.rand(n) * len(X)).astype(int)
     X_resample = X[resample_i]
     return X_resample
@@ -73,7 +75,7 @@ def run(bf, fc, gene_idx, genes_array, coreEss, nonEss, start, stop, thread):
         #
         # bootstrap resample from gene list to get the training set
         #
-        gene_train_idx = bootstrap_resample(gene_idx)
+        gene_train_idx = bootstrap_resample(gene_idx, loop)
         #
         # test set for this iteration is everything not selected in bootstrap resampled training set
         #
