@@ -6,6 +6,7 @@ import pkg_resources
 import logging.config
 
 configdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config/')
+results_json = configdir + 'results.json'
 log_config = configdir + 'logging.conf'
 logging.config.fileConfig(log_config)
 log = logging.getLogger(__name__)
@@ -17,7 +18,7 @@ version = pkg_resources.require("pyCRISPRcleanR")[0].version
 def main():  # pragma: no cover
     usage = "\n %prog [options] -f counts.tsv -l library.tsv"
 
-    optParser = argparse.ArgumentParser(prog='pyCRISPRCleanR',
+    optParser = argparse.ArgumentParser(prog='pyCRISPRcleanR',
                                         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     optional = optParser._action_groups.pop()
     required = optParser.add_argument_group('required arguments')
@@ -28,26 +29,20 @@ def main():  # pragma: no cover
     required.add_argument("-l", "--libfile", type=str, dest="libfile", required=True,
                           default="", help="sgRNA library file, accepts compressed file")
 
-    optional.add_argument("-e", "--expname", type=str, dest="expname", required=False,
-                          default='myexperiment', help="name of the experiment")
-
-    optional.add_argument("-mr", "--minreads", type=str, dest="minreads", required=False,
+    optional.add_argument("-mr", "--minreads", type=int, dest="minreads", required=False,
                           default=30, help="minimum read count in control sample \
                           to be used for filtering ")
 
-    optional.add_argument("-mg", "--mingenes", type=str, dest="mingenes", required=False,
+    optional.add_argument("-mg", "--mingenes", type=int, dest="mingenes", required=False,
                           default=3, help="minimum number of genes in a CNV segment to\
                           consider it for count normalization ")
 
     optional.add_argument("-ig", "--ignored_genes", nargs='*', type=str, dest="ignored_genes", required=False,
                           default=[], help="space separate list of ignored genes")
 
-    optional.add_argument("-nc", "--ncontrols", type=str, dest="ncontrols", required=False,
+    optional.add_argument("-nc", "--ncontrols", type=int, dest="ncontrols", required=False,
                           default=1, help="Number of control samples in raw count file [ \
                            Note: at least one control sample is required ]")
-
-    optional.add_argument("-s", "--sample", type=str, dest="sample", required=False,
-                          default='mysample', help="sample name in counts file")
 
     optional.add_argument("-np", "--num_processors", type=int, dest="num_processors", required=False,
                           default=1, help="Number of processors to use for parallel jobs")
@@ -55,11 +50,23 @@ def main():  # pragma: no cover
     optional.add_argument("-cc", "--crispr_cleanr", action='store_true', dest="crispr_cleanr",
                           help="flag to run CRISPRcleanR")
 
-    optional.add_argument("-pl", "--plot_data", action='store_true', dest="plot_data",
-                          help="Generate pdf and interactive plotly images")
+    optional.add_argument("-gs", "--gene_signatures", type=str, dest="gene_signatures", required=False,
+                          help="Directory path containing .txt files for signature genes")
+
+    optional.add_argument("-mk", "--run_mageck", action='store_true', dest="run_mageck",
+                          help="flag to run MAGeCK")
+
+    optional.add_argument("-bl", "--run_bagel", action='store_true', dest="run_bagel",
+                          help="flag to run BAGEL")
+
+    optional.add_argument("-N", "--numiter", type=int, dest="numiter", required=False,
+                          default=1000, help="Number of bootstrap iterations for BAGEL (default 1000)")
 
     optional.add_argument("-o", "--outdir", type=str, dest="outdir",
                           default='./', help="path to output folder ")
+
+    optional.add_argument("-results", "--results_cfg", type=str, dest="results_cfg",
+                          default=results_json, help=argparse.SUPPRESS)
 
     optional.add_argument("-v", "--version", action='version', version='%(prog)s ' + version)
     optional.add_argument("-q", "--quiet", action="store_false", dest="verbose", default=True)
@@ -68,13 +75,14 @@ def main():  # pragma: no cover
 
     if len(sys.argv) == 1:
         optParser.print_help()
-        sys.exit(1)
+        log.debug("Missing one or more required arguments in the command, exiting......")
+        sys.exit("Missing one or more required arguments in the command, exiting......")
     opts = optParser.parse_args()
     if not (opts.countfile or opts.libfile):
-        sys.exit('\nERROR Arguments required\n\tPlease run: pyCRISPRCleanR --help\n')
-        log.debug('ERROR Arguments required \n Please run: pyCRISPRCleanR --help')
+        log.debug('ERROR Arguments required \n Please run: pyCRISPRcleanR --help')
+        sys.exit('\nERROR Arguments required\n\tPlease run: pyCRISPRcleanR --help\n')
     log.debug('Analysis started....')
-
+    log.info(opts)
     mycrispr = CrisprCleanR(**vars(opts))
     mycrispr.run_analysis()
 

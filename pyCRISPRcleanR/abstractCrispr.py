@@ -10,16 +10,18 @@ class AbstractCrispr(ABC):
     def __init__(self, **kwargs):
         self.countfile = kwargs['countfile']
         self.libfile = kwargs['libfile']
-        self.expname = kwargs.get('expname', 'myexperiment')
         self.minreads = kwargs.get('minreads', 30)
         self.mingenes = kwargs.get('mingenes', 3)
         self.outdir = kwargs.get('outdir')
         self.ncontrols = kwargs.get('ncontrols', 1)
-        self.sample = kwargs.get('sample', 'mySample')
         self.ignored_genes = kwargs.get('ignored_genes', [])
         self.runcrispr = kwargs.get('crispr_cleanr', None)
         self.num_processors = kwargs.get('num_processors', 1)
-        self.plot_data = kwargs.get('plot_data', None)
+        self.run_mageck = kwargs.get('run_mageck', None)
+        self.run_bagel = kwargs.get('run_bagel', None)
+        self.numiter = kwargs.get('numiter', 1000)
+        self.gene_sig_dir = kwargs.get('gene_signatures', None)
+        self.results_cfg = kwargs.get('results_cfg', None)
         super().__init__()
 
     @abstractmethod
