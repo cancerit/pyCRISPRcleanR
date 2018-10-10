@@ -21,7 +21,7 @@ correction of gene independent cell responses to CRISPR-cas9 targeting
 		- [Setup VirtualEnv](#setup-virtualenv)
 - [Cutting a release](#cutting-a-release)
 	- [Install via `.whl` (wheel)](#install-via-whl-wheel)
-- [Reference](# reference)
+- [Reference](#reference)
 
 <!-- /TOC -->
 
