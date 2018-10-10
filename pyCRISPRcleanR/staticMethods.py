@@ -1,6 +1,7 @@
 import sys
 import os
 import tarfile
+import json
 from subprocess import Popen, PIPE, STDOUT
 import pandas as pd
 import numpy as np
@@ -15,6 +16,29 @@ SIGNATURE_FILES = ("essential", "non_essential", "dna_replication", "rna_polymer
                    "proteasome", "ribosomal_proteins", "spliceosome")
 CONTROL_SAMPLES = 'NA'
 TREATMENT_SAMPLES = 'NA'
+
+RESULTS_FILE = 'results'
+
+RAW_BOXPLOT = "/01_raw_counts_boxplot"
+RAW_HIST = "/01_raw_counts_histogram"
+RAW_MATRIX = "/01_raw_counts_correlation_matrix"
+NORM_BOXPLOT = "/02_normalised_counts_boxplot"
+NORM_HIST = "/02_normalised_counts_histogram"
+NORM_MATRIX = "/02_normalised_counts_correlation_matrix"
+FC_BOXPLOT = "/03_fold_changes_boxplot"
+FC_HIST = "/03_fold_changes_histogram"
+FC_MATRIX = "/03_fold_changes_correlation_matrix"
+CC_BOXPLOT = "/07_CRISPRcleanR_corrected_count_boxplot"
+CC_HIST = "/07_CRISPRcleanR_corrected_count_histogram"
+CC_MATRIX = "/07_CRISPRcleanR_corrected_count_correlation_matrix"
+CFC_BOXPLOT = "/08_CRISPRcleanR_corrected_fold_changes_boxplot"
+CFC_HIST = "/08_CRISPRcleanR_corrected_fold_changes_histogram"
+CFC_MATRIX = "/08_CRISPRcleanR_corrected_fold_changes_correlation_matrix"
+
+NC_TSV = "/01_normalised_counts.tsv"
+NFC_TSV = "/02_normalised_fold_changes.tsv"
+CFC_TSV = "/04_crispr_cleanr_fold_changes.tsv"
+CC_TSV = "/03_crispr_cleanr_corrected_counts.tsv"
 
 
 class StaticMthods(object):
@@ -60,13 +84,13 @@ class StaticMthods(object):
         else:
             sys.exit('counts data does not contain required column:[gene]')
         # plot raw counts
-        PLT.box_plot_ly(counts, title="Raw sgRNA counts", saveto=outdir + '/01_raw_counts_boxplot',
+        PLT.box_plot_ly(counts, title="Raw sgRNA counts", saveto=outdir + RAW_BOXPLOT,
                         ylabel='Raw Counts', xlabel='Sample Names')
-        PLT.histogram_ly(counts, title="Raw sgRNA counts", saveto=outdir + '/01_raw_counts_histogram',
+        PLT.histogram_ly(counts, title="Raw sgRNA counts", saveto=outdir + RAW_HIST,
                          ylabel='Raw Counts',
                          xlabel='sgRNAbins')
         PLT.correlation_plot_ly(counts, title="Correlation matrix: raw sgRNA counts",
-                                saveto=outdir + '/01_raw_counts_correlation_matrix',
+                                saveto=outdir + RAW_MATRIX,
                                 ylabel='Raw Counts',
                                 xlabel='Sample Names')
         log.info("Plotted raw counts.....")
@@ -102,6 +126,7 @@ class StaticMthods(object):
         """
         global CONTROL_SAMPLES
         global TREATMENT_SAMPLES
+        global NORM_HIST, NORM_BOXPLOT, NORM_MATRIX, FC_MATRIX, FC_HIST, FC_BOXPLOT, NC_TSV, NFC_TSV
 
         normed = cldf.iloc[:, 0:cldf.columns.get_loc('gene')].div(
             cldf.iloc[:, 0:cldf.columns.get_loc('gene')].agg('sum')) * 10e6
@@ -110,16 +135,16 @@ class StaticMthods(object):
             sys.exit('Normalized data frame is empty check if required columns are present')
 
         PLT.box_plot_ly(normed, title="Normalised sgRNA counts",
-                        saveto=outdir + '/02_normalised_counts_boxplot',
+                        saveto=outdir + NORM_BOXPLOT,
                         ylabel='Normalised Counts',
                         xlabel='Sample Names')
 
         PLT.histogram_ly(normed, title="Normalised sgRNA counts",
-                         saveto=outdir + '/02_normalised_counts_histogram',
+                         saveto=outdir + NORM_HIST,
                          ylabel='Normalised Counts',
                          xlabel='sgRNAbins')
         PLT.correlation_plot_ly(normed, title="Correlation matrix: normalised sgRNA counts",
-                                saveto=outdir + '/02_normalised_counts_correlation_matrix',
+                                saveto=outdir + NORM_MATRIX,
                                 ylabel='Normalised Counts',
                                 xlabel='Sample Names')
 
@@ -132,21 +157,21 @@ class StaticMthods(object):
 
             # plot fold Changes
 
-        PLT.box_plot_ly(fc, title="Fold Changes sgRNA", saveto=outdir + '/03_fold_changes_boxplot',
+        PLT.box_plot_ly(fc, title="Fold Changes sgRNA", saveto=outdir + FC_BOXPLOT,
                         ylabel='Fold Changes',
                         xlabel='Sample Names')
-        PLT.histogram_ly(fc, title="Fold changes sgRNA", saveto=outdir + '/03_fold_changes_histogram',
+        PLT.histogram_ly(fc, title="Fold changes sgRNA", saveto=outdir + FC_HIST,
                          ylabel='Fold changes',
                          xlabel='sgRNAbins')
         PLT.correlation_plot_ly(fc, title="Correlation matrix: Fold changes sgRNA",
-                                saveto=outdir + '/03_fold_changes_correlation_matrix',
+                                saveto=outdir + FC_MATRIX,
                                 ylabel='Fold changes',
                                 xlabel='Sample Names')
         no_rep = len(fc.columns)
 
         cldf = cldf.join(normed, rsuffix='_nc')
         normed.insert(0, 'gene', cldf['gene'])
-        StaticMthods._print_df(normed, outdir + "/normalised_counts.tsv")
+        StaticMthods._print_df(normed, outdir + NC_TSV)
 
         # MAGECK  specific prms.....
         CONTROL_SAMPLES = ",".join(normed.columns[1:controls + 1].values.tolist())
@@ -156,14 +181,14 @@ class StaticMthods(object):
         cldf['avgFC'] = fc.mean(axis=1)
         fc['avgFC'] = cldf['avgFC']
         fc.insert(0, 'gene', cldf['gene'])
-        StaticMthods._print_df(fc, outdir + "/normalised_fold_changes.tsv")
+        StaticMthods._print_df(fc, outdir + NFC_TSV)
         # mean fold changes grouped by gene
         geneFC = fc.groupby(['gene'])['avgFC'].mean()
         sgRNAFC = fc['avgFC']
         cldf['BP'] = round(cldf['start'] + (cldf['end'] - cldf['start']) / 2).astype(int)
         cldf.sort_values(by=['chr', 'start'], ascending=True, inplace=True)
 
-        return cldf, no_rep, outdir + "/normalised_counts.tsv", geneFC, sgRNAFC
+        return cldf, no_rep, outdir + NC_TSV, geneFC, sgRNAFC, fc, outdir + NFC_TSV
 
     @staticmethod
     def run_cbs(cldf, cpus, fc_col='avgFC'):
@@ -174,6 +199,31 @@ class StaticMthods(object):
         """
         cbs_dict = segmentation.do_segmentation(cldf, cpus, fc_col=fc_col)
         return cbs_dict
+
+    @staticmethod
+    def run_bagel(fc_file, Ess, nonEss, cpus, column_list=[], NUM_BOOTSTRAPS=1000, outfilename='./bagel_out'):
+        """
+        :param fc_file: file containing crispr foldchange data as defined in BAGEL documentation
+        :param Ess: essential genes
+        :param nonEss: non essential genes
+        :param cpus: num of cpus
+        :param column_list: columns to analyse [see BAGEL documentation]
+        :param NUM_BOOTSTRAPS: number of bootstrap iterations
+        :param outfilename: output file
+        :return:  return on success
+        """
+        bf = segmentation.run_parallel_bagel(fc_file, column_list, Ess, nonEss,
+                                             cpus, NUM_BOOTSTRAPS=NUM_BOOTSTRAPS)
+        fout = open(outfilename, 'w')
+        fout.write('GENE\tBF\tSTD\tNumObs\n')
+        for g in sorted(bf.keys()):
+            if bf[g]:  # sb43 added to avoid empty array error
+                num_obs = len(bf[g])
+                bf_mean = np.mean(bf[g])
+                bf_std = np.std(bf[g])
+                fout.write('{0:s}\t{1:4.3f}\t{2:4.3f}\t{3:d}\n'.format(g, bf_mean, bf_std, num_obs))
+        fout.close()
+        return 0
 
     @staticmethod
     def process_segments(cbs_dict, ignored_genes, min_genes, controls, no_rep, outdir='./'):
@@ -189,6 +239,7 @@ class StaticMthods(object):
         """
         corrected_count_list = []
         chrdata_list = []
+        global CC_TSV, CC_MATRIX, CC_HIST, CC_BOXPLOT, CFC_TSV, CFC_MATRIX, CFC_HIST, CFC_BOXPLOT
         for chr, (cnarr, segrows, cnseg) in cbs_dict.items():
             log.info("Correcting counts on Chr :{} : sgRNA:{} segments{}".format(chr, cnarr.shape, segrows.shape))
             cnarr.is_copy = False
@@ -196,7 +247,7 @@ class StaticMthods(object):
             cnarr['correctedFC'] = cnarr.avgFC
             n_genes_in_seg = 0
             reverted_counts = cnarr.iloc[:, cnarr.columns.get_loc('end') + controls + 1:
-                                        cnarr.columns.get_loc('avgFC')]
+                                         cnarr.columns.get_loc('avgFC')]
 
             for segment in segrows.itertuples():
                 idxs = list(range(segment.startRow - 1, segment.endRow))
@@ -225,26 +276,26 @@ class StaticMthods(object):
         corrected_fc.drop(corrected_fc.columns[0:controls], axis=1, inplace=True)
 
         PLT.box_plot_ly(corrected_count, title="CRISPRcleanR corrected count sgRNA",
-                        saveto=outdir + '/07_CRISPRcleanR_corrected_count_boxplot',
+                        saveto=outdir + CC_BOXPLOT,
                         ylabel='count',
                         xlabel='Sample Names')
         PLT.histogram_ly(corrected_count, title="CRISPRcleanR corrected count sgRNA",
-                         saveto=outdir + '/07_CRISPRcleanR_corrected_count_histogram',
+                         saveto=outdir + CC_HIST,
                          ylabel='count', xlabel='sgRNAbins')
         PLT.correlation_plot_ly(corrected_count,
                                 title="Correlation matrix: CRISPRcleanR corrected count sgRNA",
-                                saveto=outdir + '/07_CRISPRcleanR_corrected_count_correlation_matrix',
+                                saveto=outdir + CC_MATRIX,
                                 ylabel='count', xlabel='Sample Names')
 
         PLT.box_plot_ly(corrected_fc, title="CRISPRcleanR corrected Fold Changes sgRNA",
-                        saveto=outdir + '/08_CRISPRcleanR_corrected_fold_changes_boxplot',
+                        saveto=outdir + CFC_BOXPLOT,
                         ylabel='Fold Changes', xlabel='Sample Names')
         PLT.histogram_ly(corrected_fc, title="CRISPRcleanR Fold changes sgRNA",
-                         saveto=outdir + '/08_CRISPRcleanR_corrected_fold_changes_histogram',
+                         saveto=outdir + CFC_HIST,
                          ylabel='Fold changes', xlabel='sgRNAbins')
         PLT.correlation_plot_ly(corrected_fc,
                                 title="Correlation matrix: CRISPRcleanR corrected Fold changes sgRNA",
-                                saveto=outdir + '/08_CRISPRcleanR_corrected_foldchanges_correlation_matrix',
+                                saveto=outdir + CFC_MATRIX,
                                 ylabel='Fold changes', xlabel='Sample Names')
 
         corrected_fc['avgFC'] = corrected_fc.mean(axis=1)
@@ -252,12 +303,12 @@ class StaticMthods(object):
         alldata = alldata.join(corrected_fc, rsuffix='_cf')
         # add gene names before writing to a file
         corrected_fc.insert(0, 'gene', alldata['gene'])
-        StaticMthods._print_df(corrected_fc, outdir + "/crispr_cleanr_fold_changes.tsv")
+        StaticMthods._print_df(corrected_fc, outdir + CFC_TSV)
         # add gene names before writing to a file
         corrected_count.insert(0, 'gene', alldata['gene'])
-        StaticMthods._print_df(corrected_count, outdir + "/crispr_cleanr_corrected_counts.tsv")
+        StaticMthods._print_df(corrected_count, outdir + CC_TSV)
 
-        return alldata, outdir + '/crispr_cleanr_corrected_counts.tsv'
+        return alldata, outdir + CC_TSV, corrected_fc, outdir + CFC_TSV
 
     @staticmethod
     def _correct_counts(segdata, controls, no_rep):
@@ -276,7 +327,7 @@ class StaticMthods(object):
         n = segdata.correctedFC
         reverted['revc'] = c * (pow(2, n))
         normed_num = segdata.iloc[:, segdata.columns.get_loc('end') + controls +
-                                1:segdata.columns.get_loc('avgFC')]
+                                  1:segdata.columns.get_loc('avgFC')]
         normed_num += 1
         proportions = normed_num.div(normed_num.agg('sum', axis=1), axis=0)
         reverted = reverted * no_rep
@@ -378,3 +429,73 @@ class StaticMthods(object):
         df['tf'] = df.index.isin(positive)
         df.sort_values(by=['avgFC'], inplace=True)
         return df
+
+    @staticmethod
+    def write_results(result_cfg, outdir):
+        """
+
+        :param result_cfg: results config file
+        :param outdir: results output folder
+        :return:
+        """
+        global RESULTS_FILE
+        file_ext = '.tar.bz2'
+
+        StaticMthods._create_tar(outdir + '/' + RESULTS_FILE + file_ext, outdir)
+        generated_files = []
+        for (dirpath, dirnames, filenames) in os.walk(outdir):
+            generated_files.extend(dirnames)
+            generated_files.extend(filenames)
+
+        try:
+            f = open(outdir + '/' + RESULTS_FILE + '.html', 'w')
+            with open(result_cfg, 'r') as cfgfile:
+                cfg = json.load(cfgfile)
+                rows = {'outdir': outdir, 'file_name': RESULTS_FILE + file_ext}
+                f.write(''.join(cfg['header']).format(**rows))
+
+                f.write(cfg['table_header'].format('I', 'pdf/Plotly images'))
+                counter = 0
+                for file_name, desc in cfg['images'].items():
+                    if file_name in generated_files:
+                        counter += 1
+                        rows = {'count': counter, 'outdir': outdir, 'file_name': file_name,
+                                'description': ' '.join(desc)}
+                        f.write(cfg['table_row_images'].format(**rows))
+
+                f.write(cfg['table_header'].format('II', 'Tab separated result files'))
+                counter = 0
+                for file_name, desc in cfg['files'].items():
+                    if file_name in generated_files:
+                        counter += 1
+                        rows = {'count': counter, 'outdir': outdir, 'file_name': file_name,
+                                'description': ' '.join(desc)}
+                        f.write(cfg['table_row_files'].format(**rows))
+
+                f.write(cfg['table_header'].format('III', 'Other algorithm output folders'))
+                counter = 0
+                for file_name, desc in cfg['folders'].items():
+                    if file_name in generated_files:
+                        StaticMthods._create_tar(outdir + '/' + file_name + file_ext, outdir + '/' + file_name)
+                        counter += 1
+                        rows = {'count': counter, 'outdir': outdir, 'file_name': file_name + file_ext,
+                                'description': ' '.join(desc)}
+                        f.write(cfg['table_row_folders'].format(**rows))
+
+                f.write(cfg['footer'])
+        except IOError as ioe:
+            sys.exit('Can not create outfile:{}'.format(ioe.args[0]))
+
+        return 0
+
+    @staticmethod
+    def _create_tar(outfile_name, source_dir):
+        try:
+            with tarfile.open(outfile_name, "w:bz2") as tar:
+                tar.add(source_dir, arcname=os.path.basename(source_dir))
+        except tarfile.TarError as te:
+            log.info("error in tarfile generation:{}".format(te))
+        except IOError as ioe:
+            sys.exit('Error in tar file input folder file:{}'.format(ioe.args[0]))
+
+        return 0
