@@ -1,5 +1,7 @@
 # CHANGES
 
+## 2.0.2
+* renamed test file to avoid ignored by gitignore file
 ## 2.0.1
 * remove exit statement in BAGEL
 * added additional tests for bagel
