@@ -30,7 +30,7 @@ class TestClass():
         cpus = 1
         outdir = tempfile.mkdtemp(dir=".")
 
-        t_fcfile = testdir + 'test_fc.tsv'
+        t_fcfile = testdir + 'crispr_fc.tsv'
         expected_BAGEL_outfile = testdir + 'bagelp.out'
         bagel_output = outdir + '/bagelOut/bagel.out'
         if outdir:
