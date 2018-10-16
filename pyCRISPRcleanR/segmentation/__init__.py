@@ -37,7 +37,7 @@ def _do_segmentation(chrname, ca, fc_col):
 def run_parallel_bagel(foldchangefile, column_list, Ess, nonEss, cpus, NUM_BOOTSTRAPS=1000):
     # DEFINE REFERENCE SETS
     coreEss = np.array(Ess)
-    log.info("Number of reference ssentials: {} ".format(len(coreEss)))
+    log.info("Number of reference essentials: {} ".format(len(coreEss)))
     nonEss = np.array(nonEss)
     log.info("Number of reference nonessentials: {} ".format(len(nonEss)))
     bf, bf_dict, fc, gene_idx, genes_array = _prepare_data(foldchangefile, column_list)
@@ -74,8 +74,6 @@ def _prepare_data(foldchangefile, column_list):
     fin = open(foldchangefile)
     skipfields = fin.readline().rstrip().split('\t')
     for i in column_list:
-        print(type(i))
-        exit(0)
         print("Using column:{}".format(skipfields[i + 1]))
     for line in fin:
         fields = line.rstrip().split('\t')
