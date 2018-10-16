@@ -1,6 +1,9 @@
 # CHANGES
 
-### 2.0.0
+## 2.0.1
+* remove exit statement in BAGEL
+* added additional tests for bagel
+## 2.0.0
 * Added parallel version of BAGEL
 * Added MAGeCK
 * Html results summary and links to download data
