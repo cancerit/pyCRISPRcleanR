@@ -79,7 +79,8 @@ class PlotData(object):
         :param xlabel:
         :return:
         """
-        figure = tls.make_subplots(rows=len(df.columns), cols=1, shared_xaxes=True, shared_yaxes=True)
+        figure = tls.make_subplots(rows=len(df.columns), cols=1, shared_xaxes=True,
+                                   shared_yaxes=True, print_grid=False)
         count = 1
         for col in df.columns:
             x_val = df[col].tolist()
@@ -590,7 +591,7 @@ class PlotData(object):
         """
 
         my_fig = tls.make_subplots(subplot_titles=('preCRISPRcleanR', 'postCRISPRcleanR'), rows=2, cols=1,
-                                   shared_xaxes=True, shared_yaxes=False)
+                                   shared_xaxes=True, shared_yaxes=False, print_grid=False)
 
         hist_data = [essential['avgFC'], non_essential['avgFC'], other['avgFC']]
         group_labels = ['Essential', 'nonEssential', 'others']

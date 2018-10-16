@@ -52,7 +52,6 @@ def bootstrap_resample(X, user_seed, n=None):
 
 
 def run(bf, fc, gene_idx, genes_array, coreEss, nonEss, start, stop, thread):
-
     """
     :param bf: bayes factor dictionary
     :param fc: foldchanges
@@ -65,7 +64,6 @@ def run(bf, fc, gene_idx, genes_array, coreEss, nonEss, start, stop, thread):
     :param thread: thread number
     :return: bayes factor dictionary
     """
-    log.info("Iter", "TrainEss", "TrainNon", "TestSet")
     FC_THRESH = 2 ** -7
     sys.stdout.flush()
     count = 0
@@ -88,10 +86,12 @@ def run(bf, fc, gene_idx, genes_array, coreEss, nonEss, start, stop, thread):
         train_non = np.where(np.in1d(genes_array[gene_train_idx], nonEss))[0]
         # added condition to report output after num of iterations
         if loop % 10 == 0:
-            log.info("Thread:{} ITER:{},Training set Ess:{}, Non_ess:{}, test set:{}".format(thread, str(loop),
-                                                                                             len(train_ess),
-                                                                                             len(train_non),
-                                                                                             len(gene_test_idx)))
+            log.info(
+                "Thread:{}[{}=>{}]ITER:{} Ess:{}, nonEss:{}, test:{}".format(thread, start,
+                                                                             stop, str(loop),
+                                                                             len(train_ess),
+                                                                             len(train_non),
+                                                                             len(gene_test_idx)))
         #
         # define ess_train: vector of observed fold changes of essential genes in training set
         #
