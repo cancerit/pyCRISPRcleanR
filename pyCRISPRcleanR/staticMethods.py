@@ -2,6 +2,7 @@ import sys
 import os
 import tarfile
 import json
+import io
 from subprocess import Popen, PIPE, STDOUT
 import pandas as pd
 import numpy as np
@@ -448,8 +449,8 @@ class StaticMthods(object):
             generated_files.extend(filenames)
 
         try:
-            f = open(outdir + '/' + RESULTS_FILE + '.html', 'w')
-            with open(result_cfg, 'r', encoding="utf-8") as cfgfile:
+            f = io.open(outdir + '/' + RESULTS_FILE + '.html', 'w', encoding="utf-8")
+            with io.open(result_cfg, 'r', encoding="utf-8") as cfgfile:
                 cfg = json.load(cfgfile)
                 rows = {'outdir': outdir, 'file_name': RESULTS_FILE + file_ext}
                 f.write(''.join(cfg['header']).format(**rows))
