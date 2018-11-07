@@ -3,7 +3,7 @@
 from setuptools import setup
 
 config = {
-    'version': '2.0.2',
+    'version': '2.0.3',
     'name': 'pyCRISPRcleanR',
     'description': 'This is python implementation of CRISPRcleanR package for unsupervised identification and correction of gene independent cell responses to CRISPR-cas9 targeting',
     'author': 'Shriram Bhosle',

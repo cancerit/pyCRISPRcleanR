@@ -1,5 +1,7 @@
 # CHANGES
 
+## 2.0.3
+* Added utf-8 default encoding to read json
 ## 2.0.2
 * renamed test file to avoid ignored by gitignore file
 ## 2.0.1
