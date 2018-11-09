@@ -441,8 +441,6 @@ class StaticMthods(object):
         """
         global RESULTS_FILE
         file_ext = '.tar.bz2'
-
-        StaticMthods._create_tar(outdir + '/' + RESULTS_FILE + file_ext, outdir)
         generated_files = []
         for (dirpath, dirnames, filenames) in os.walk(outdir):
             generated_files.extend(dirnames)
@@ -484,6 +482,8 @@ class StaticMthods(object):
                         f.write(cfg['table_row_folders'].format(**rows))
 
                 f.write(cfg['footer'])
+            # crete final results tar file...
+            StaticMthods._create_tar(outdir + '/' + RESULTS_FILE + file_ext, outdir)
         except IOError as ioe:
             sys.exit('Can not create outfile:{}'.format(ioe.args[0]))
 

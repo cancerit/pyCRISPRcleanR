@@ -1,5 +1,6 @@
 # CHANGES
-
+## 2.0.4
+ * Moved tar generation step at the end to include result.html summary file in the archive
 ## 2.0.3
 * Added utf-8 default encoding to read json, fixes text encoding issue in docker build
 ## 2.0.2
