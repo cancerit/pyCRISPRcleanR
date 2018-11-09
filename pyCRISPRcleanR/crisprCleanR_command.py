@@ -8,6 +8,7 @@ import logging.config
 configdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config/')
 results_json = configdir + 'results.json'
 log_config = configdir + 'logging.conf'
+ref_genes = configdir + 'ref_genes'
 logging.config.fileConfig(log_config)
 log = logging.getLogger(__name__)
 
@@ -51,7 +52,7 @@ def main():  # pragma: no cover
                           help="flag to run CRISPRcleanR")
 
     optional.add_argument("-gs", "--gene_signatures", type=str, dest="gene_signatures", required=False,
-                          help="Directory path containing .txt files for signature genes")
+                          default=ref_genes, help="Directory path containing .txt files for signature genes")
 
     optional.add_argument("-mk", "--run_mageck", action='store_true', dest="run_mageck",
                           help="flag to run MAGeCK")
