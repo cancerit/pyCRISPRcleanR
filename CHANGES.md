@@ -1,4 +1,7 @@
 # CHANGES
+
+## 2.0.5
+* Updated version tag in setup.py
 ## 2.0.4
  * Moved tar generation step at the end to include result.html summary file in the archive
 ## 2.0.3
