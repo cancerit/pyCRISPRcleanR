@@ -1,5 +1,8 @@
 # CHANGES
 
+## 2.0.6
+* Added explicit file handler close to avoid empty files in the results archive
+
 ## 2.0.5
 * Updated version tag in setup.py
 ## 2.0.4

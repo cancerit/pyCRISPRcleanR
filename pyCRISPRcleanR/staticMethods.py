@@ -482,6 +482,8 @@ class StaticMthods(object):
                         f.write(cfg['table_row_folders'].format(**rows))
 
                 f.write(cfg['footer'])
+            # added explicit close to include file in the results archive
+            f.close()
             # crete final results tar file...
             StaticMthods._create_tar(outdir + '/' + RESULTS_FILE + file_ext, outdir)
         except IOError as ioe:
