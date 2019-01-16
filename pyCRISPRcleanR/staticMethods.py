@@ -13,8 +13,6 @@ import pkg_resources
 from pyCRISPRcleanR.plots import PlotData as PLT
 from . import segmentation
 
-version = pkg_resources.require("pyCRISPRcleanR")[0].version
-
 log = logging.getLogger(__name__)
 
 MAGECK_CMD = "mageck test --count-table {} --control-id {} --treatment-id {} --output-prefix {} --norm-method {}"
@@ -444,7 +442,7 @@ class StaticMthods(object):
         :return:
         """
         global RESULTS_FILE
-        global version
+        version = pkg_resources.require("pyCRISPRcleanR")[0].version
         file_ext = '.tar.bz2'
         generated_files = []
         for (dirpath, dirnames, filenames) in os.walk(outdir):
