@@ -1,7 +1,9 @@
 # CHANGES
+## 2.0.8
+* added version tag in write_results def to avoids tests failing
 
 ## 2.0.7
-* Signture input can be directory or archive file, modified to handle docstore json input
+* Signture input can be directory or archive file, modified to handle dockstore json input
 * Signature names now automatically constructed based on file names
 ## 2.0.6
 * Added explicit file handler close to avoid empty files in the results archive
