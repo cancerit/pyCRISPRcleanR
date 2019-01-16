@@ -1,4 +1,6 @@
 # CHANGES
+## 2.0.8
+* added version tag to results module, avoids failing tests
 
 ## 2.0.7
 * Signture input can be directory or archive file, modified to handle docstore json input
