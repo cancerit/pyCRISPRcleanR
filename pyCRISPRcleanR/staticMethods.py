@@ -3,23 +3,24 @@ import os
 import tarfile
 import json
 import io
+import tempfile
 from subprocess import Popen, PIPE, STDOUT
 import pandas as pd
 import numpy as np
 import logging
+import pkg_resources
+
 from pyCRISPRcleanR.plots import PlotData as PLT
 from . import segmentation
+
+version = pkg_resources.require("pyCRISPRcleanR")[0].version
 
 log = logging.getLogger(__name__)
 
 MAGECK_CMD = "mageck test --count-table {} --control-id {} --treatment-id {} --output-prefix {} --norm-method {}"
-SIGNATURE_FILES = ("essential", "non_essential", "dna_replication", "rna_polymerase",
-                   "proteasome", "ribosomal_proteins", "spliceosome")
 CONTROL_SAMPLES = 'NA'
 TREATMENT_SAMPLES = 'NA'
-
 RESULTS_FILE = 'results'
-
 RAW_BOXPLOT = "/01_raw_counts_boxplot"
 RAW_HIST = "/01_raw_counts_histogram"
 RAW_MATRIX = "/01_raw_counts_correlation_matrix"
@@ -35,7 +36,6 @@ CC_MATRIX = "/07_CRISPRcleanR_corrected_count_correlation_matrix"
 CFC_BOXPLOT = "/08_CRISPRcleanR_corrected_fold_changes_boxplot"
 CFC_HIST = "/08_CRISPRcleanR_corrected_fold_changes_histogram"
 CFC_MATRIX = "/08_CRISPRcleanR_corrected_fold_changes_correlation_matrix"
-
 NC_TSV = "/01_normalised_counts.tsv"
 NFC_TSV = "/02_normalised_fold_changes.tsv"
 CFC_TSV = "/04_crispr_cleanr_fold_changes.tsv"
@@ -386,16 +386,20 @@ class StaticMthods(object):
             sys.exit("Unable to run command:{} Error:{}".format(cmd, oe.args[0]))
 
     @staticmethod
-    def load_signature_files(sig_dir_path, df):
+    def load_signature_files(sig_dir_path_org, df):
         """
         :param sig_dir_path:
+        :param df data frame
+        :param input type ,tar or dir
         :return: signature_dict
         """
         signature_dict = {}
         signature = None
+        sig_dir_path_list = StaticMthods._format_tar_input(sig_dir_path_org)
+
         try:
-            for signature in SIGNATURE_FILES:
-                with open(sig_dir_path + '/' + signature + '.txt') as f:
+            for sig_file, signature in sig_dir_path_list:
+                with open(sig_file) as f:
                     gene_list = f.read().splitlines()
                     sgRNA_list = df[df.gene.isin(gene_list)].index.tolist()
                     signature_dict[signature + '_sgRNAs'] = sgRNA_list
@@ -440,6 +444,7 @@ class StaticMthods(object):
         :return:
         """
         global RESULTS_FILE
+        global version
         file_ext = '.tar.bz2'
         generated_files = []
         for (dirpath, dirnames, filenames) in os.walk(outdir):
@@ -450,7 +455,7 @@ class StaticMthods(object):
             f = io.open(outdir + '/' + RESULTS_FILE + '.html', 'w', encoding="utf-8")
             with io.open(result_cfg, 'r', encoding="utf-8") as cfgfile:
                 cfg = json.load(cfgfile)
-                rows = {'outdir': outdir, 'file_name': RESULTS_FILE + file_ext}
+                rows = {'version': version, 'outdir': outdir, 'file_name': RESULTS_FILE + file_ext}
                 f.write(''.join(cfg['header']).format(**rows))
 
                 f.write(cfg['table_header'].format('I', 'pdf/Plotly images'))
@@ -502,3 +507,36 @@ class StaticMthods(object):
             sys.exit('Error in tar file input folder file:{}'.format(ioe.args[0]))
 
         return 0
+
+    @staticmethod
+    def _format_tar_input(file_path):
+        """
+          creates tmp directoy to extract the signature files
+          or use directory as it to list the number on signature files in it
+        """
+        try:
+            if tarfile.is_tarfile(file_path):
+                with tarfile.open(file_path, 'r') as tar:
+                    log.info('Processing signature tar file')
+                    tmp_path = tempfile.mkdtemp(dir=".")
+                    tar.extractall(path=tmp_path, members=tar.getmembers())
+                    log.info(('Signature file extraction completed at:', tmp_path))
+                    return StaticMthods._format_dir_input(tmp_path)
+        except IsADirectoryError:
+            return StaticMthods._format_dir_input(file_path)
+
+    @staticmethod
+    def _format_dir_input(file_path):
+        """
+          creates a diretory object of key = file name and
+          values = [file paths, name, extension, size]
+        """
+        path_list = []
+        for dirpath, _, files in os.walk(file_path):
+            for filename in files:
+                fullpath = os.path.join(dirpath, filename)
+                (_, name) = os.path.split(fullpath)
+                (name_no_ext, ext) = os.path.splitext(name)
+                path_list.append([fullpath, name_no_ext])
+
+        return path_list

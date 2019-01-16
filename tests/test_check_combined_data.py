@@ -26,7 +26,8 @@ class TestClass():
         min_read_count = 30
         min_target_genes = 3
         ignored_genes = []
-        gene_sig_dir = testdir + '/ref_genes/'
+
+        gene_sig_tar = testdir + 'ref_genes.tar.gz'
         cpus = 1
         outdir = tempfile.mkdtemp(dir=".")
 
@@ -49,8 +50,7 @@ class TestClass():
                                                                                                                   outdir=outdir)
         assert (2038, 14) == cldf.shape, 'get_norm_count_n_fold_changes'
         assert 3 == no_rep, 'number of replicates'
-        ref_gene_list_dict = mystatic_obj.load_signature_files(gene_sig_dir, cldf)
-
+        ref_gene_list_dict = mystatic_obj.load_signature_files(gene_sig_tar, cldf)
         obs_pred_df = mystatic_obj.get_obs_predictions(sgRNAFC, ref_gene_list_dict['essential_sgRNAs'],
                                                        ref_gene_list_dict['non_essential_sgRNAs'])
         assert (94, 2) == obs_pred_df.shape, 'get data for roc'

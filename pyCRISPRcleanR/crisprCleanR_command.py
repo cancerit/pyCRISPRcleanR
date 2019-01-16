@@ -52,7 +52,8 @@ def main():  # pragma: no cover
                           help="flag to run CRISPRcleanR")
 
     optional.add_argument("-gs", "--gene_signatures", type=str, dest="gene_signatures", required=False,
-                          default=ref_genes, help="Directory path containing .txt files for signature genes")
+                          default=ref_genes, help="Path to a directory or tar archive \
+                          containing files for signature genes")
 
     optional.add_argument("-mk", "--run_mageck", action='store_true', dest="run_mageck",
                           help="flag to run MAGeCK")
