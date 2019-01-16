@@ -3,7 +3,7 @@
 from setuptools import setup
 
 config = {
-    'version': '2.0.6',
+    'version': '2.0.7',
     'name': 'pyCRISPRcleanR',
     'description': 'This is python implementation of CRISPRcleanR package for unsupervised identification and correction of gene independent cell responses to CRISPR-cas9 targeting',
     'author': 'Shriram Bhosle',
@@ -13,7 +13,7 @@ config = {
     'setup_requires': ['pytest','pytest-cover', 'radon'],
     'install_requires': ['scipy','rpy2', 'pandas', 'numpy', 'plotly', 'tzlocal'],
     'packages': ['pyCRISPRcleanR'],
-    'package_data': {'pyCRISPRcleanR':['config/*.conf','config/*.json','config/ref_genes/*.txt','segmentation/*.py']},
+    'package_data': {'pyCRISPRcleanR':['config/*.conf','config/*.json','config/*.tar.gz','config/ref_genes/*.txt','segmentation/*.py']},
     'entry_points': {
         'console_scripts': ['pyCRISPRcleanR=pyCRISPRcleanR.crisprCleanR_command:main'],
     }

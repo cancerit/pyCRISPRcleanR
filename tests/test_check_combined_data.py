@@ -27,6 +27,17 @@ class TestClass():
         min_target_genes = 3
         ignored_genes = []
         gene_sig_dir = testdir + '/ref_genes/'
+
+        sig_ref_files=[[gene_sig_dir+'dna_replication.txt', 'dna_replication'],
+                       [gene_sig_dir + 'essential.txt', 'essential'],
+                       [gene_sig_dir + 'non_essential.txt', 'non_essential'],
+                       [gene_sig_dir + 'proteasome.txt', 'proteasome'],
+                       [gene_sig_dir + 'ribosomal_proteins.txt', 'ribosomal_proteins'],
+                       [gene_sig_dir + 'rna_polymerase.txt', 'rna_polymerase'],
+                       [gene_sig_dir + 'spliceosome.txt', 'spliceosome']
+                       ]
+
+        gene_sig_tar = testdir + 'ref_genes.tar.gz'
         cpus = 1
         outdir = tempfile.mkdtemp(dir=".")
 
@@ -50,7 +61,9 @@ class TestClass():
         assert (2038, 14) == cldf.shape, 'get_norm_count_n_fold_changes'
         assert 3 == no_rep, 'number of replicates'
         ref_gene_list_dict = mystatic_obj.load_signature_files(gene_sig_dir, cldf)
-
+        ref_gene_list_dict_tar = mystatic_obj.load_signature_files(gene_sig_tar, cldf)
+        assert len(ref_gene_list_dict) == len(ref_gene_list_dict_tar), 'dictionaries are identical'
+        assert sig_ref_files == mystatic_obj._format_dir_input(gene_sig_dir)
         obs_pred_df = mystatic_obj.get_obs_predictions(sgRNAFC, ref_gene_list_dict['essential_sgRNAs'],
                                                        ref_gene_list_dict['non_essential_sgRNAs'])
         assert (94, 2) == obs_pred_df.shape, 'get data for roc'
