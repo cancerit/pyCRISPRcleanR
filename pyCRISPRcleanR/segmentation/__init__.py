@@ -11,10 +11,12 @@ log = logging.getLogger(__name__)
 
 def do_segmentation(cnarr, cpus, fc_col='avgFC'):
     cnseg_dict = {}
+
     with Pool(cpus) as (pool):
         result = list(pool.map(_ds, ((chrname, ca, fc_col) for chrname, ca in cnarr.groupby('chr'))))
-        for result_dict in result:
-            cnseg_dict.update(result_dict)
+        if result:
+            for result_dict in result:
+                cnseg_dict.update(result_dict)
     return cnseg_dict
 
 

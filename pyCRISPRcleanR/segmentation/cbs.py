@@ -2,6 +2,7 @@ import sys
 from rpy2.robjects import r, pandas2ri
 from rpy2.robjects.packages import importr
 import logging
+import numpy as np
 
 log = logging.getLogger(__name__)
 
@@ -28,9 +29,9 @@ def runCBS(cnarr, fc_col='avgFC'):
     # set seed
     base.set_seed(0xA5EED)
     cna = dnacopy.CNA(tbl.rx2(fc_col), tbl.rx2('chr'), tbl.rx2('BP'), **kwargs)
-
+    
     smoothed_cna = dnacopy.smooth_CNA(cna)
+
     cnseg = dnacopy.segment(smoothed_cna, verbose=1)
     segrows = pandas2ri.ri2py(cnseg.rx2('segRows'))
-
     return segrows, cnseg

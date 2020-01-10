@@ -5,12 +5,12 @@
     "#results tr:nth-child(even){{background-color: #f2f2f2;}}",
     "#results tr:hover {{background-color: #ddd;}}",
     "#results th {{padding-top: 12px; padding-bottom: 12px; text-align: left; background-color: lightblue; color: black;}} </style></head>",
-              "<body> <h2>CRISPRcleanR v{version} Analysis Results [<a href=\" ../{outdir}/{file_name}\">results.tar.bz2 </a> (download link suppressed in Docker)]</h2> <table style=\"width:100%\" id=\"results\">"],
+              "<body> <h2>CRISPRcleanR v{version} Analysis Results [<a href=\" {outdir}/{file_name}\">results.tar.bz2 </a> (download link suppressed in Docker)]</h2> <table style=\"width:100%\" id=\"results\">"],
   "table_header": "<tr><th>{}</th><th>{}</th><th>Description</th></tr>",
 
-  "table_row_images" : "<tr><td>{count}</td> <td><a href=\" ../{outdir}/{file_name}\"  target=\"_blank\" >{file_name}</a></td><td>{description}</td></tr>",
-  "table_row_files" : "<tr><td>{count}</td> <td><a href=\" ../{outdir}/{file_name}\">{file_name}</a></td><td>{description}</td></tr>",
-  "table_row_folders" : "<tr><td>{count}</td> <td><a href=\" ../{outdir}/{file_name}\">{file_name}</a></td><td>{description}</td></tr>",
+  "table_row_images" : "<tr><td>{count}</td> <td><a href=\" {outdir}/{file_name}\"  target=\"_blank\" >{file_name}</a></td><td>{description}</td></tr>",
+  "table_row_files" : "<tr><td>{count}</td> <td><a href=\" {outdir}/{file_name}\">{file_name}</a></td><td>{description}</td></tr>",
+  "table_row_folders" : "<tr><td>{count}</td> <td><a href=\" {outdir}/{file_name}\">{file_name}</a></td><td>{description}</td></tr>",
 
   "intermediate_row" : "<tr><th>{}</th></tr>",
 

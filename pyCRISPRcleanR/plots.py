@@ -115,8 +115,13 @@ class PlotData(object):
             dimensions.append(d1)
 
         trace1 = go.Splom(dimensions=dimensions, diagonal=dict(visible=False))
-        trace1['dimensions'][1].update(visible=True)
-        trace1['showupperhalf'] = False
+	
+        t_len = len(trace1['dimensions'])
+   
+        if t_len > 1:
+            trace1['dimensions'][1].update(visible=True)
+        if t_len > 2:
+            trace1['showupperhalf'] = False
         annotation_list = []
         yaxis_val = 1
         xcounter = 0
@@ -132,6 +137,7 @@ class PlotData(object):
                     continue
                 if xcounter < ycounter:
                     continue
+
                 slope, intercept, r_value, p_value, std_err = stats.linregress(df[col1], df[col2])
                 # line = slope * df[col1] + intercept
                 format_r_value = "<i>{}_vs_{}: R<sup>2</sup>={:02.2f}</i>".format(col1, col2, r_value)
@@ -194,39 +200,40 @@ class PlotData(object):
         :param saveto:
         :return:
         """
+
         df, roc_auc, sens, _ = PlotData._roc_curve_r(df.tf.values, df.avgFC.values)
+        if not np.isnan(_):
+          recall = df.sensitivity.values
+          tnr = df.specificity.values
 
-        recall = df.sensitivity.values
-        tnr = df.specificity.values
+          lw = 2
 
-        lw = 2
-
-        trace1 = go.Scatter(x=tnr, y=recall,
+          trace1 = go.Scatter(x=tnr, y=recall,
                             mode='lines',
                             line=dict(color='darkorange', width=lw),
                             showlegend=False
                             )
 
-        trace2 = go.Scatter(x=[1, 0], y=[0, 1],
+          trace2 = go.Scatter(x=[1, 0], y=[0, 1],
                             mode='lines',
                             line=dict(color='black', width=0.5),
                             showlegend=False
                             )
 
-        abline = go.Scatter(x=[0, 1], y=[sens, sens],
+          abline = go.Scatter(x=[0, 1], y=[sens, sens],
                             mode='lines',
                             line=dict(color='black', width=0.5, dash='dash'),
                             showlegend=False
                             )
-        labels = {
+          labels = {
             'x': [0],
             'y': [0],
             'legendgroup': 'group',  # this can be any string, not just "group"
             'name': "Recall {}%FDR={:04.2f} <br></br> AUC={:04.2f}".format(100 * fdrth, sens, roc_auc),
             'opacity': 0,
 
-        }
-        layout = go.Layout(title='Receiver operating characteristic({})'.format(data_type),
+          }
+          layout = go.Layout(title='Receiver operating characteristic({})'.format(data_type),
                            xaxis=dict(title='TNR',
                                       autorange='reversed',
                                       showline=False,
@@ -240,9 +247,9 @@ class PlotData(object):
                                        )
                            )
 
-        figure = go.Figure(data=[trace1, trace2, abline, labels], layout=layout)
+          figure = go.Figure(data=[trace1, trace2, abline, labels], layout=layout)
 
-        py.plot(figure, filename=saveto + '_' + data_type + '.html', auto_open=False,
+          py.plot(figure, filename=saveto + '_' + data_type + '.html', auto_open=False,
                 config=PlotData.plotly_conf())
 
         return None
@@ -266,10 +273,15 @@ class PlotData(object):
         cords = numpy2ri.ri2py(COORS)
         df = pd.DataFrame(cords.T, columns=columns)
         FDR5percTh = (df[df.ppv >= (1 - FDRth)])['threshold'].max()
-        index_min = min(df[df.threshold <= FDR5percTh].index.tolist())
+        if not np.isnan(FDR5percTh):
+            index_min = min(df[df.threshold <= FDR5percTh].index.tolist())
+        else:
+            index_min = 0
+
         threshold = df.at[index_min, 'threshold']
         SENS = df.at[index_min, 'sensitivity']
         SPEC = df.at[index_min, 'specificity']
+
         return df, auc, SENS, FDR5percTh
 
     @staticmethod
@@ -283,42 +295,44 @@ class PlotData(object):
         """
         observations = df.tf.values
         predictions = -df.avgFC.values
-        df, auc, SENS = PlotData._pr_rc_curve_r(observations, predictions, FDRth=FDRth)
-        h1abline = 1 - FDRth
-        h2abline = sum(observations) / observations.size
+        df, auc, SENS, FDR5percTh = PlotData._pr_rc_curve_r(observations, predictions, FDRth=FDRth)
 
-        trace1 = go.Scatter(x=df.recall.values, y=df.precision.values,
+        if not np.isnan(FDR5percTh):
+            h1abline = 1 - FDRth
+            h2abline = sum(observations) / observations.size
+
+            trace1 = go.Scatter(x=df.recall.values, y=df.precision.values,
                             mode='lines',
                             line=dict(color='navy', width=2),
                             showlegend=False
                             )
 
-        ablineh1 = go.Scatter(x=[0, 1], y=[h1abline, h1abline],
+            ablineh1 = go.Scatter(x=[0, 1], y=[h1abline, h1abline],
                               mode='lines',
                               line=dict(color='black', width=0.5, dash='dash'),
                               showlegend=False
                               )
-        ablineh2 = go.Scatter(x=[0, 1], y=[h2abline, h2abline],
+            ablineh2 = go.Scatter(x=[0, 1], y=[h2abline, h2abline],
                               mode='lines',
                               line=dict(color='black', width=0.5),
                               showlegend=False
                               )
 
-        ablinev1 = go.Scatter(x=[SENS, SENS], y=[0, 1],
+            ablinev1 = go.Scatter(x=[SENS, SENS], y=[0, 1],
                               mode='lines',
                               line=dict(color='black', width=0.5),
                               showlegend=False
                               )
 
-        labels = {
-            'x': [0],
-            'y': [0],
-            'legendgroup': 'group',  # this can be any string, not just "group"
-            'name': "Recall {}%FDR={:04.2f} <br></br> AUC={:04.2f}".format(100 * FDRth, SENS, auc),
-            'opacity': 0,
+            labels = {
+              'x': [0],
+              'y': [0],
+              'legendgroup': 'group',  # this can be any string, not just "group"
+              'name': "Recall {}%FDR={:04.2f} <br></br> AUC={:04.2f}".format(100 * FDRth, SENS, auc),
+              'opacity': 0,
 
-        }
-        layout = go.Layout(title='Precision-Recall({}): AUC={:.2f}'.format(data_type, auc),
+            }
+            layout = go.Layout(title='Precision-Recall({}): AUC={:.2f}'.format(data_type, auc),
                            xaxis=dict(title='Recall'
                                       ),
                            yaxis=dict(title='Precision'),
@@ -328,9 +342,9 @@ class PlotData(object):
                                        )
                            )
 
-        figure = go.Figure(data=[trace1, ablineh1, ablineh2, ablinev1, labels], layout=layout)
+            figure = go.Figure(data=[trace1, ablineh1, ablineh2, ablinev1, labels], layout=layout)
 
-        py.plot(figure, filename=saveto + '_' + data_type + '.html', auto_open=False,
+            py.plot(figure, filename=saveto + '_' + data_type + '.html', auto_open=False,
                 config=PlotData.plotly_conf())
 
         return None
@@ -352,11 +366,15 @@ class PlotData(object):
         cols = ['recall', 'precision', 'threshold']
         df = pd.DataFrame(curve, columns=cols)
         FDR5percTh = - (df[df.precision >= (1 - FDRth)])['threshold'].min()
-        index_min = min(df[df.precision >= (1 - FDRth)].index.tolist())
+        if not np.isnan(FDR5percTh):
+            index_min = min(df[df.precision >= (1 - FDRth)].index.tolist())
+        else:
+            index_min = 0
+
         SENS = df.at[index_min, 'recall']
         threshold = -FDR5percTh
 
-        return df, auc, SENS
+        return df, auc, SENS, FDR5percTh
 
     @staticmethod
     def depletion_profile_with_gene_signature(FCsprofile, signatures, df, fdrth=0.05, data_type='genes',
@@ -451,59 +469,60 @@ class PlotData(object):
                               )
         trace_list.append(ablineh1)
         # axis and labels
-        ypos = int(round(log10(FDRpercRANK)))
-        fdr_label = dict(
-            x=max_log - 1, y=ypos + 0.12,
-            xref='x',
-            yref='y',
-            text="{}%FDR".format(100 * fdrth),
-            showarrow=False,
-            font=dict(
-                size=16,
-                color='red'
-            ),
-            align='center'
-        )
+        if FDRpercRANK > 0:
+            ypos = int(round(log10(FDRpercRANK)))
+            fdr_label = dict(
+                x=max_log - 1, y=ypos + 0.12,
+                xref='x',
+                yref='y',
+                text="{}%FDR".format(100 * fdrth),
+                showarrow=False,
+                font=dict(
+                    size=16,
+                    color='red'
+                ),
+                align='center'
+            )
 
-        x_label1 = dict(
-            x=0.25,
-            y=-0.075,
-            showarrow=False,
-            text="LogFC",
-            xref='paper',
-            yref='paper',
-            font=dict(size=14)
-        )
+            x_label1 = dict(
+                x=0.25,
+                y=-0.075,
+                showarrow=False,
+                text="LogFC",
+                xref='paper',
+                yref='paper',
+                font=dict(size=14)
+            )
 
-        x_label2 = dict(
-            x=0.85,
-            y=-0.075,
-            showarrow=False,
-            text="% of genes below {}%FDR cutoff".format(100 * fdrth),
-            xref='paper',
-            yref='paper',
-            font=dict(size=14)
-        )
+            x_label2 = dict(
+                x=0.85,
+                y=-0.075,
+                showarrow=False,
+                text="% of genes below {}%FDR cutoff".format(100 * fdrth),
+                xref='paper',
+                yref='paper',
+                font=dict(size=14)
+            )
 
-        annotations_list.append(fdr_label)
-        annotations_list.append(x_label1)
-        annotations_list.append(x_label2)
+            annotations_list.append(fdr_label)
+            annotations_list.append(x_label1)
+            annotations_list.append(x_label2)
 
-        layout = go.Layout(
-            title='Depletion Profile: {}'.format(data_type),
-            xaxis=dict(
-                title="",
-                showline=True,
-                showgrid=False,
-                zeroline=True,
-                range=[min_log, count],
-                ticks="",
-                showticklabels=True,
-                ticktext=labels,
-                tickvals=tickvalue,
-                dtick=1
-            ),
-            yaxis=dict(title='Depeltion Rank',
+            layout = go.Layout(
+                title='Depletion Profile: {}'.format(data_type),
+                xaxis=dict(
+                    title="",
+                    showline=True,
+                    showgrid=False,
+                    zeroline=True,
+                    range=[min_log, count],
+                    ticks="",
+                    showticklabels=True,
+                    ticktext=labels,
+                    tickvals=tickvalue,
+                    dtick=1
+                ),
+                yaxis=dict(title='Depeltion Rank',
                        autorange='reversed',
                        showgrid=False,
                        range=[1, y_fc],
@@ -515,19 +534,19 @@ class PlotData(object):
                        domain=[1, 1],
                        dtick=1,
                        ),
-            annotations=annotations_list
+                annotations=annotations_list
 
-        )
+            )
 
-        figure = go.Figure(data=trace_list, layout=layout)
+            figure = go.Figure(data=trace_list, layout=layout)
 
-        if save_image:
-            py.plot(figure, filename=saveto + '_' + data_type + '.html', auto_open=False,
-                    config=PlotData.plotly_conf(),
-                    image='jpeg', image_filename=saveto, image_width=1200, image_height=800)
-        else:
-            py.plot(figure, filename=saveto + '_' + data_type + '.html', auto_open=False,
-                    config=PlotData.plotly_conf())
+            if save_image:
+                py.plot(figure, filename=saveto + '_' + data_type + '.html', auto_open=False,
+                        config=PlotData.plotly_conf(),
+                        image='jpeg', image_filename=saveto, image_width=1200, image_height=800)
+            else:
+                py.plot(figure, filename=saveto + '_' + data_type + '.html', auto_open=False,
+                        config=PlotData.plotly_conf())
 
         return None
 
