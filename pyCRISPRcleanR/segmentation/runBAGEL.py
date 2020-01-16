@@ -64,6 +64,7 @@ def run(bf, fc, gene_idx, genes_array, coreEss, nonEss, start, stop, thread):
     :param thread: thread number
     :return: bayes factor dictionary
     """
+    log.info("Bagel version: 0.91")
     FC_THRESH = 2 ** -7
     sys.stdout.flush()
     count = 0

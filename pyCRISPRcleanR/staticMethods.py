@@ -16,6 +16,7 @@ from . import segmentation
 log = logging.getLogger(__name__)
 
 MAGECK_CMD = "mageck test --count-table {} --control-id {} --treatment-id {} --output-prefix {} --norm-method {}"
+MAGECK_VER = "mageck -v"
 CONTROL_SAMPLES = 'NA'
 TREATMENT_SAMPLES = 'NA'
 RESULTS_FILE = 'results'
@@ -352,6 +353,7 @@ class StaticMthods(object):
 
         cmd = MAGECK_CMD.format(count_file, CONTROL_SAMPLES, TREATMENT_SAMPLES,
                                 outfile_prefix, 'none')
+        StaticMthods._run_command(MAGECK_VER)
         StaticMthods._run_command(cmd)
         return outfile_prefix + '.gene_summary.txt'
 
@@ -373,7 +375,9 @@ class StaticMthods(object):
             log.info("running command:{}".format(cmd))
             (out, error) = cmd_obj.communicate()
             exit_code = cmd_obj.returncode
-            if (exit_code == 0):
+            if(exit_code == 0 and cmd == "mageck -v"):
+                log.info("mageck version: "+out)
+            elif (exit_code == 0):
                 log.info("mageck run successfully")
             else:
                 log.debug("Error: mageck exited with non zero exit status, please check log file more details")
