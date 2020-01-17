@@ -201,8 +201,8 @@ class PlotData(object):
         :return:
         """
 
-        df, roc_auc, sens, _ = PlotData._roc_curve_r(df.tf.values, df.avgFC.values)
-        if not np.isnan(_):
+        df, roc_auc, sens, FDR5percTh = PlotData._roc_curve_r(df.tf.values, df.avgFC.values)
+        if not np.isnan(FDR5percTh):
           recall = df.sensitivity.values
           tnr = df.specificity.values
 
