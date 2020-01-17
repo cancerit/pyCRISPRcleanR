@@ -64,6 +64,7 @@ def run(bf, fc, gene_idx, genes_array, coreEss, nonEss, start, stop, thread):
     :param thread: thread number
     :return: bayes factor dictionary
     """
+    log.info("Bagel version: 0.91")
     FC_THRESH = 2 ** -7
     sys.stdout.flush()
     count = 0
@@ -120,11 +121,13 @@ def run(bf, fc, gene_idx, genes_array, coreEss, nonEss, start, stop, thread):
         logratio_sample = np.log2(kess.evaluate(subx) / knon.evaluate(subx))
         f = np.where(logratio_sample == logratio_sample.min())
         xmax = round_to_hundredth(subx[f])
+        xmax = xmax.max()
         #
         # round foldchanges to nearest 0.01
         # precalculate logratios and build lookup table (for speed)
         #
         logratio_lookup = {}
+
         for i in np.arange(xmin, xmax + 0.01, 0.01):
             logratio_lookup[round(i * 100)] = np.log2(kess.evaluate(i) / knon.evaluate(i))
         #
