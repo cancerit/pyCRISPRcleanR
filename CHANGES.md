@@ -1,4 +1,7 @@
 # CHANGES
+## 2.1.0
+* Fixed so that plots aren't generated when not enough data
+
 ## 2.0.8
 * added version tag in write_results def to avoids tests failing
 
