@@ -80,6 +80,8 @@ class CrisprCleanR(AbstractCrispr):
                 ref_gene_list_dict = SM.load_signature_files(gene_sig_dir, cldf)
                 if self.run_bagel:
                     log.info("Running Bagel on normalised fold changes .....")
+                    cr = ','.join(map(lambda x: "%d" % x, range(1, fc.shape[1] - 1, 1)))
+                    log.info("python BAGEL.py -i "+outdir+"/02_normalised_fold_changes.tsv -o "+outdir+"/bagelOut/normalised_FC_bagel.out -e "+gene_sig_dir+"/essential.txt -n "+gene_sig_dir+"/non_essential.txt -c "+str(cr)+" --numiter "+str(iter))
                     SM.run_bagel(fcfile, ref_gene_list_dict['essential_genes'],
                             ref_gene_list_dict['non_essential_genes'], cpus,
                             column_list=list(range(1, fc.shape[1] - 1, 1)), NUM_BOOTSTRAPS=iter,
@@ -118,6 +120,8 @@ class CrisprCleanR(AbstractCrispr):
 
                     if self.run_bagel:
                         log.info("Running Bagel on crisprcleanr corrected fold changes .....")
+                        cr = ','.join(map(lambda x: "%d" % x, range(1, crispr_fc.shape[1] - 1, 1)))
+                        log.info("python BAGEL.py -i "+outdir+"/04_crispr_cleanr_fold_changes.tsv -o "+outdir+"/bagelOut/CRISPRcleanR_FC_bagel.out -e "+gene_sig_dir+"/essential.txt -n "+gene_sig_dir+"/non_essential.txt -c "+str(cr)+" --numiter "+str(iter))
                         SM.run_bagel(crispr_fc_file, ref_gene_list_dict['essential_genes'],
                                 ref_gene_list_dict['non_essential_genes'], cpus,
                                 column_list=list(range(1, crispr_fc.shape[1] - 1, 1)), NUM_BOOTSTRAPS=iter,
