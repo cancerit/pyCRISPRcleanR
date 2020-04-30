@@ -21,3 +21,4 @@ htmlcov
 .idea
 .pytest_cache*
 pyCRISPRcleanR.egg-info/
+/.vscode
