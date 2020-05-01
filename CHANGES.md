@@ -1,4 +1,7 @@
 # CHANGES
+## 2.1.1
+* Fixed the bug: when no `-gs` is supplied, tools exits with "File not not found" error. 
+
 ## 2.1.0
 * Fixed so that plots aren't generated when not enough data
 

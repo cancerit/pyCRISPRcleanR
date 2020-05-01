@@ -8,7 +8,7 @@ import logging.config
 configdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config/')
 results_json = configdir + 'results.json'
 log_config = configdir + 'logging.conf'
-ref_genes = configdir + 'ref_genes'
+ref_genes = configdir + 'ref_genes.tar.gz'
 logging.config.fileConfig(log_config)
 log = logging.getLogger(__name__)
 
