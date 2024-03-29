@@ -1,6 +1,6 @@
 pip==10.0.1
 tzlocal==1.5.1
-numpy==1.14.3
+numpy==1.22.2
 pandas==0.22.0
 rpy2==2.9.3
 plotly==3.1.0
@@ -9,3 +9,6 @@ pytest==3.5.1
 radon==2.2.0
 pytest-cov==2.5.1
 https://sourceforge.net/projects/mageck/files/0.5/mageck-0.5.7.tar.gz
+certifi>=2023.7.22 # not directly required, pinned by Snyk to avoid a vulnerability
+jupyter-core>=4.11.2 # not directly required, pinned by Snyk to avoid a vulnerability
+requests>=2.31.0 # not directly required, pinned by Snyk to avoid a vulnerability
