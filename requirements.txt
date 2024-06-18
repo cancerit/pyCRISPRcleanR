@@ -9,3 +9,4 @@ pytest==3.5.1
 radon==2.2.0
 pytest-cov==2.5.1
 https://sourceforge.net/projects/mageck/files/0.5/mageck-0.5.7.tar.gz
+urllib3>=2.2.2 # not directly required, pinned by Snyk to avoid a vulnerability
